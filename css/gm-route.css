@@ -1,4 +1,6 @@
-.gm-route-tools button.active{
+.gm-overlay-tools{display:grid!important;grid-template-columns:repeat(3,1fr);gap:6px}
+.gm-overlay-tools button{min-width:0;padding-left:5px!important;padding-right:5px!important;font-size:11px!important}
+.gm-overlay-tools button.active{
   background:#4a3523!important;
   border-color:#d1a667!important;
   box-shadow:0 0 0 1px #8e6d45aa,0 0 12px #d3a75833!important;
@@ -16,7 +18,7 @@
 .gm-route-status.on-route{border-color:#50664e;color:#9fbd98}
 .gm-route-status.off-route{border-color:#83504a;color:#d89b90}
 
-.gm-solution-overlay{pointer-events:none}
+.gm-overlay-root,.gm-solution-overlay,.gm-map-overlay{pointer-events:none}
 .gm-solution-line{
   stroke:#79d7ce;
   stroke-width:.82;
@@ -37,7 +39,6 @@
   font-size:.72px;
   font-weight:700;
   text-anchor:middle;
-  pointer-events:none;
 }
 .gm-solution-vertical-ring{
   fill:#10211f;
@@ -51,5 +52,31 @@
   font-size:1.35px;
   font-weight:700;
   text-anchor:middle;
-  pointer-events:none;
+}
+
+.gm-map-name-bg{
+  fill:#0f0c0a;
+  fill-opacity:.92;
+  stroke:#92774f;
+  stroke-width:.12;
+}
+.gm-map-name-text{
+  fill:#f1dfc1;
+  font-family:Arial,sans-serif;
+  font-size:.74px;
+  font-weight:700;
+  text-anchor:middle;
+}
+.gm-map-id-bg{
+  fill:#261b12;
+  fill-opacity:.96;
+  stroke:#d5aa69;
+  stroke-width:.12;
+}
+.gm-map-id-text{
+  fill:#ffe7bd;
+  font-family:Arial,sans-serif;
+  font-size:.55px;
+  font-weight:700;
+  text-anchor:middle;
 }
