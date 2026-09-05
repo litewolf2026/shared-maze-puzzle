@@ -17,7 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Check JavaScript syntax
-        run: node --check js/app.js
+        run: |
+          node --check js/app.js
+          node --check js/direction-ui.js
+          node --check js/gm-route.js
       - name: Validate maps and cipher references
         run: node tests/validate.mjs
       - name: Validate unique shortest band route
