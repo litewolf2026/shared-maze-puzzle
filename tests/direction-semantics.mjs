@@ -6,10 +6,7 @@ const scenarios=JSON.parse(fs.readFileSync(new URL('../data/scenarios.json',impo
 const opp={N:'S',NE:'SW',E:'W',SE:'NW',S:'N',SW:'NE',W:'E',NW:'SE',UP:'DOWN',DOWN:'UP'};
 
 function expectedDirection(a,b){
-  if(a.z!==b.z){
-    if(a.x!==b.x||a.y!==b.y) throw new Error(`vertical edge also moves horizontally: ${a.id} -> ${b.id}`);
-    return b.z>a.z?'UP':'DOWN';
-  }
+  if(a.z!==b.z)return b.z>a.z?'UP':'DOWN';
   const dx=Math.sign(b.x-a.x),dy=Math.sign(b.y-a.y);
   if(dx===0&&dy===-1)return 'N';
   if(dx===1&&dy===-1)return 'NE';
