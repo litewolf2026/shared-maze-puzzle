@@ -1,0 +1,1 @@
+window.MAZE_CONFIG = {};
