@@ -3,19 +3,21 @@ const NS='http://www.w3.org/2000/svg';
 let map=null;
 let trace=[];
 let routeVisible=false;
+let namesVisible=false;
+let idsVisible=false;
 let installed=false;
 let drawing=false;
 
 function gmEnabled(){
   const toggle=document.querySelector('#gmToggle');
-  return Boolean(toggle && getComputedStyle(toggle).display!=='none');
+  return Boolean(toggle&&getComputedStyle(toggle).display!=='none');
 }
 
 async function loadMap(){
   if(map)return map;
   const [mapsRes,scenariosRes]=await Promise.all([
-    fetch('./data/maps.json?v=20260906-gmroute',{cache:'no-store'}),
-    fetch('./data/scenarios.json?v=20260906-gmroute',{cache:'no-store'})
+    fetch('./data/maps.json?v=20260906-gmroute2',{cache:'no-store'}),
+    fetch('./data/scenarios.json?v=20260906-gmroute2',{cache:'no-store'})
   ]);
   const maps=(await mapsRes.json()).maps||[];
   const scenarios=(await scenariosRes.json()).scenarios||[];
@@ -64,49 +66,89 @@ function solutionNodes(){
   return nodes;
 }
 
-function renderRoute(){
+function shortName(n){
+  const raw=n.gmName||n.name||n.id;
+  return raw.length>25?`${raw.slice(0,23)}…`:raw;
+}
+
+function labelOffset(n){
+  if(n.y<7)return 3.05;
+  if(n.y>27)return -3.0;
+  const num=Number(String(n.id).replace(/\D/g,''))||0;
+  return num%2===0?-2.9:3.05;
+}
+
+function renderOverlays(){
   if(drawing)return;
   const svg=document.querySelector('#mapSvg');
   if(!svg)return;
-  svg.querySelector('#gmSolutionOverlay')?.remove();
-  if(!routeVisible||!gmEnabled()||!map)return;
+  svg.querySelector('#gmOverlayRoot')?.remove();
+  if(!gmEnabled()||!map||(!routeVisible&&!namesVisible&&!idsVisible))return;
 
   drawing=true;
   try{
     const z=activeLevel();
     const byId=new Map(map.nodes.map(n=>[n.id,n]));
-    const g=svgEl('g',{id:'gmSolutionOverlay',class:'gm-solution-overlay','aria-hidden':'true'});
+    const root=svgEl('g',{id:'gmOverlayRoot',class:'gm-overlay-root','aria-hidden':'true'});
 
-    for(const s of trace){
-      const a=byId.get(s.from),b=byId.get(s.to);
-      if(!a||!b)continue;
-      if(a.z===z&&b.z===z){
-        g.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'gm-solution-line'}));
-      }else if(a.z===z||b.z===z){
-        const n=a.z===z?a:b;
-        const vertical=svgEl('g',{class:'gm-solution-vertical'});
-        vertical.append(svgEl('circle',{cx:n.x,cy:n.y,r:1.35,class:'gm-solution-vertical-ring'}));
-        const t=svgEl('text',{x:n.x,y:n.y+.36,class:'gm-solution-vertical-text'});
-        t.textContent=a.z===z?'↓':'↑';
-        vertical.append(t);
-        g.append(vertical);
+    if(routeVisible){
+      const route=svgEl('g',{class:'gm-solution-overlay'});
+      for(const s of trace){
+        const a=byId.get(s.from),b=byId.get(s.to);
+        if(!a||!b)continue;
+        if(a.z===z&&b.z===z){
+          route.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'gm-solution-line'}));
+        }else if(a.z===z||b.z===z){
+          const n=a.z===z?a:b;
+          const vertical=svgEl('g',{class:'gm-solution-vertical'});
+          vertical.append(svgEl('circle',{cx:n.x,cy:n.y,r:1.35,class:'gm-solution-vertical-ring'}));
+          const t=svgEl('text',{x:n.x,y:n.y+.36,class:'gm-solution-vertical-text'});
+          t.textContent=a.z===z?'↓':'↑';
+          vertical.append(t);
+          route.append(vertical);
+        }
       }
+      solutionNodes().forEach((id,step)=>{
+        const n=byId.get(id);
+        if(!n||n.z!==z)return;
+        const marker=svgEl('g',{class:'gm-solution-step'});
+        const dx=n.x+1.65,dy=n.y-1.45;
+        marker.append(svgEl('circle',{cx:dx,cy:dy,r:.76,class:'gm-solution-step-bg'}));
+        const text=svgEl('text',{x:dx,y:dy+.25,class:'gm-solution-step-text'});
+        text.textContent=String(step);
+        marker.append(text);
+        route.append(marker);
+      });
+      root.append(route);
     }
 
-    const ordered=solutionNodes();
-    ordered.forEach((id,step)=>{
-      const n=byId.get(id);
-      if(!n||n.z!==z)return;
-      const marker=svgEl('g',{class:'gm-solution-step'});
-      const dx=n.x+1.75,dy=n.y-1.55;
-      marker.append(svgEl('circle',{cx:dx,cy:dy,r:.82,class:'gm-solution-step-bg'}));
-      const text=svgEl('text',{x:dx,y:dy+.28,class:'gm-solution-step-text'});
-      text.textContent=String(step);
-      marker.append(text);
-      g.append(marker);
-    });
+    if(namesVisible||idsVisible){
+      const labels=svgEl('g',{class:'gm-map-overlay'});
+      for(const n of map.nodes.filter(n=>n.z===z)){
+        if(namesVisible){
+          const textValue=shortName(n);
+          const width=Math.min(12.8,Math.max(4.5,textValue.length*.34+1.35));
+          const y=n.y+labelOffset(n);
+          const g=svgEl('g',{class:'gm-map-name'});
+          g.append(svgEl('rect',{x:n.x-width/2,y:y-.8,width,height:1.55,rx:.42,class:'gm-map-name-bg'}));
+          const t=svgEl('text',{x:n.x,y:y+.22,class:'gm-map-name-text'});
+          t.textContent=textValue;
+          g.append(t);
+          labels.append(g);
+        }
+        if(idsVisible){
+          const g=svgEl('g',{class:'gm-map-id'});
+          g.append(svgEl('circle',{cx:n.x,cy:n.y,r:.78,class:'gm-map-id-bg'}));
+          const t=svgEl('text',{x:n.x,y:n.y+.24,class:'gm-map-id-text'});
+          t.textContent=n.id;
+          g.append(t);
+          labels.append(g);
+        }
+      }
+      root.append(labels);
+    }
 
-    svg.append(g);
+    svg.append(root);
   }finally{drawing=false;}
 }
 
@@ -156,9 +198,14 @@ function routeStatus(){
   }
 }
 
+function setToggle(button,on,onText,offText){
+  button.classList.toggle('active',on);
+  button.textContent=on?onText:offText;
+}
+
 function refresh(){
   if(!installed||!gmEnabled())return;
-  renderRoute();
+  renderOverlays();
   routeStatus();
 }
 
@@ -170,17 +217,39 @@ async function install(){
   if(!panel)return;
 
   const row=document.createElement('div');
-  row.className='gm-row gm-route-tools';
-  const button=document.createElement('button');
-  button.id='gmRouteToggle';
-  button.textContent='Lösungspfad anzeigen';
-  button.addEventListener('click',()=>{
+  row.className='gm-row gm-overlay-tools';
+
+  const routeButton=document.createElement('button');
+  routeButton.id='gmRouteToggle';
+  routeButton.textContent='Pfad';
+  routeButton.title='Vollständigen Lösungspfad einblenden';
+  routeButton.addEventListener('click',()=>{
     routeVisible=!routeVisible;
-    button.classList.toggle('active',routeVisible);
-    button.textContent=routeVisible?'Lösungspfad ausblenden':'Lösungspfad anzeigen';
-    renderRoute();
+    setToggle(routeButton,routeVisible,'Pfad ✓','Pfad');
+    renderOverlays();
   });
-  row.append(button);
+
+  const namesButton=document.createElement('button');
+  namesButton.id='gmNamesToggle';
+  namesButton.textContent='Namen';
+  namesButton.title='Raumnamen nur für die Spielleitung einblenden';
+  namesButton.addEventListener('click',()=>{
+    namesVisible=!namesVisible;
+    setToggle(namesButton,namesVisible,'Namen ✓','Namen');
+    renderOverlays();
+  });
+
+  const idsButton=document.createElement('button');
+  idsButton.id='gmIdsToggle';
+  idsButton.textContent='IDs';
+  idsButton.title='Technische Knoten-IDs nur für die Spielleitung einblenden';
+  idsButton.addEventListener('click',()=>{
+    idsVisible=!idsVisible;
+    setToggle(idsButton,idsVisible,'IDs ✓','IDs');
+    renderOverlays();
+  });
+
+  row.append(routeButton,namesButton,idsButton);
 
   const status=document.createElement('div');
   status.id='gmRouteStatus';
@@ -193,10 +262,11 @@ async function install(){
 
   const svg=document.querySelector('#mapSvg');
   if(svg)new MutationObserver(()=>{
-    if(!routeVisible)return routeStatus();
-    if(!svg.querySelector('#gmSolutionOverlay'))requestAnimationFrame(renderRoute);
+    if(drawing)return;
+    if((routeVisible||namesVisible||idsVisible)&&!svg.querySelector('#gmOverlayRoot'))requestAnimationFrame(renderOverlays);
     routeStatus();
   }).observe(svg,{childList:true,subtree:true});
+
   const levels=document.querySelector('#levelButtons');
   if(levels)new MutationObserver(refresh).observe(levels,{attributes:true,subtree:true,attributeFilter:['class']});
   const history=document.querySelector('#history');
