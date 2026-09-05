@@ -1,0 +1,55 @@
+.gm-route-tools button.active{
+  background:#4a3523!important;
+  border-color:#d1a667!important;
+  box-shadow:0 0 0 1px #8e6d45aa,0 0 12px #d3a75833!important;
+}
+.gm-route-status{
+  margin-top:8px;
+  padding:7px 9px;
+  border:1px solid #4a4034;
+  border-radius:8px;
+  background:#100d0acc;
+  color:#a99b86;
+  font-size:11px;
+  line-height:1.35;
+}
+.gm-route-status.on-route{border-color:#50664e;color:#9fbd98}
+.gm-route-status.off-route{border-color:#83504a;color:#d89b90}
+
+.gm-solution-overlay{pointer-events:none}
+.gm-solution-line{
+  stroke:#79d7ce;
+  stroke-width:.82;
+  stroke-linecap:round;
+  stroke-dasharray:1.15 .52;
+  opacity:.95;
+  filter:url(#glow);
+}
+.gm-solution-step-bg{
+  fill:#10211f;
+  stroke:#9be2da;
+  stroke-width:.18;
+  opacity:.97;
+}
+.gm-solution-step-text{
+  fill:#e9fffc;
+  font-family:Arial,sans-serif;
+  font-size:.72px;
+  font-weight:700;
+  text-anchor:middle;
+  pointer-events:none;
+}
+.gm-solution-vertical-ring{
+  fill:#10211f;
+  stroke:#9be2da;
+  stroke-width:.24;
+  opacity:.97;
+}
+.gm-solution-vertical-text{
+  fill:#e9fffc;
+  font-family:Arial,sans-serif;
+  font-size:1.35px;
+  font-weight:700;
+  text-anchor:middle;
+  pointer-events:none;
+}
