@@ -20,6 +20,7 @@ jobs:
         run: |
           node --check js/app.js
           node --check js/direction-ui.js
+          node --check js/map-readability.js
           node --check js/gm-route.js
       - name: Validate maps and cipher references
         run: node tests/validate.mjs
