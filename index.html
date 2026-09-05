@@ -8,9 +8,10 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Shared Maze Puzzle – Selem</title>
-  <link rel="stylesheet" href="./css/app.css?v=20260906-1">
-  <link rel="stylesheet" href="./css/ui-cleanup.css?v=20260906-1">
-  <link rel="stylesheet" href="./css/gm-route.css?v=20260906-1">
+  <link rel="stylesheet" href="./css/app.css?v=20260906-2">
+  <link rel="stylesheet" href="./css/ui-cleanup.css?v=20260906-2">
+  <link rel="stylesheet" href="./css/gm-route.css?v=20260906-2">
+  <link rel="stylesheet" href="./css/map-readability.css?v=20260906-2">
   <script>
   (()=>{
     const nativeFetch=window.fetch.bind(window);
@@ -25,7 +26,7 @@
     };
   })();
   </script>
-  <script src="./config.js?v=20260906-1"></script>
+  <script src="./config.js?v=20260906-2"></script>
 </head>
 <body>
 <div id="app">
@@ -64,7 +65,7 @@
         <small id="levelName">Obere Ruinen</small>
       </div>
 
-      <div class="map-hint">Ziehen zum Verschieben · Mausrad zum Zoomen</div>
+      <div class="map-hint">Ziehen zum Verschieben · Mausrad zum Zoomen · Raum berühren/anklicken für Namen</div>
       <svg id="mapSvg" viewBox="6 1 64 35" preserveAspectRatio="xMidYMid meet" aria-label="Erkundete Untergrundkarte"></svg>
     </section>
 
@@ -122,8 +123,9 @@
   <div class="gm-row"><button id="copyPlayer">Spielerlink kopieren</button><button id="copyCurrent">SL-Link kopieren</button></div>
 </div>
 
-<script type="module" src="./js/app.js?v=20260906-1"></script>
-<script type="module" src="./js/direction-ui.js?v=20260906-1"></script>
-<script type="module" src="./js/gm-route.js?v=20260906-1"></script>
+<script type="module" src="./js/app.js?v=20260906-2"></script>
+<script type="module" src="./js/direction-ui.js?v=20260906-2"></script>
+<script type="module" src="./js/map-readability.js?v=20260906-2"></script>
+<script type="module" src="./js/gm-route.js?v=20260906-2"></script>
 </body>
 </html>
