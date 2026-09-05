@@ -1,0 +1,47 @@
+/* Small readability pass: keep the map dominant and make real exits obvious. */
+.main{grid-template-columns:minmax(0,1fr) 276px}
+.side{gap:8px}
+.card{padding:10px 11px;box-shadow:0 4px 14px #0006}
+.card h3{margin-bottom:6px}
+.location-card{padding-bottom:9px}
+.history{font-size:11px}
+.history ol{margin-top:5px}
+
+/* The compass should read like a control, not another map. */
+.clock-spoke{opacity:.2}
+.clock-ring{border-color:#534634;box-shadow:inset 0 0 16px #0008}
+.clock-ring:after{display:none}
+.center-mark{border-color:#5c4b38;color:#a99b85;background:radial-gradient(circle,#1d1813,#100d0a);box-shadow:none}
+
+/* Direction buttons: bright = a physical exit exists, dark = no passage there. */
+.dir,.vertical button[data-d]{transition:opacity .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease,transform .12s ease}
+.dir::before,.vertical button[data-d]::before{content:attr(data-arrow);font-family:Arial,sans-serif;font-weight:bold;display:inline-block;margin-right:4px;line-height:1}
+.dir.available,.vertical button[data-d].available{
+  opacity:1;
+  color:#f4e8cf!important;
+  border-color:#b08a55!important;
+  background:linear-gradient(#3b2d20,#211911)!important;
+  box-shadow:0 0 0 1px #6d5335aa,0 0 10px #b88b4340!important;
+}
+.dir.available:hover,.vertical button[data-d].available:hover{border-color:#d0a76c!important;background:#463421!important}
+.dir.unavailable,.vertical button[data-d].unavailable{
+  opacity:.18!important;
+  filter:saturate(.25);
+  border-color:#4d4439!important;
+  background:#17130f!important;
+  box-shadow:none!important;
+  cursor:default!important;
+}
+.dir.unavailable:hover,.vertical button[data-d].unavailable:hover{transform:none!important;background:#17130f!important}
+
+/* Less visual competition around the compass. */
+.compass-note{margin-top:6px;color:#756a5a}
+.compass-note::before{content:'Helle Pfeile = vorhandene Ausgänge · ';color:#a9977b}
+.backtrack{opacity:.82}
+
+/* Visited history stays useful without visually taking over the screen. */
+.history li{opacity:.78}
+.history li:first-child{opacity:1}
+
+@media(max-width:1040px){.main{grid-template-columns:minmax(0,1fr) 268px}}
+@media(max-width:900px){.main{grid-template-columns:1fr}.side{gap:10px}}
