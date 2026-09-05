@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id":"selem-01",
+      "name":"Selem – Das schwarze Band",
+      "map":"selem-underworld-01",
+      "cipher":"selem-dotcode-01",
+      "room":"SELEM",
+      "description":"Findet den Weg durch die Unterwelt zur geheimen Kultstätte. Das Band zeigt nur die jeweils nächste Richtungsentscheidung."
+    }
+  ]
+}
