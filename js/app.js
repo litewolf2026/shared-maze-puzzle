@@ -72,9 +72,17 @@ function zoomAt(factor,cx=null,cy=null){
   const newW=Math.max(20,Math.min(92,view.w*factor)),newH=newW*(BASE_VIEW.h/BASE_VIEW.w),ratio=newW/view.w;view.x=px-(px-view.x)*ratio;view.y=py-(py-view.y)*ratio;view.w=newW;view.h=newH;applyViewBox();
 }
 async function move(dir){
-  if(state.step>=map.solution.length){message(state.node===map.goal?'Ihr seid bereits am Ziel.':'Das Band ist zu Ende. Ihr müsst einen früheren Schritt zurücknehmen.');return}
   const next=buildAdj().get(state.node)?.[dir];
   if(!next){message('Von hier führt kein Gang in diese Richtung. Wenn das Band stimmt, liegt der Fehler früher.');return}
+
+  const last=state.history[state.history.length-1];
+  const retracing=Boolean(last&&last.to===state.node&&last.from===next&&DIRS[last.dir]?.opp===dir);
+  if(retracing){
+    await rewind(false,'Ihr geht denselben Gang zurück. Das vorherige Zeichen ist wieder aktiv.');
+    return;
+  }
+
+  if(state.step>=map.solution.length){message(state.node===map.goal?'Ihr seid bereits am Ziel.':'Das Band ist zu Ende. Ihr müsst einen früheren Schritt zurücknehmen.');return}
   const previous=structuredClone(state);state.history.push({from:state.node,dir,to:next,step:state.step});state.node=next;state.step+=1;if(!state.visited.includes(next))state.visited.push(next);state.updated_at=new Date().toISOString();
   const exhausted=state.step>=map.solution.length;message(next===map.goal?'Ihr habt die geheime Kultstätte erreicht.':exhausted?'Das Band endet hier – doch dies ist nicht das gesuchte Ziel. Der Fehler liegt früher.':'Der Schritt ist gegangen.');render();
   if(!(await syncState(false))){state=previous;render()}
