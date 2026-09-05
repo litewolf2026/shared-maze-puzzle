@@ -1,0 +1,6 @@
+import fs from 'node:fs';
+const maps=JSON.parse(fs.readFileSync(new URL('../data/maps.json',import.meta.url))).maps;
+const ciphers=JSON.parse(fs.readFileSync(new URL('../data/ciphers.json',import.meta.url))).ciphers;
+const scenarios=JSON.parse(fs.readFileSync(new URL('../data/scenarios.json',import.meta.url))).scenarios;
+const dirs={N:'S',NE:'SW',E:'W',SE:'NW',S:'N',SW:'NE',W:'E',NW:'SE',UP:'DOWN',DOWN:'UP'};
+for(const s of scenarios){const m=maps.find(x=>x.id===s.map);const c=ciphers.find(x=>x.id===s.cipher);if(!m||!c)throw new Error('scenario ref');const nodeIds=new Set(m.nodes.map(n=>n.id));const adj={};for(const n of m.nodes)adj[n.id]={};for(const [a,d,b] of m.edges){if(!nodeIds.has(a)||!nodeIds.has(b))throw new Error(`bad edge ${a} ${b}`);if(adj[a][d]&&adj[a][d]!==b)throw new Error(`duplicate dir ${a} ${d}`);adj[a][d]=b;if(!['UP','DOWN'].includes(d)&&!adj[b][dirs[d]])adj[b][dirs[d]]=a;}let cur=m.start;for(const d of m.solution){if(!c.symbols[d])throw new Error(`cipher missing ${d}`);if(!adj[cur][d])throw new Error(`solution impossible ${cur} ${d}`);cur=adj[cur][d];}if(cur!==m.goal)throw new Error(`goal mismatch ${cur} != ${m.goal}`);console.log(`${s.id}: ${m.nodes.length} nodes, ${m.solution.length} steps, solution OK`)}
