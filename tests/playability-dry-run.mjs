@@ -16,7 +16,7 @@ assert.match(appSource,/enqueueMutation\(\(\)=>move\(b\.dataset\.d\)\)/,'Directi
 assert.match(appSource,/if\(sync\.refreshed\)return false;/,'A stale-version refresh must not be overwritten by the pre-click local snapshot.');
 assert.doesNotMatch(appSource,/async function move\(dir\).*finishTransit/,'A normal direction click must not auto-run to the next logical location.');
 assert.equal(indexSource.includes('one-click-transit.js'),false,'The abandoned one-click transit helper must never be loaded.');
-assert.match(indexSource,/app-v2\.js\?v=20260906-sync1/,'The sync-safe client build must be cache-busted for the live game.');
+assert.match(indexSource,/app-v2\.js\?v=20260906-inv1/,'The sync-safe inventory client build must be cache-busted for the live game.');
 
 function edgeTo(from,to){
   const edge=Object.values(adj.get(from)||{}).find(candidate=>candidate.to===to);
