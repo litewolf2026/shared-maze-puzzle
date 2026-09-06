@@ -46,5 +46,11 @@ state={roomState:{C14:{content:{generated:true,assignments:[structuredClone(sahi
 r=applyContentAction(state,'C14',sahira.slotId,'discover',{isGm:false});assert.equal(r.ok,true,'Player may inspect visible discovery.');assert.equal(r.assignment.state,'discovered');
 r=applyContentAction(r.state,'C14',sahira.slotId,'discover',{isGm:false});assert.equal(r.ok,false,'Repeated discovery must be idempotently rejected.');
 
-let empty={roomState:{}};const materialized=materializeRoomState(empty,a,'C14');assert.equal(materialized.changed,true);assert.ok(materialized.state.roomState.C14.content.assignments.every(x=>x.anchor||!['room','lens','prison','goal'].includes(map.nodes.find(n=>n.id==='C14').kind)));
+let empty={roomState:{}};const materialized=materializeRoomState(empty,a,'C14');assert.equal(materialized.changed,true);assert.ok(materialized.state.roomState.C14.content.assignments.every(x=>x.anchor));
+const legacyAssignment=structuredClone(sahira);delete legacyAssignment.anchor;legacyAssignment.state='discovered';delete legacyAssignment.origin;
+const legacy={roomState:{C14:{content:{generated:true,seed:a.seed,assignments:[legacyAssignment]}}}};
+const upgraded=materializeRoomState(legacy,a,'C14');assert.equal(upgraded.changed,true,'Legacy materialized content should gain current spatial metadata.');
+const upgradedAssignment=upgraded.state.roomState.C14.content.assignments[0];assert.ok(upgradedAssignment.anchor,'Legacy assignment did not gain anchor.');assert.equal(upgradedAssignment.state,'discovered','Anchor upgrade must preserve gameplay state.');assert.equal(upgradedAssignment.origin,sahira.origin,'Origin should be backfilled without rerolling content.');
+const stable=materializeRoomState(upgraded.state,a,'C14');assert.equal(stable.changed,false,'Upgraded materialized content must be idempotent.');
+
 console.log(`spatial-content: OK (${Object.values(a.rooms).flatMap(r=>r.assignments).filter(x=>x.anchor).length} anchored assignments)`);
