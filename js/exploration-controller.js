@@ -1,8 +1,8 @@
-import {createCrawlerView,FACING_ORDER,rotateFacing} from './crawler-view.js';
+import {createCrawlerView,FACING_ORDER,rotateFacing} from './crawler-view.js?v=20260906-final1';
 import {contentVisibleToPlayer} from './content-engine.js';
 import {reusableDefinition} from './reusable-content-pack.js';
 import {playerInvestigationMode,formatCheck} from './dsa41-exploration.js';
-import {roomStartPosition,terrainTypeAt,terrainWalkable,terrainLabel} from './room-terrain.js';
+import {roomStartPosition,terrainTypeAt,terrainWalkable,terrainLabel} from './room-terrain.js?v=20260906-final1';
 let map=null,shared=null,crawler=null,featureCatalog={},contentCatalog={},explorationRules=null;
 let viewFacing=localStorage.getItem('maze-view-facing')||'N';
 const EXPLORE_KINDS=new Set(['room','lens','prison','goal','deadend']);
