@@ -9,12 +9,17 @@ const expansion=read('../data/selem-expansion.json');
 const finalOverlay=read('../data/selem-secrets.json');
 const map=applyExpansions(base,expansion,finalOverlay);
 const sceneFiles=['selem-a.json','selem-b.json','selem-c.json','selem-d.json'];
-const sceneIds=sceneFiles.flatMap(file=>Object.keys(read(`../data/content/scenes/${file}`).scenes||{}));
+const authoredSceneIds=sceneFiles.flatMap(file=>Object.keys(read(`../data/content/scenes/${file}`).scenes||{}));
+const AUTHORED_TRANSIT=new Set(['A32']);
+const sceneIds=authoredSceneIds.filter(id=>!AUTHORED_TRANSIT.has(id));
 const byId=new Map(map.nodes.map(n=>[n.id,n]));
 
 assert.equal(map.gridSizeMeters,3,'Selem room geometry must use the established 3 m exploration grid.');
-assert.equal(sceneIds.length,55,'The geometry contract targets exactly the 55 authored scene locations.');
-assert.equal(new Set(sceneIds).size,55,'Authored scene ids must be unique.');
+assert.equal(authoredSceneIds.length,56,'Authored scene layer should contain 55 room scenes plus the A32 collapsed-transit vignette.');
+assert.equal(new Set(authoredSceneIds).size,56,'Authored scene ids must be unique.');
+assert.equal(sceneIds.length,55,'The detailed geometry contract still targets exactly the 55 authored room/scene locations.');
+assert.equal(byId.get('A32')?.geometry,undefined,'A32 must remain abstract transit rather than a full room geometry.');
+assert.equal(byId.get('A32')?.exploreGrid,undefined,'A32 must remain a short corridor dead end, not a freely explorable room.');
 
 for(const id of sceneIds){
   const node=byId.get(id);assert.ok(node,`Missing scene node ${id}.`);
@@ -27,7 +32,7 @@ for(const id of sceneIds){
 }
 
 const geometryNodes=map.nodes.filter(n=>n.geometry);
-assert.equal(geometryNodes.length,55,'Only authored scene locations should carry detailed room geometry in this pass; transit remains abstract.');
+assert.equal(geometryNodes.length,55,'Only authored room/scene locations should carry detailed room geometry; A32 and other transit remain abstract.');
 
 const expected={
   A06:[18,15],B12:[18,9],B31:[24,18],C10:[15,15],C12:[18,12],C14:[18,18],C15:[45,45],D03:[24,21],D06:[42,33],D12:[18,18],D13:[18,15],D14:[60,48]
