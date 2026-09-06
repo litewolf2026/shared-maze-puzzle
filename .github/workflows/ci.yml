@@ -28,6 +28,7 @@ jobs:
           node --check js/content-engine.js
           node --check js/dsa41-exploration.js
           node --check js/dsa41-hazards.js
+          node --check js/dsa41-encounters.js
           node --check js/secret-connections.js
           node --check js/content-controller.js
           node --check js/crawler-view.js
@@ -75,6 +76,8 @@ jobs:
         run: node tests/dsa41-exploration.mjs
       - name: Validate DSA 4.1 hazard resolution
         run: node tests/dsa41-hazards.mjs
+      - name: Validate reusable encounter archetypes
+        run: node tests/dsa41-encounters.mjs
       - name: Validate hidden connection lifecycle
         run: node tests/secret-connections.mjs
       - name: Validate discoverable room features

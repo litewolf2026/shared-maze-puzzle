@@ -1,0 +1,44 @@
+{
+  "version":1,
+  "system":"DSA4.1",
+  "projectPolicy":{
+    "archetypesAreProjectConvention":true,
+    "threatScaleIsProjectConvention":true,
+    "exactCombatStatsRequireCharacterBaseline":true,
+    "automaticPartyScaling":false,
+    "gmMayOverrideDisposition":true
+  },
+  "threatScale":{
+    "0":{"label":"keine Kampfbedrohung","intent":"soziale/erzählerische Begegnung; Kampf nur als Folge bewusster Eskalation"},
+    "1":{"label":"gering","intent":"einzeln oder schwach; soll Atmosphäre/Ressourcen belasten, nicht die Gruppe ernsthaft gefährden"},
+    "2":{"label":"moderat","intent":"echter Widerstand; taktisch relevant, aber regulär beherrschbar"},
+    "3":{"label":"hoch","intent":"gefährlich; Fehler oder schlechte Position können deutliche Folgen haben"},
+    "4":{"label":"sehr hoch","intent":"außergewöhnliche Gefahr; Flucht, Umgehung oder Vorbereitung sollen echte Optionen sein"}
+  },
+  "archetypes":{
+    "lost_noncombatant":{"label":"Verirrte nichtkämpfende Person","threatTier":0,"defaultDisposition":"fearful","opening":"beobachtet die Gruppe, sucht Sicherheit und versucht zunächst zu verstehen, ob sie real ist","escalation":["ansprechen","Vertrauen gewinnen","Erinnerungen/Route abgleichen","bei Druck Rückzug oder Panik"],"retreat":"flieht oder verbarrikadiert sich statt zu kämpfen","gmLevers":["Zeitgefühl widerspricht sichtbaren Spuren","kennt einen Teilweg oder ein Geräusch","erinnert sich an Personen besser als an Orte"],"informationTags":["lost_people","route","timeline"]},
+    "lost_injured":{"label":"Verletzte verirrte Person","threatTier":0,"defaultDisposition":"defensive","opening":"hält Abstand und schützt Verletzung oder wenige Vorräte","escalation":["medizinische Hilfe oder Sicherheit anbieten","Herkunft und Fluchtgrund klären","Widersprüche der Erinnerung sichtbar werden lassen"],"retreat":"kann kaum fliehen; versucht sich zu verstecken oder zu ergeben","gmLevers":["weiß, dass sie geflohen ist, aber nicht mehr zuverlässig vor wem","kennt jüngere Kultbewegungen","kann belastbare materielle Spuren liefern"],"informationTags":["lost_people","cult","timeline"]},
+    "route_obsessed":{"label":"Orientierungsbesessener Verirrter","threatTier":0,"defaultDisposition":"preoccupied","opening":"arbeitet weiter an Karten oder Wegnotizen und reagiert verspätet","escalation":["Notizen vergleichen","Wiederholungen zeigen","gemeinsamen Rückweg anbieten","bei Konfrontation Verwirrung oder Abwehr"],"retreat":"bleibt eher an seinem Arbeitsort, solange er nicht bedroht wird","gmLevers":["gleiche Route mehrfach aufgeschrieben","eigene ältere Notizen werden nicht erkannt","liefert widersprüchliche, aber lokal nützliche Wegdetails"],"informationTags":["memory","route","writings"]},
+    "cult_straggler":{"label":"Versprengter Kultangehöriger","threatTier":1,"defaultDisposition":"nervous","opening":"sucht Deckung, versucht Stärke und Absicht der Gruppe einzuschätzen","escalation":["täuschen oder verhandeln","warnen oder Hilfe rufen","Fluchtversuch","nur bei Bedrängung Kampf"],"retreat":"flieht möglichst in bekannte Kultbereiche oder zu Verbündeten","gmLevers":["kennt aktuelle Dienste und Vorräte","kann Sahira oder andere Kultisten benennen","hat Angst vor tieferen Bereichen"],"informationTags":["cult","current_use"]},
+    "cult_scouts":{"label":"Kultspäher","threatTier":2,"defaultDisposition":"alert","opening":"beobachten aus Deckung und versuchen zuerst, Alarm zu vermeiden oder Verstärkung zu erreichen","escalation":["Identität prüfen","Verzögerung/Bluff","einer löst sich zur Meldung","koordiniertes Gefecht falls gestellt"],"retreat":"mindestens eine Person versucht Informationen zurückzubringen","gmLevers":["kennen Patrouillenwege","tragen einfache Signalmittel","sind keine fanatischen Selbstmörder"],"informationTags":["cult","patrol"]},
+    "scavenger_swarm":{"label":"Unterirdische Aas- und Schuttfresser","threatTier":1,"defaultDisposition":"territorial","opening":"weichen Licht zunächst aus, verteidigen aber Futter/Nest","escalation":["warnendes Verhalten","Schwarm drängt vor","kurzer Angriff","zerstreut sich bei Verlusten oder Feuer"],"retreat":"zieht sich in Spalten, Wasser oder Schutt zurück","gmLevers":["reagiert stärker auf Nahrung/Geruch als auf Personen","kann durch Lärm vertrieben werden","zeigt indirekt tote Tiere/Menschen oder Abfall an"],"informationTags":["vermin","environment"]},
+    "cave_creatures":{"label":"Aufgescheuchte Höhlenbewohner","threatTier":1,"defaultDisposition":"startled","opening":"fliehen normalerweise; eingeschlossene oder brütende Tiere können angreifen","escalation":["auffliegen/ausbrechen","Panik im engen Raum","vereinzelte Angriffe","Rückzug in Höhe oder Spalten"],"retreat":"sucht Dunkelheit und Abstand","gmLevers":["kann Licht/Fackeln stören","macht Lärm","weist auf natürliche Öffnungen hin"],"informationTags":["vermin","cave"]},
+    "water_predator":{"label":"Lauernder Wasserjäger","threatTier":3,"defaultDisposition":"ambush","opening":"beobachtet Erschütterungen aus dem dunklen Wasser und zeigt sich zunächst kaum","escalation":["Annäherung unter Wasser","kurzer überraschender Zugriff","Ziehen ins Wasser","Abbruch, wenn Beute zu gefährlich wird"],"retreat":"taucht ab und nutzt schlechte Sicht statt bis zum Tod zu kämpfen","gmLevers":["Wasserbewegung verrät Anwesenheit","Futter kann ablenken","trockener hoher Stand ist klarer Vorteil"],"informationTags":["water","creature"]},
+    "memory_echo":{"label":"Erinnerungs- oder Zeitecho","threatTier":0,"defaultDisposition":"echo","opening":"wiederholt einen vergangenen Ablauf und reagiert nur begrenzt auf die Gegenwart","escalation":["beobachten","Muster erkennen","gezielt ansprechen/unterbrechen","Echo löst sich auf oder wiederholt sich"],"retreat":"kein normaler Rückzug; endet nach Muster oder Störung","gmLevers":["zeigt frühere Nutzung des Ortes","kann einen Mechanismus vorführen","liefert keine verlässliche Gegenwartsinformation"],"informationTags":["memory","old_elem","time_echo"]}
+  },
+  "bindings":{
+    "encounter_lost_waiter":"lost_noncombatant",
+    "encounter_injured_escapee":"lost_injured",
+    "encounter_route_writer":"route_obsessed",
+    "encounter_vermin":"scavenger_swarm",
+    "encounter_cave_creatures":"cave_creatures",
+    "encounter_cult_straggler":"cult_straggler",
+    "encounter_memory_echo":"memory_echo",
+    "encounter_scavenger_swarm":"scavenger_swarm",
+    "encounter_cult_scout_pair":"cult_scouts",
+    "encounter_exhausted_explorer":"lost_noncombatant",
+    "encounter_wounded_porter":"lost_injured",
+    "encounter_water_predator":"water_predator",
+    "encounter_old_elem_echo_worker":"memory_echo"
+  }
+}
