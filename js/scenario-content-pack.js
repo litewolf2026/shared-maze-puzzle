@@ -1,5 +1,5 @@
 const SELEM_STORY_PACK={
-  id:'selem-story-v2',
+  id:'selem-core-actors-v1',
   version:2,
   items:{
     selem_nottel_witness:{
