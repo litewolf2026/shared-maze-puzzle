@@ -21,7 +21,7 @@ for(const [id,w,h,shape] of [['C15',15,15,'round_hall_complex'],['D06',14,11,'fl
 assert.match(renderer,/import \{terrainTypeAt\} from '\.\/room-terrain\.js'/,'Renderer must consume authored room terrain.');
 assert.match(renderer,/const PALETTES=\{/,'Renderer must keep zone-specific A/B/C/D atmosphere.');
 for(const hook of ["node.id==='C15'","node.id==='D06'","node.id==='D14'"])assert.ok(renderer.includes(hook),`Missing bespoke landmark hook ${hook}.`);
-for(const marker of ['crawler-ritual-dais','crawler-projected-pillar','crawler-stalactite','function terrainClass','data-room'])assert.ok(renderer.includes(marker),`Renderer lost ${marker}.`);
+for(const marker of ['crawler-ritual-dais','crawler-projected-pillar','crawler-stalactite','function terrainClass','dataset.room'])assert.ok(renderer.includes(marker),`Renderer lost ${marker}.`);
 assert.match(renderer,/crawler-terrain-\$\{type\}/,'Terrain cells must generate type-specific visual classes dynamically.');
 assert.equal(/<image\b|https?:\/\//i.test(renderer),false,'Final crawler must remain self-contained procedural SVG, not embed external image assets.');
 
