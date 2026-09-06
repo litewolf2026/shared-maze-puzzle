@@ -35,6 +35,7 @@ jobs:
           node --check js/dsa41-loot.js
           node --check js/secret-connections.js
           node --check js/content-controller.js
+          node --check js/inventory-controller.js
           node --check js/selem-scenes.js
           node --check js/selem-scene-controller.js
           node --check js/crawler-view.js
@@ -74,8 +75,10 @@ jobs:
         run: node tests/final-crawler-graphics.mjs
       - name: Validate Crawler V3 visual architecture
         run: node tests/crawler-v3.mjs
-      - name: Validate compact GM panel and local graphics preview
+      - name: Validate readable GM workspace and local graphics preview
         run: node tests/gm-ui-tools.mjs
+      - name: Validate shared group inventory lifecycle
+        run: node tests/inventory.mjs
       - name: Validate grid decision and transit semantics
         run: node tests/navigation-model.mjs
       - name: Validate authored room terrain
