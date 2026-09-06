@@ -57,9 +57,13 @@ assert.equal(planA.rooms.A23.assignments.find(x=>x.slotId==='secret-pilgrim-room
 assert.equal(planA.rooms.B33.assignments.find(x=>x.slotId==='secret-maintenance-room').contentId,'secret_connection_maintenance');
 assert.ok(planA.rooms.A31.assignments.some(x=>x.contentId==='loot_hidden_coin_cache'));
 assert.ok(planA.rooms.B35.assignments.some(x=>x.contentId==='hazard_pressure_plate'));
+assert.equal(planA.rooms.A02.assignments.find(x=>x.slotId==='story-vorhalle-pilgrims').contentId,'selem_vorhalle_pilgrim_traces');
+assert.equal(planA.rooms.A04.assignments.find(x=>x.slotId==='hazard-falling-masonry').contentId,'hazard_falling_masonry');
+assert.equal(planA.rooms.A25.assignments.find(x=>x.slotId==='secret-false-back').contentId,'secret_false_back');
+assert.equal(planA.rooms.C03.assignments.find(x=>x.slotId==='story-memory-niche').contentId,'selem_memory_niche_echo');
 
 const storyIds=[
-  'selem_green_lens_clue','selem_submerged_ledger','selem_sacrifice_layer','selem_shrine_reuse','selem_pump_sequence','selem_whisper_memory','selem_band_experiments','selem_nottel_cell_marks','selem_cult_roster','selem_black_gate_residue','selem_pale_threshold_echo','selem_sahira_notes','selem_sahira_personal_cache','selem_cult_ritual_traces','selem_blind_lens_memory'
+  'selem_vorhalle_pilgrim_traces','selem_memory_niche_echo','selem_green_lens_clue','selem_submerged_ledger','selem_sacrifice_layer','selem_shrine_reuse','selem_pump_sequence','selem_whisper_memory','selem_band_experiments','selem_nottel_cell_marks','selem_cult_roster','selem_black_gate_residue','selem_pale_threshold_echo','selem_sahira_notes','selem_sahira_personal_cache','selem_cult_ritual_traces','selem_blind_lens_memory'
 ];
 for(const id of storyIds)assert.equal(ids.filter(x=>x===id).length,1,`Authored story content ${id} must occur exactly once.`);
 
