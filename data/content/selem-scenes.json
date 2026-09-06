@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "scenario": "selem-01",
   "files": [
     "./data/content/scenes/selem-a.json",
@@ -7,6 +7,7 @@
     "./data/content/scenes/selem-c.json",
     "./data/content/scenes/selem-d.json"
   ],
+  "setpiecesFile": "./data/content/selem-setpieces.json",
   "policy": {
     "sceneKinds": ["room", "lens", "prison", "goal", "deadend", "gate", "glyph"],
     "criticalScenesAreAuthored": true,
