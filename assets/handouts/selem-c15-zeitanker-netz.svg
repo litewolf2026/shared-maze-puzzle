@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Netz der Zeitanker</title><desc id="desc">Arbeitsblatt mit sechs Ankern und Verbindungen, die im Finale geprüft oder markiert werden können.</desc>
+  <rect width="1200" height="800" fill="#eee3c6"/><rect x="42" y="42" width="1116" height="716" rx="18" fill="none" stroke="#302a22" stroke-width="5"/>
+  <text x="82" y="108" font-family="serif" font-size="42" fill="#2c2720">Netz der Zeitanker</text>
+  <text x="82" y="148" font-family="serif" font-size="23" fill="#5b503d">Nicht: Was erinnern wir? Sondern: Was lässt sich unabhängig belegen?</text>
+  <g stroke="#6d604b" stroke-width="5" fill="none" stroke-dasharray="12 9">
+    <path d="M600 395 L280 265 M600 395 L920 265 M600 395 L265 535 M600 395 L935 535 M280 265 L920 265 M265 535 L935 535 M280 265 L265 535 M920 265 L935 535"/>
+  </g>
+  <g font-family="sans-serif" text-anchor="middle">
+    <g transform="translate(600 395)"><circle r="86" fill="#d8c79f" stroke="#393126" stroke-width="6"/><text y="-8" font-size="27" fill="#2b261f">Entnahme</text><text y="26" font-size="24" fill="#2b261f">Marubans</text></g>
+    <g transform="translate(280 265)"><circle r="92" fill="#e7d9b6" stroke="#393126" stroke-width="5"/><text y="-8" font-size="25" fill="#2b261f">Leere</text><text y="24" font-size="25" fill="#2b261f">Fassung</text></g>
+    <g transform="translate(920 265)"><circle r="92" fill="#e7d9b6" stroke="#393126" stroke-width="5"/><text y="-8" font-size="24" fill="#2b261f">Marubans</text><text y="24" font-size="25" fill="#2b261f">Spuren</text></g>
+    <g transform="translate(265 535)"><circle r="92" fill="#e7d9b6" stroke="#393126" stroke-width="5"/><text y="-8" font-size="24" fill="#2b261f">Nottels</text><text y="24" font-size="25" fill="#2b261f">Notizen</text></g>
+    <g transform="translate(935 535)"><circle r="92" fill="#e7d9b6" stroke="#393126" stroke-width="5"/><text y="-8" font-size="24" fill="#2b261f">Sahiras</text><text y="24" font-size="25" fill="#2b261f">Protokoll</text></g>
+    <g transform="translate(600 650)"><rect x="-130" y="-54" width="260" height="108" rx="20" fill="#e7d9b6" stroke="#393126" stroke-width="5"/><text y="-7" font-size="23" fill="#2b261f">Eigener</text><text y="24" font-size="25" fill="#2b261f">unabhängiger Anker</text></g>
+  </g>
+  <g fill="none" stroke="#3c3428" stroke-width="4"><rect x="165" y="676" width="30" height="30"/><rect x="390" y="676" width="30" height="30"/><rect x="615" y="676" width="30" height="30"/><rect x="840" y="676" width="30" height="30"/></g>
+  <g font-family="sans-serif" font-size="20" fill="#4b4233"><text x="205" y="699">gesichert</text><text x="430" y="699">unabhängig</text><text x="655" y="699">noch belastbar</text><text x="880" y="699">widerspricht Sahira</text></g>
+</svg>

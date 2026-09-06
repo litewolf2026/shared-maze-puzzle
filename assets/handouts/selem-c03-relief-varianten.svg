@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Drei Fassungen desselben Reliefs</title><desc id="desc">Drei fast identische geometrische Reliefzeichnungen mit je einer kleinen Abweichung.</desc>
+  <rect width="1200" height="800" fill="#eee3c5"/><rect x="42" y="42" width="1116" height="716" rx="18" fill="none" stroke="#302a22" stroke-width="5"/>
+  <text x="82" y="108" font-family="serif" font-size="42" fill="#2c2720">Drei Fassungen desselben Reliefs</text>
+  <text x="82" y="148" font-family="serif" font-size="23" fill="#5c513e">Welche davon habt ihr zuerst gesehen?</text>
+  <g font-family="serif" font-size="30" fill="#2f2a22" text-anchor="middle">
+    <text x="245" y="218">A</text><text x="600" y="218">B</text><text x="955" y="218">C</text>
+  </g>
+  <g fill="#d7cfb5" stroke="#494238" stroke-width="5">
+    <rect x="90" y="240" width="310" height="360" rx="12"/><rect x="445" y="240" width="310" height="360" rx="12"/><rect x="800" y="240" width="310" height="360" rx="12"/>
+  </g>
+  <g fill="none" stroke="#2d2a25" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M145 535 L145 315 L235 315 L235 405 L330 405 L330 535"/>
+    <path d="M145 468 L205 468 M235 350 L292 350 M278 405 L278 470 L330 470"/>
+    <circle cx="235" cy="405" r="25"/>
+    <path d="M500 535 L500 315 L590 315 L590 405 L685 405 L685 535"/>
+    <path d="M500 468 L560 468 M590 350 L647 350 M633 405 L633 470 L685 470"/>
+    <circle cx="590" cy="405" r="25"/>
+    <path d="M855 535 L855 315 L945 315 L945 405 L1040 405 L1040 535"/>
+    <path d="M855 468 L915 468 M945 350 L1002 350 M988 405 L988 470 L1040 470"/>
+    <circle cx="945" cy="405" r="25"/>
+  </g>
+  <!-- three intentionally tiny differences -->
+  <path d="M330 535 L350 555" stroke="#2d2a25" stroke-width="11" stroke-linecap="round"/>
+  <path d="M633 470 L610 492" stroke="#2d2a25" stroke-width="11" stroke-linecap="round"/>
+  <path d="M1002 350 L1028 324" stroke="#2d2a25" stroke-width="11" stroke-linecap="round"/>
+  <text x="82" y="690" font-family="serif" font-size="25" fill="#4b4233">Nicht abstimmen. Erst einzeln notieren, dann vergleichen.</text>
+</svg>
