@@ -1,6 +1,6 @@
 import {createCrawlerView,FACING_ORDER,rotateFacing} from './crawler-view-v3.js?v=20260906-v3';
 import {roomStartPosition,terrainTypeAt,terrainWalkable,terrainLabel} from './room-terrain.js?v=20260906-v3';
-import {renderGeometryOverlay} from './crawler-geometry-overlay.js?v=20260906-v31c';
+import {renderGeometryOverlay} from './crawler-geometry-overlay.js?v=20260906-geometry1';
 
 const DIRS={N:{label:'N',opp:'S'},NE:{label:'NO',opp:'SW'},E:{label:'O',opp:'W'},SE:{label:'SO',opp:'NW'},S:{label:'S',opp:'N'},SW:{label:'SW',opp:'NE'},W:{label:'W',opp:'E'},NW:{label:'NW',opp:'SE'},UP:{label:'AUF',opp:'DOWN'},DOWN:{label:'AB',opp:'UP'}};
 const VECTORS={N:[0,-1],NE:[1,-1],E:[1,0],SE:[1,1],S:[0,1],SW:[-1,1],W:[-1,0],NW:[-1,-1]};
