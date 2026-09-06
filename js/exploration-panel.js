@@ -46,9 +46,7 @@ if(panel&&shell){
     const top=clamp(parseFloat(panel.style.top)||0,4,Math.max(4,b.h-h-4));
     panel.style.left=`${left}px`;panel.style.top=`${top}px`;panel.style.right='auto';panel.style.bottom='auto';
   }
-  function snapshot(){
-    return {x:parseFloat(panel.style.left)||0,y:parseFloat(panel.style.top)||0,w:panel.offsetWidth,h:panel.offsetHeight,tab};
-  }
+  function snapshot(){return {x:parseFloat(panel.style.left)||0,y:parseFloat(panel.style.top)||0,w:panel.offsetWidth,h:panel.offsetHeight,tab}}
   function scheduleSave(){if(restoring)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>localStorage.setItem(STORE,JSON.stringify(snapshot())),80)}
   function applySize(kind){
     if(kind==='compact'){
@@ -66,8 +64,10 @@ if(panel&&shell){
     else applySize('compact');
   }
   function updateCount(){
+    const items=[...(featureList?.querySelectorAll('.feature-item')||[])];
+    for(const item of items){const title=item.querySelector('b');if(title?.textContent)title.title=title.textContent.trim()}
     if(!count)return;
-    const n=featureList?.querySelectorAll('.feature-item').length||0;
+    const n=items.length;
     count.textContent=String(n);
     count.title=n===1?'1 sichtbarer Fund/Suchpunkt':`${n} sichtbare Funde/Suchpunkte`;
   }
