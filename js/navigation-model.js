@@ -41,9 +41,7 @@ export function isDecisionNode(map,nodeId){
   if(typeof node.decision==='boolean')return node.decision;
   if(solutionSourceNodes(map).has(nodeId))return true;
   if(ROOM_DECISION_KINDS.has(node.kind))return true;
-  const exits=Object.keys(buildAdj(map).get(nodeId)||{});
-  if(node.kind==='stairs')return exits.length>1;
-  return exits.length>=3;
+  return Object.keys(buildAdj(map).get(nodeId)||{}).length>=3;
 }
 
 export function initialSharedState(map){return {node:map.start,bandStep:0,step:0,decisionHistory:[],pathHistory:[],history:[],transit:null,visited:[map.start],discovered:[],roomState:{},partyFacing:HORIZONTAL_DIRS.includes(map.solution?.[0])?map.solution[0]:'N',updated_at:null}}
