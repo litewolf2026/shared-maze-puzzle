@@ -44,6 +44,7 @@ assert.match(geometryCss,/\.vertical button\.available/,'Available AUF/AB contro
 for(const cls of ['v31-front-cutout','v31-turn-mouth','v31-vertical-exit','v31-stairwell'])assert.ok(geometryCss.includes(`.${cls}`),`Missing geometry visibility style ${cls}.`);
 assert.match(index,/crawler-geometry-fix\.css\?v=20260906-geometry1/,'Geometry visibility stylesheet must be cache-busted.');
 assert.match(index,/crawler-geometry-overlay\.js\?v=20260906-geometry1/,'Geometry visibility overlay must be active.');
-assert.ok(map.edges.some(([from,dir,to])=>from==='C14'&&dir==='DOWN'&&to==='D01'),'C14 must retain the optional DOWN access to D01 / Unter Alt-Elem.');
+assert.ok(map.edges.some(([from,dir,to])=>from==='B14'&&dir==='DOWN'&&to==='D01'),'B14 must provide the optional DOWN access to D01 / Unter Alt-Elem.');
+assert.equal(map.edges.some(([from,dir,to])=>from==='C14'&&dir==='DOWN'&&to==='D01'),false,'C14 / Sahiras Kammer must not connect directly to Unter Alt-Elem.');
 
-console.log('crawler-v3: OK (layered renderer, visible continuation fixes, explicit vertical exits, D-level access, compact UI)');
+console.log('crawler-v3: OK (layered renderer, visible continuation fixes, explicit vertical exits, relocated D-level access, compact UI)');
