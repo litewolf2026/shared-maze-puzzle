@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 const readText=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
 const js=readText('../js/gm-ui-tools.js');
+const routeJs=readText('../js/gm-route-v2.js');
 const compactCss=readText('../css/gm-compact.css');
 const workspaceCss=readText('../css/gm-workspace.css');
 const index=readText('../index.html');
@@ -16,6 +17,9 @@ assert.match(js,/gm-preview-active/,'Preview mode class must exist.');
 assert.match(js,/maze-gm-collapsed/,'GM collapse state should persist locally.');
 assert.match(js,/gm-toolbox/,'GM correction tools must be grouped into a collapsible toolbox.');
 assert.match(js,/Werkzeuge & Korrektur/,'GM toolbox must have a clear play-facing label.');
+assert.match(routeJs,/gmToolbox \.gm-toolbox-body/,'GM route tools must mount inside the reorganized toolbox rather than a nested insertBefore target.');
+for(const label of ["'Pfad'","'Namen'","'IDs'"])assert.ok(routeJs.includes(label),`Missing restored GM overlay control ${label}.`);
+assert.match(routeJs,/gmOverlayTools/,'GM overlay controls need a stable toolbox hook.');
 assert.match(compactCss,/\.gm-panel\{[^}]*max-height:/s,'GM panel must have a bounded height.');
 assert.match(compactCss,/\.gm-panel\{[^}]*overflow-y:auto/s,'GM panel must scroll vertically.');
 assert.match(compactCss,/\.gm-panel\.collapsed/,'GM panel must support a collapsed state.');
@@ -27,5 +31,6 @@ assert.match(workspaceCss,/body\.gm-preview-active|\.gm-preview-tools/,'Workspac
 assert.match(index,/gm-compact\.css\?v=20260906-gm1/,'Compact GM base CSS must be loaded.');
 assert.match(index,/gm-workspace\.css\?v=20260906-gm2/,'Play-focused GM workspace CSS must be loaded last.');
 assert.match(index,/gm-ui-tools\.js\?v=20260906-gm2/,'Updated GM preview/toolbox module must be loaded.');
+assert.match(index,/gm-route-v2\.js\?v=20260906-routefix2/,'Restored GM overlay controls must bypass stale browser module caches.');
 
-console.log('gm-ui-tools: OK (wider readable workspace, collapsible correction toolbox, focused scene guidance, local-only graphics preview)');
+console.log('gm-ui-tools: OK (wider readable workspace, collapsible correction toolbox, restored Pfad/Namen/IDs controls, focused scene guidance, local-only graphics preview)');
