@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import {applyExpansions} from '../js/map-expansion.js';
 import {enrichMapContent} from '../js/content-model.js';
 import {generateContentPlan} from '../js/content-engine.js';
+import {mergeReusablePools} from '../js/reusable-content-pack.js';
 import {mergeScenarioPools,scenarioContentPack} from '../js/scenario-content-pack.js';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
@@ -26,7 +27,7 @@ for(const id of ingredientIds)assert.equal(pack.items[id].mechanics.category,'al
 for(const id of elixirIds){assert.equal(pack.items[id].mechanics.category,'alchemy_elixir');assert.match(pack.items[id].mechanics.qualityRoll,/3W6.*Tabelle 3/);}
 assert.ok(ingredientIds.length>elixirIds.length,'Ingredients should remain more common in the curated pool than finished elixirs.');
 
-const merged=mergeScenarioPools(pools,'selem-01');const alchemy=merged.pools.alchemy_loot.entries;
+const merged=mergeScenarioPools(mergeReusablePools(pools),'selem-01');const alchemy=merged.pools.alchemy_loot.entries;
 assert.equal(alchemy.includes('loot_alchemy_vial'),false);assert.equal(alchemy.includes('loot_alchemy_residue'),false);
 for(const id of curated)assert.equal(alchemy.includes(id),true,`${id} missing from Selem alchemy pool.`);
 for(const forbidden of ['orichalcum','theriak','unverwundbar','unsichtbarkeit','zaubertrank'])assert.equal(alchemy.some(id=>id.toLowerCase().includes(forbidden)),false,`High-value ${forbidden} must not enter routine Selem loot.`);
