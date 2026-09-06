@@ -22,6 +22,7 @@ jobs:
           node --check js/app-v2.js
           node --check js/navigation-model.js
           node --check js/map-expansion.js
+          node --check js/canonical-route.js
           node --check js/room-terrain.js
           node --check js/content-model.js
           node --check js/reusable-content-pack.js
@@ -53,6 +54,8 @@ jobs:
         run: node tests/decision-parity.mjs
       - name: Validate canonical physical story route
         run: node tests/canonical-story-route.mjs
+      - name: Audit final path geometry and GM route model
+        run: node tests/final-route-integrity.mjs
       - name: Validate unique shortest band route
         run: node tests/route-uniqueness.mjs
       - name: Validate all solution-node pair detours
