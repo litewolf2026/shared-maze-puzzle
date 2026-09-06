@@ -1,5 +1,5 @@
 import {mergeReusableCatalog,mergeReusablePools,mergeReusableProfiles,reusableRules} from './reusable-content-pack.js';
-import {mergeScenarioCatalog,scenarioContentPack,scenarioRoomConfig} from './scenario-content-pack.js';
+import {mergeScenarioCatalog,mergeScenarioPools,scenarioContentPack,scenarioRoomConfig} from './scenario-content-pack.js';
 import {applyContentOutcome} from './content-outcomes.js';
 
 const RARITY_WEIGHT={common:100,uncommon:55,rare:22,very_rare:8,unique:2};
@@ -51,11 +51,11 @@ function validatePayloadLinks(assignments,nodeId){const bySlot=new Map(assignmen
 }
 
 export function generateContentPlan({map,slotConfig,catalog,pools,profiles={profiles:{}},roomFeatures={},derivedByNode={},seed='default'}){
-  catalog=mergeScenarioCatalog(mergeReusableCatalog(catalog),slotConfig.scenario);pools=mergeReusablePools(pools);
+  catalog=mergeScenarioCatalog(mergeReusableCatalog(catalog),slotConfig.scenario);pools=mergeScenarioPools(mergeReusablePools(pools),slotConfig.scenario);
   const expanded=expandSlotConfig({map,slotConfig,profiles,derivedByNode}),rooms={},claimedUnique=reserveAuthoredUniques(expanded,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id)),globalBudget=slotConfig.generation?.maxProfileAssignmentsPerRoom;
   for(const node of nodes){const config=expanded.rooms?.[node.id];if(!config)continue;const context=contentContext(map,node,derivedByNode[node.id]||{}),assignments=[];for(const instanceSlot of selectedInstances(config,seed,node.id,globalBudget)){const resolved=resolveSlot({slot:instanceSlot,node,context,catalog,pools,seed,claimedUnique});if(!resolved)continue;const item=catalog.items[resolved.contentId];if(item?.unique||item.rarity==='unique')claimedUnique.add(item.id);resolved.anchor=assignContentAnchor(resolved,node,roomFeatures,seed);assignments.push(resolved)}validatePayloadLinks(assignments,node.id);if(assignments.length)rooms[node.id]={generated:true,seed:String(seed),assignments}}
   const packs=slotConfig.generation?.useReusableCore===false?[]:['core-dungeon-exploration-v1'];const scenarioPack=scenarioContentPack(slotConfig.scenario);if(scenarioPack)packs.push(scenarioPack.id);
-  return {version:5,seed:String(seed),rooms,uniqueContent:[...claimedUnique].sort(),contentPacks:packs};
+  return {version:6,seed:String(seed),rooms,uniqueContent:[...claimedUnique].sort(),contentPacks:packs};
 }
 export function roomContentFromPlan(plan,nodeId){const content=structuredClone(plan.rooms?.[nodeId]||{generated:true,seed:String(plan.seed),assignments:[]});content.planVersion=Number(plan.version||1);return content}
 export function materializeRoomState(state,plan,nodeId){
@@ -76,13 +76,40 @@ export function contentVisibleToPlayer(assignment,state=null,nodeId=null){if(!as
 function revealPayloads(assignments,parent){for(const slotId of arr(parent.reveals)){const target=assignments.find(a=>a.slotId===slotId);if(!target)continue;if(target.state==='unresolved')target.state='discovered'}}
 export function applyContentAction(state,nodeId,slotId,action,{isGm=false}={}){
   if(typeof action==='string'&&action.startsWith('outcome:'))return applyContentOutcome(state,nodeId,slotId,action.slice('outcome:'.length),{isGm});
-  const next=structuredClone(state),assignments=next.roomState?.[nodeId]?.content?.assignments;if(!Array.isArray(assignments))return {ok:false,state:next,error:'CONTENT_NOT_MATERIALIZED'};const index=assignments.findIndex(x=>x.slotId===slotId);if(index<0)return {ok:false,state:next,error:'CONTENT_NOT_FOUND'};const a=assignments[index];if(TERMINAL_STATES.has(a.state))return {ok:false,state:next,error:'CONTENT_ALREADY_CLOSED'};if(a.lockedBy&&!contentDependencySatisfied(next,nodeId,a))return {ok:false,state:next,error:'CONTENT_LOCKED_BY_SECRET'};let target=null;
-  if(action==='discover'){if(!isGm&&(a.hidden||!PLAYER_DISCOVER_TYPES.has(a.type)||a.state!=='unresolved'))return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};if(a.state==='unresolved')target='discovered';else return {ok:false,state:next,error:'CONTENT_ALREADY_DISCOVERED'}}
-  else if(action==='open'){if(!isGm||a.type!=='secret'||a.state!=='discovered')return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};assignments[index]={...a,state:'opened'};revealPayloads(assignments,assignments[index]);return {ok:true,state:next,assignment:assignments[index],revealed:arr(a.reveals)}}
-  else if(action==='trigger'){if(!isGm||!TRIGGER_TYPES.has(a.type)||!['unresolved','discovered'].includes(a.state))return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='triggered'}
-  else if(action==='take'){if(!isGm||a.type!=='loot'||!['discovered','triggered'].includes(a.state))return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='taken'}
-  else if(action==='resolve'){if(!isGm)return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='resolved'}
-  else if(action==='disable'){if(!isGm)return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='disabled'}
-  else return {ok:false,state:next,error:'CONTENT_ACTION_UNKNOWN'};
-  assignments[index]={...a,state:target};return {ok:true,state:next,assignment:assignments[index]};
+  const next=structuredClone(state),assignments=next.roomState?.[nodeId]?.content?.assignments;if(!Array.isArray(assignments))return {ok:false,error:'CONTENT_NOT_MATERIALIZED',state:next};const a=assignments.find(x=>x.slotId===slotId);if(!a)return {ok:false,error:'CONTENT_SLOT_NOT_FOUND',state:next};
+  const current=a.state||'unresolved';
+  if(a.lockedBy&&!contentDependencySatisfied(next,nodeId,a))return {ok:false,error:'CONTENT_LOCKED',state:next};
+  const gmOnly=TRIGGER_TYPES.has(a.type)||a.type==='secret'||a.type==='secret_connection';
+  if(gmOnly&&!isGm)return {ok:false,error:'CONTENT_ACTION_FORBIDDEN',state:next};
+  if(action==='discover'){
+    if(current!=='unresolved')return {ok:false,error:'CONTENT_BAD_STATE',state:next};
+    if(a.hidden&&!isGm)return {ok:false,error:'CONTENT_ACTION_FORBIDDEN',state:next};
+    if(!PLAYER_DISCOVER_TYPES.has(a.type)&&!isGm)return {ok:false,error:'CONTENT_ACTION_FORBIDDEN',state:next};
+    a.state='discovered';return {ok:true,state:next,assignment:a};
+  }
+  if(action==='open'){
+    if(!isGm||!['secret','secret_connection'].includes(a.type))return {ok:false,error:'CONTENT_ACTION_FORBIDDEN',state:next};
+    if(current!=='discovered')return {ok:false,error:'CONTENT_BAD_STATE',state:next};
+    a.state='opened';revealPayloads(assignments,a);return {ok:true,state:next,assignment:a};
+  }
+  if(action==='trigger'){
+    if(!isGm||!TRIGGER_TYPES.has(a.type))return {ok:false,error:'CONTENT_ACTION_FORBIDDEN',state:next};
+    if(!['unresolved','discovered'].includes(current))return {ok:false,error:'CONTENT_BAD_STATE',state:next};
+    a.state='triggered';return {ok:true,state:next,assignment:a};
+  }
+  if(action==='take'){
+    if(a.type!=='loot'||current!=='discovered')return {ok:false,error:'CONTENT_BAD_STATE',state:next};
+    a.state='taken';return {ok:true,state:next,assignment:a};
+  }
+  if(action==='resolve'){
+    if(!isGm)return {ok:false,error:'CONTENT_ACTION_FORBIDDEN',state:next};
+    if(TERMINAL_STATES.has(current))return {ok:false,error:'CONTENT_BAD_STATE',state:next};
+    a.state='resolved';return {ok:true,state:next,assignment:a};
+  }
+  if(action==='disable'){
+    if(!isGm)return {ok:false,error:'CONTENT_ACTION_FORBIDDEN',state:next};
+    if(TERMINAL_STATES.has(current))return {ok:false,error:'CONTENT_BAD_STATE',state:next};
+    a.state='disabled';return {ok:true,state:next,assignment:a};
+  }
+  return {ok:false,error:'CONTENT_UNKNOWN_ACTION',state:next};
 }
