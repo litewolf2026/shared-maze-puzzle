@@ -1,0 +1,30 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {applyExpansions} from '../js/map-expansion.js';
+import {enrichMapContent} from '../js/content-model.js';
+import {generateContentPlan} from '../js/content-engine.js';
+
+const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
+const map=applyExpansions(read('../data/maps.json').maps[0],read('../data/selem-expansion.json'),read('../data/selem-secrets.json'));
+const catalog=read('../data/content/catalog.json'),pools=read('../data/content/pools.json'),profiles=read('../data/content/profiles.json'),slots=read('../data/content/selem-slots.json'),roomFeatures=read('../data/room-features.json').features;
+const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
+const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed});
+const SCENE_KINDS=new Set(['room','lens','prison','goal','deadend','gate','glyph']);
+const assignmentCount=id=>plan.rooms[id]?.assignments?.length||0;
+const byKind={};
+for(const node of map.nodes){const k=node.kind||'unknown';byKind[k]??={total:0,covered:0,assignments:0};byKind[k].total++;const n=assignmentCount(node.id);if(n)byKind[k].covered++;byKind[k].assignments+=n}
+const scenes=map.nodes.filter(n=>SCENE_KINDS.has(n.kind));
+const missingScenes=scenes.filter(n=>!assignmentCount(n.id)).sort((a,b)=>a.id.localeCompare(b.id));
+const coveredScenes=scenes.length-missingScenes.length;
+const transitKinds=new Set(['junction','stairs','corridor']);
+const intentionallySparse=map.nodes.filter(n=>transitKinds.has(n.kind)&&!assignmentCount(n.id));
+for(const id of ['A02','A04','A06','A25','B12','C03','C10','C14','C15','A31','B35','D13'])assert.ok(assignmentCount(id)>0,`Key scene ${id} has no content.`);
+assert.equal(map.nodes.length,106);
+assert.equal(scenes.length,54,'Scene-location classification changed; review coverage policy intentionally.');
+assert.deepEqual(missingScenes.map(n=>n.id),[],'Every scene-like location must have authored or generated content.');
+assert.equal(coveredScenes,54);
+assert.ok(intentionallySparse.length>=35,'Transit appears overfilled; sparse movement space is intentional.');
+console.log(`content-coverage: ${coveredScenes}/${scenes.length} scene locations covered; ${Object.values(plan.rooms).reduce((n,r)=>n+r.assignments.length,0)} assignments total`);
+console.log('by-kind:',Object.entries(byKind).sort().map(([k,v])=>`${k} ${v.covered}/${v.total} (${v.assignments})`).join(' | '));
+console.log(`missing-scenes (${missingScenes.length}):`,missingScenes.map(n=>`${n.id}:${n.name}`).join(' | ')||'none');
+console.log(`sparse-transit (${intentionallySparse.length}):`,intentionallySparse.map(n=>n.id).join(', '));
