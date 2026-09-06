@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {mergeReusableCatalog,REUSABLE_CONTENT_PACK} from '../js/reusable-content-pack.js';
+import {mergeScenarioCatalog,scenarioContentPack} from '../js/scenario-content-pack.js';
 import {encounterProfileFor,encounterGuidanceRows,encounterThreatTier} from '../js/dsa41-encounters.js';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 const rules=read('../data/rules/dsa41-encounters.json');
-const catalog=mergeReusableCatalog(read('../data/content/catalog.json'));
+const catalog=mergeScenarioCatalog(mergeReusableCatalog(read('../data/content/catalog.json')),'selem-01');
 
 assert.equal(rules.system,'DSA4.1');
 assert.equal(rules.projectPolicy.archetypesAreProjectConvention,true);
@@ -15,7 +16,7 @@ assert.equal(rules.projectPolicy.automaticPartyScaling,false);
 assert.deepEqual(Object.keys(rules.threatScale).sort(),['0','1','2','3','4']);
 
 const encounters=Object.values(catalog.items).filter(x=>x.type==='encounter');
-assert.ok(encounters.length>=12,`Expected broad encounter library, got ${encounters.length}.`);
+assert.ok(encounters.length>=15,`Expected broad encounter library including Selem actors, got ${encounters.length}.`);
 for(const encounter of encounters){
   const binding=rules.bindings[encounter.id];assert.ok(binding,`Encounter ${encounter.id} lacks an archetype binding.`);
   const archetype=rules.archetypes[binding];assert.ok(archetype,`Encounter ${encounter.id} binds missing archetype ${binding}.`);
@@ -33,6 +34,9 @@ let p=profile('encounter_lost_waiter');assert.equal(p.id,'lost_noncombatant');as
 p=profile('encounter_cult_scout_pair');assert.equal(p.id,'cult_scouts');assert.equal(p.threatTier,2);assert.equal(p.defaultDisposition,'alert');assert.ok(p.escalation.some(x=>/Meldung|Verstärkung/i.test(x)));
 p=profile('encounter_water_predator');assert.equal(p.id,'water_predator');assert.equal(p.threatTier,3);assert.equal(p.defaultDisposition,'ambush');assert.ok(p.gmLevers.some(x=>/Futter|Stand/i.test(x)));
 p=profile('encounter_old_elem_echo_worker');assert.equal(p.id,'memory_echo');assert.equal(p.threatTier,0);assert.equal(p.defaultDisposition,'echo');
+p=profile('selem_nottel_witness');assert.equal(p.id,'lost_noncombatant');assert.equal(p.threatTier,0);
+p=profile('selem_sahira_antagonist');assert.equal(p.id,'sahira_antagonist');assert.equal(p.threatTier,3);assert.equal(p.defaultDisposition,'controlled');assert.ok(p.gmLevers.some(x=>/Zeitanker/i.test(x)));
+p=profile('selem_nachzehrer');assert.equal(p.id,'memory_predator');assert.equal(p.threatTier,4);assert.equal(p.defaultDisposition,'predatory');assert.ok(p.gmLevers.some(x=>/konkrete Inhalte/i.test(x)));
 
 const rows=encounterGuidanceRows(assignment('encounter_cult_scout_pair'),catalog.items.encounter_cult_scout_pair,rules);
 assert.ok(rows.some(([label,text])=>label==='Bedrohung'&&text.startsWith('2')));
@@ -40,6 +44,7 @@ assert.ok(rows.some(([label,text])=>label==='Eskalation'&&text.includes('→')))
 assert.ok(rows.some(([label,text])=>label==='Einordnung'&&text.startsWith('Projektarchetyp')));
 
 for(const id of Object.keys(REUSABLE_CONTENT_PACK.items).filter(id=>REUSABLE_CONTENT_PACK.items[id].type==='encounter'))assert.ok(rules.bindings[id],`Reusable encounter ${id} is not bound.`);
+for(const id of Object.keys(scenarioContentPack('selem-01').items).filter(id=>scenarioContentPack('selem-01').items[id].type==='encounter'))assert.ok(rules.bindings[id],`Selem actor ${id} is not bound.`);
 assert.equal(encounterProfileFor({contentId:'not-an-encounter',type:'loot'},{},rules),null);
 
-console.log(`dsa41-encounters: OK (${encounters.length} encounter definitions, ${Object.keys(rules.archetypes).length} reusable archetypes; no uncalibrated combat stats)`);
+console.log(`dsa41-encounters: OK (${encounters.length} encounter definitions, ${Object.keys(rules.archetypes).length} archetypes including Sahira/Nachzehrer; no uncalibrated combat stats)`);
