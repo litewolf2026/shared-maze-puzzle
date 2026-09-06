@@ -2,59 +2,34 @@
   "version":1,
   "scenario":"selem-01",
   "generation":{"mode":"seeded","seed":"selem-01-authored-v1"},
+  "rules":[
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"tagsAny":["water"]},"profile":"wet_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"tagsAny":["memory","time_echo"]},"profile":"memory_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"levels":[-3]},"profile":"deep_old_elem_room"},
+    {"when":{"minDistance":1,"tagsAny":["unstable","structural"]},"profile":"unstable_optional_area"}
+  ],
   "rooms":{
     "A27":{"slots":[
-      {"id":"loot-1","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}
-    ]},
-    "A29":{"slots":[
-      {"id":"hazard-1","type":"hazard","pool":"environment_hazards","placement":["water","floor"]},
-      {"id":"encounter-1","type":"encounter","pool":"ambient_encounters","placement":["water","room"]}
-    ]},
-    "B27":{"slots":[
-      {"id":"encounter-1","type":"encounter","pool":"lost_people_encounters","placement":["camp","room"]},
-      {"id":"discovery-1","type":"discovery","pool":"memory_discoveries","placement":["camp","floor"]}
+      {"id":"loot-authored","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}
     ]},
     "B29":{"slots":[
-      {"id":"loot-1","type":"loot","pool":"minor_loot","placement":["machinery","wall_niche"]}
-    ]},
-    "B31":{"slots":[
-      {"id":"hazard-1","type":"hazard","pool":"environment_hazards","placement":["water","floor"]},
-      {"id":"encounter-1","type":"encounter","pool":"ambient_encounters","placement":["water","room"]}
+      {"id":"loot-authored","type":"loot","pool":"minor_loot","placement":["machinery","wall_niche"]}
     ]},
     "C17":{"slots":[
-      {"id":"encounter-1","type":"encounter","fixed":"encounter_lost_waiter","placement":["camp","room"]}
+      {"id":"encounter-memory","type":"encounter","fixed":"encounter_lost_waiter","placement":["camp","room"]}
     ]},
     "C21":{"slots":[
-      {"id":"discovery-1","type":"discovery","fixed":"discovery_three_maps","placement":["table","floor"]},
-      {"id":"event-1","type":"event","pool":"memory_events","placement":["room"]}
+      {"id":"discovery-memory","type":"discovery","fixed":"discovery_three_maps","placement":["table","floor"]}
     ]},
     "C24":{"slots":[
-      {"id":"secret-1","type":"secret","pool":"minor_secrets","placement":["wall_niche"],"hidden":true},
-      {"id":"loot-1","type":"loot","pool":"minor_loot","placement":["wall_niche","shelf"]}
-    ]},
-    "D03":{"slots":[
-      {"id":"hazard-1","type":"hazard","pool":"environment_hazards","placement":["machinery","ceiling"]},
-      {"id":"loot-1","type":"loot","pool":"deep_old_elem_loot","placement":["machinery","rubble"]}
-    ]},
-    "D05":{"slots":[
-      {"id":"secret-1","type":"secret","pool":"minor_secrets","placement":["wall_niche"],"hidden":true},
-      {"id":"event-1","type":"event","pool":"memory_events","placement":["room"]}
-    ]},
-    "D06":{"slots":[
-      {"id":"hazard-1","type":"hazard","pool":"environment_hazards","placement":["water","floor"]},
-      {"id":"encounter-1","type":"encounter","pool":"ambient_encounters","placement":["water","room"]}
+      {"id":"secret-authored","type":"secret","pool":"minor_secrets","placement":["wall_niche"],"hidden":true},
+      {"id":"loot-authored","type":"loot","pool":"minor_loot","placement":["wall_niche","shelf"]}
     ]},
     "D08":{"slots":[
-      {"id":"loot-1","type":"loot","fixed":"loot_old_elem_component","placement":["workbench","machine"],"discoverDifficulty":3},
-      {"id":"hazard-1","type":"hazard","pool":"environment_hazards","placement":["machinery","ceiling"]}
-    ]},
-    "D10":{"slots":[
-      {"id":"encounter-1","type":"encounter","pool":"lost_people_encounters","placement":["room"]},
-      {"id":"event-1","type":"event","pool":"memory_events","placement":["room"]}
+      {"id":"loot-deep","type":"loot","fixed":"loot_old_elem_component","placement":["workbench","machine"],"discoverDifficulty":3}
     ]},
     "D12":{"slots":[
-      {"id":"secret-connection-1","type":"secret_connection","pool":"old_elem_secret_connections","placement":["secret_connection_slot"],"hidden":true},
-      {"id":"event-1","type":"event","pool":"memory_events","placement":["room"]}
+      {"id":"secret-connection-authored","type":"secret_connection","pool":"old_elem_secret_connections","placement":["secret_connection_slot"],"hidden":true}
     ]}
   }
 }
