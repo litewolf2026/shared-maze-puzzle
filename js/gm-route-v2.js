@@ -48,11 +48,14 @@ function routeStatus(){
 function toggle(button,key,on,off){button.classList.toggle('active',key);button.textContent=key?on:off;renderOverlay()}
 function install(){
   if(installed||!isGm)return;const panel=document.querySelector('.gm-panel');if(!panel)return;installed=true;
-  const row=document.createElement('div');row.className='gm-row gm-overlay-tools';
-  const r=document.createElement('button');r.textContent='Pfad';r.onclick=()=>{routeVisible=!routeVisible;toggle(r,routeVisible,'Pfad ✓','Pfad')};
-  const n=document.createElement('button');n.textContent='Namen';n.onclick=()=>{namesVisible=!namesVisible;toggle(n,namesVisible,'Namen ✓','Namen')};
-  const i=document.createElement('button');i.textContent='IDs';i.onclick=()=>{idsVisible=!idsVisible;toggle(i,idsVisible,'IDs ✓','IDs')};
-  row.append(r,n,i);const status=document.createElement('div');status.id='gmRouteStatus';status.className='gm-route-status';const anchor=[...panel.querySelectorAll('.gm-row')].at(-1);panel.insertBefore(row,anchor||null);panel.insertBefore(status,anchor||null);routeStatus();
+  const host=panel.querySelector('#gmToolbox .gm-toolbox-body')||panel;
+  const row=document.createElement('div');row.className='gm-row gm-overlay-tools';row.id='gmOverlayTools';
+  const r=document.createElement('button');r.textContent='Pfad';r.title='Sollpfad des Schwarzen Bandes auf der Automap anzeigen';r.onclick=()=>{routeVisible=!routeVisible;toggle(r,routeVisible,'Pfad ✓','Pfad')};
+  const n=document.createElement('button');n.textContent='Namen';n.title='Raumnamen auf der Automap anzeigen';n.onclick=()=>{namesVisible=!namesVisible;toggle(n,namesVisible,'Namen ✓','Namen')};
+  const i=document.createElement('button');i.textContent='IDs';i.title='Raum-IDs auf der Automap anzeigen';i.onclick=()=>{idsVisible=!idsVisible;toggle(i,idsVisible,'IDs ✓','IDs')};
+  row.append(r,n,i);
+  const status=document.createElement('div');status.id='gmRouteStatus';status.className='gm-route-status';
+  const preview=host.querySelector('#gmPreviewTools');host.insertBefore(row,preview||null);host.insertBefore(status,preview||null);routeStatus();
   document.querySelector('#mapSvg')&&new MutationObserver(()=>{if(!drawing)requestAnimationFrame(renderOverlay)}).observe(document.querySelector('#mapSvg'),{childList:true});
 }
 
