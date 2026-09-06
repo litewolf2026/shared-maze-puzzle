@@ -1,7 +1,18 @@
 {
-  "version":1,
+  "version":2,
   "scenario":"selem-01",
   "setpieces":{
+    "C10":{
+      "objective":"Den Wachposten an Nottels Zelle glaubwürdig überwinden, Nottel als handelnde Zeugin retten und ihre belastbaren Aufzeichnungen von ihren beschädigten Erinnerungen trennen.",
+      "facts":[
+        "Ein Kultwächter hält unmittelbar vor Nottels verriegelter Zelle Wache und trägt den Zellenschlüssel.",
+        "Bei offenem Alarm versucht er die beiden Kultisten im nahen Lager C11 zu erreichen; diese beiden sind der vorhandene Rückhalt, keine zusätzlich erzeugte Verstärkung.",
+        "Nottel fand Marubans Leichnam und begann selbst nachzuforschen.",
+        "Sie bemerkte, dass Erinnerung und Wegfolge unzuverlässig wurden, und hielt deshalb Beobachtungen fest.",
+        "Sahira ließ sie festhalten, weil Nottels Zeugnis und Aufzeichnungen dem gewünschten Geschichtsbild widersprechen.",
+        "Nottel ist erschöpft, aber nicht als sterbende Stichwortgeberin angelegt."
+      ]
+    },
     "C14":{
       "facts":[
         "Sahira protokolliert Erinnerungsausfälle und arbeitet deshalb mit absoluten Richtungen und physischen Notizen.",
