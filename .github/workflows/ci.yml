@@ -32,6 +32,8 @@ jobs:
           node --check js/dsa41-loot.js
           node --check js/secret-connections.js
           node --check js/content-controller.js
+          node --check js/selem-scenes.js
+          node --check js/selem-scene-controller.js
           node --check js/crawler-view.js
           node --check js/crawler-controller.js
           node --check js/exploration-controller.js
@@ -69,6 +71,8 @@ jobs:
         run: node tests/content-outcomes.mjs
       - name: Report scene content coverage
         run: node tests/content-coverage.mjs
+      - name: Validate authored Selem scene coverage
+        run: node tests/selem-scenes.mjs
       - name: Guard content density
         run: node tests/content-density.mjs
       - name: Validate spatial content lifecycle
