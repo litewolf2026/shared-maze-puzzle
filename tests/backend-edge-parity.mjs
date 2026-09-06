@@ -15,6 +15,7 @@ const moreHiddenSql=fs.readFileSync(new URL('../supabase/migrations/20260906_add
 const routeSql=fs.readFileSync(new URL('../supabase/migrations/20260906_canonical_story_route.sql',import.meta.url),'utf8');
 const cavernSql=fs.readFileSync(new URL('../supabase/migrations/20260906_drowned_cavern.sql',import.meta.url),'utf8');
 const relocateSql=fs.readFileSync(new URL('../supabase/migrations/20260906_relocate_under_alt_elem_entrance.sql',import.meta.url),'utf8');
+const a02BranchSql=fs.readFileSync(new URL('../supabase/migrations/20260906_a02_collapsed_north_branch.sql',import.meta.url),'utf8');
 const OPP={N:'S',NE:'SW',E:'W',SE:'NW',S:'N',SW:'NE',W:'E',NW:'SE',UP:'DOWN',DOWN:'UP'};
 
 function edgeArray(sql,label){const match=sql.match(/\$edges\$(\[[\s\S]*?\])\$edges\$::jsonb/);assert.ok(match,`Could not find edge JSON in ${label}.`);return JSON.parse(match[1])}
@@ -33,6 +34,7 @@ applyValuesSql(hiddenSql);applyValuesSql(moreHiddenSql);
 applyDeleteSql(routeSql);applyValuesSql(routeSql);
 applyValuesSql(cavernSql);
 applyDeleteSql(relocateSql);applyValuesSql(relocateSql);
+applyValuesSql(a02BranchSql);
 
 const frontend=new Map();
 for(const [a,d,b] of map.edges){frontend.set(`${a}|${d}`,b);const r=OPP[d];if(r&&!frontend.has(`${b}|${r}`))frontend.set(`${b}|${r}`,a)}
@@ -40,7 +42,9 @@ assert.deepEqual([...backend.entries()].sort(),[...frontend.entries()].sort(),'S
 for(const [key,target] of [['A23|E','A31'],['A31|W','A23'],['B33|S','B35'],['B35|N','B33'],['D12|W','D13'],['D13|E','D12']])assert.equal(frontend.get(key),target,`Missing hidden edge ${key}`);
 for(const [key,target] of [['A05|SW','A06'],['A06|SW','A07'],['C09|SE','C10'],['C10|SE','C12'],['C12|S','C14'],['C14|S','C15'],['C14|NE','C26']])assert.equal(frontend.get(key),target,`Missing canonical story-route edge ${key}`);
 for(const [key,target] of [['D09|E','D14'],['D14|W','D09']])assert.equal(frontend.get(key),target,`Missing drowned-cavern edge ${key}`);
+assert.equal(frontend.get('A02|N'),'A32','Second Black Band node must offer the collapsed north alternative.');
+assert.equal(frontend.get('A32|S'),'A02','Collapsed north branch must return only to A02.');
 assert.equal(frontend.get('B14|DOWN'),'D01','Under Alt-Elem must descend from the old pump chamber.');
 assert.equal(frontend.get('D01|UP'),'B14','Under Alt-Elem return route must lead back to the old pump chamber.');
 assert.equal(frontend.has('C14|DOWN'),false,'Sahira\'s room must not be the entrance to Under Alt-Elem.');
-console.log(`backend-edge-parity: OK (${frontend.size} directed edges, hidden rooms, canonical story route, relocated D entrance and drowned cavern included)`);
+console.log(`backend-edge-parity: OK (${frontend.size} directed edges, hidden rooms, A02 collapsed branch, canonical story route, relocated D entrance and drowned cavern included)`);
