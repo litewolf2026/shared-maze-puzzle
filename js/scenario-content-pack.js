@@ -166,7 +166,7 @@ const SELEM_STORY_PACK={
     ]},
     B27:{slots:[{id:'discovery-memory',type:'discovery',fixed:'discovery_abandoned_pack',placement:['camp','floor','crate']}]},
     B29:{slots:[{id:'loot-machinery',type:'loot',fixed:'selem_gear_zirkel',placement:['workbench','wall_niche']}]},
-    B35:{slots:[{id:'loot-service-tools',type:'loot',fixed:'selem_gear_duenne_kette_5',placement:['workbench','machine','floor']}]},
+    B35:{slots:[{id:'loot-service-tools',type:'loot',fixed:'selem_gear_duenne_kette_5',placement:['workbench']}]},
     C10:{slots:[
       {id:'actor-nottel',type:'encounter',fixed:'selem_nottel_witness',placement:['bed','wall','door'],additiveOnUpgrade:true},
       {id:'guard-nottel',type:'encounter',fixed:'selem_nottel_guard',placement:['door','room'],additiveOnUpgrade:true}
