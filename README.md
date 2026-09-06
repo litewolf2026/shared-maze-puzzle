@@ -36,14 +36,7 @@ Thematische Begegnungspools liegen in `data/encounter-pools.json`. Gemeinsam ent
 
 `data/maps.json` bleibt die Basis des ursprünglichen Dungeons. `data/selem-expansion.json` wird deterministisch darübergelegt.
 
-Supabase validiert serverseitig:
-
-- Graphkanten,
-- vollständige Pfadkontinuität,
-- laufenden Transit,
-- Bandentscheidungen,
-- zulässige Entscheidungsknoten,
-- Bandlänge und Zielzustand.
+Supabase validiert serverseitig Graphkanten, vollständige Pfadkontinuität, laufenden Transit, Bandentscheidungen, zulässige Entscheidungsknoten, Bandlänge und Zielzustand.
 
 CI prüft zusätzlich die Parität zwischen Frontendgraph und den Supabase-Migrationen sowie die Bandknoten-Parität. Damit kann eine Richtungs- oder Entscheidungsänderung nicht unbemerkt nur auf einer Seite landen.
 
@@ -62,21 +55,7 @@ CI prüft zusätzlich die Parität zwischen Frontendgraph und den Supabase-Migra
 
 ## Tests
 
-GitHub Actions validiert unter anderem:
-
-- JavaScript-Syntax,
-- Karten-/Chiffreferenzen,
-- Richtungsgeometrie,
-- Frontend-/Backend-Graphparität,
-- Frontend-/Backend-Bandknotenparität,
-- eindeutigen 25er-Sollweg,
-- alle 325 Sollort-Paare gegen neue gleich kurze/kürzere Umwege,
-- Fehlabbiegungen,
-- Crawler-Blickrichtungen,
-- Transit und Rückweg,
-- 103-Orte-Erweiterung,
-- Risiko-/Contentmodell,
-- Raumerkundungsfeatures.
+GitHub Actions validiert JavaScript-Syntax, Karten-/Chiffreferenzen, Richtungsgeometrie, Frontend-/Backend-Graphparität, Frontend-/Backend-Bandknotenparität, den eindeutigen 25er-Sollweg, alle 325 Sollort-Paare gegen neue gleich kurze/kürzere Umwege, Fehlabbiegungen, Crawler-Blickrichtungen, Transit und Rückweg, die 103-Orte-Erweiterung, das Risiko-/Contentmodell und Raumerkundungsfeatures.
 
 ## Lokal testen
 
