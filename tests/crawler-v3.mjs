@@ -17,7 +17,7 @@ assert.equal(rotateFacing('N',1),'NE');
 assert.equal(relativeExitSide('N','W'),'left');
 assert.ok(traceSightline(map,DIRS,map.start,map.solution[0],4).length>=1);
 
-for(const scene of ["return 'cavern'","return 'waterhall'","return 'chamber'","return 'corridor'"])assert.ok(renderer.includes(scene),`Missing Crawler V3 scene family ${scene}.`);
+for(const scene of ['cavern','waterhall','chamber','corridor'])assert.ok(renderer.includes(`'${scene}'`),`Missing Crawler V3 scene family ${scene}.`);
 for(const id of ['A06','B12','C10','C12','C14','C15','D06','D12','D14'])assert.ok(renderer.includes(`node.id==='${id}'`),`Missing authored V3 landmark ${id}.`);
 for(const cls of ['crawler-terrain-floor','crawler-terrain-bridge','crawler-terrain-shallow_water','crawler-terrain-deep_water','crawler-terrain-rubble','crawler-terrain-blocked'])assert.ok(css.includes(`.${cls}`),`Missing V3 terrain style ${cls}.`);
 for(const hook of ['v3Stone','v3FloorSlabs','v3RockFace','v3Torch','v3Vignette','drawTerrainPlane','drawRoomExits'])assert.ok(renderer.includes(hook),`Missing layered V3 renderer hook ${hook}.`);
@@ -29,4 +29,4 @@ assert.match(controller,/crawler-view-v3\.js\?v=20260906-v3/,'Crawler V3 control
 assert.match(css,/body\.view-crawler \.main\{grid-template-columns:minmax\(0,1fr\) 252px/,'Crawler V3 must give more width to the scene on desktop.');
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/,'Crawler V3 atmosphere must respect reduced-motion preference.');
 
-console.log('crawler-v3: OK (layered painterly renderer, five scene families, nine authored landmarks, compact UI, no noise-as-texture)');
+console.log('crawler-v3: OK (layered painterly renderer, core scene families, nine authored landmarks, compact UI, no noise-as-texture)');
