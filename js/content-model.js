@@ -3,6 +3,7 @@ import {buildAdj} from './navigation-model.js';
 export const ENCOUNTER_TAGS=new Set(['structural','unstable','water','stale_air','vermin','lost_people','memory','time_echo','old_elem','machinery','alchemy','cult','demonic','grave','writings','magic']);
 
 export function solutionNodeSet(map){
+  if(Array.isArray(map.canonicalPath)&&map.canonicalPath.length)return new Set(map.canonicalPath);
   const adj=buildAdj(map),out=new Set([map.start]);let node=map.start;
   for(const dir of map.solution){const edge=adj.get(node)?.[dir];if(!edge)throw new Error(`Broken solution at ${node}/${dir}`);node=edge.to;out.add(node)}
   return out;
