@@ -10,9 +10,10 @@ export async function loadSelemScenes(){
   if(cached)return cached;
   cached=(async()=>{
     const index=await loadJson('./data/content/selem-scenes.json','Selem scene index');
-    const [parts,setpieceData]=await Promise.all([
+    const [parts,setpieceData,setpieceOverrideData]=await Promise.all([
       Promise.all((index.files||[]).map(path=>loadJson(path,'Selem scene file'))),
-      index.setpiecesFile?loadJson(index.setpiecesFile,'Selem setpiece file'):Promise.resolve({setpieces:{}})
+      index.setpiecesFile?loadJson(index.setpiecesFile,'Selem setpiece file'):Promise.resolve({setpieces:{}}),
+      index.setpieceOverridesFile?loadJson(index.setpieceOverridesFile,'Selem setpiece overrides'):Promise.resolve({setpieces:{}})
     ]);
     const scenes={};
     for(const part of parts){
@@ -21,7 +22,11 @@ export async function loadSelemScenes(){
         scenes[nodeId]={...scene,zone:part.zone||nodeId[0]};
       }
     }
-    const setpieces=setpieceData.setpieces||{};
+    const setpieces=structuredClone(setpieceData.setpieces||{});
+    for(const [nodeId,patch] of Object.entries(setpieceOverrideData.setpieces||{})){
+      if(!setpieces[nodeId])throw new Error(`Setpiece override ${nodeId} has no base setpiece.`);
+      setpieces[nodeId]={...setpieces[nodeId],...structuredClone(patch)};
+    }
     for(const nodeId of Object.keys(setpieces))if(!scenes[nodeId])throw new Error(`Setpiece ${nodeId} has no authored scene.`);
     return {...index,scenes,setpieces};
   })();
