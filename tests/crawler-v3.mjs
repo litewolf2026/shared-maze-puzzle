@@ -2,12 +2,15 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {applyExpansions} from '../js/map-expansion.js';
 import {rotateFacing,relativeExitSide,traceSightline,FACING_ORDER} from '../js/crawler-view-v3.js';
+import {classifyExits} from '../js/crawler-geometry-overlay.js';
 
 const readJson=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 const readText=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
 const map=applyExpansions(readJson('../data/maps.json').maps[0],readJson('../data/selem-expansion.json'),readJson('../data/selem-secrets.json'));
 const renderer=readText('../js/crawler-view-v3.js');
 const css=readText('../css/crawler-v3.css');
+const geometryOverlay=readText('../js/crawler-geometry-overlay.js');
+const geometryCss=readText('../css/crawler-geometry-fix.css');
 const index=readText('../index.html');
 const controller=readText('../js/exploration-controller-v3.js');
 const DIRS={N:{opp:'S'},NE:{opp:'SW'},E:{opp:'W'},SE:{opp:'NW'},S:{opp:'N'},SW:{opp:'NE'},W:{opp:'E'},NW:{opp:'SE'},UP:{opp:'DOWN'},DOWN:{opp:'UP'}};
@@ -29,4 +32,18 @@ assert.match(controller,/crawler-view-v3\.js\?v=20260906-v3/,'Crawler V3 control
 assert.match(css,/body\.view-crawler \.main\{grid-template-columns:minmax\(0,1fr\) 252px/,'Crawler V3 must give more width to the scene on desktop.');
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/,'Crawler V3 atmosphere must respect reduced-motion preference.');
 
-console.log('crawler-v3: OK (layered painterly renderer, core scene families, nine authored landmarks, compact UI, no noise-as-texture)');
+const visibility=classifyExits({N:'front',NE:'front-right',W:'left',SW:'rear-left',UP:'up',DOWN:'down'},'N');
+assert.equal(visibility.front,true,'A real forward exit must classify as visually open.');
+assert.deepEqual(visibility.right,['NE'],'Front-right exits must remain visible as a turn.');
+assert.deepEqual(visibility.left,['W'],'Side exits must remain visible as a turn.');
+assert.deepEqual(visibility.rear,['SW'],'Rear exits must not be falsely painted into the forward field of view.');
+assert.equal(visibility.up,true);assert.equal(visibility.down,true);
+for(const hook of ['visibleAdj','drawFrontCutout','drawTurnMouth','drawVerticalExit','queueMicrotask'])assert.ok(geometryOverlay.includes(hook),`Missing geometry visibility hook ${hook}.`);
+assert.match(geometryOverlay,/\.v3-end-wall,\.v3-end-rock/,'Geometry fix must repair only a renderer end wall when a visible path contradicts it.');
+assert.match(geometryCss,/\.vertical button\.available/,'Available AUF/AB controls must receive a strong vertical-exit treatment.');
+for(const cls of ['v31-front-cutout','v31-turn-mouth','v31-vertical-exit','v31-stairwell'])assert.ok(geometryCss.includes(`.${cls}`),`Missing geometry visibility style ${cls}.`);
+assert.match(index,/crawler-geometry-fix\.css\?v=20260906-geometry1/,'Geometry visibility stylesheet must be cache-busted.');
+assert.match(index,/crawler-geometry-overlay\.js\?v=20260906-geometry1/,'Geometry visibility overlay must be active.');
+assert.ok(map.edges.some(([from,dir,to])=>from==='C14'&&dir==='DOWN'&&to==='D01'),'C14 must retain the optional DOWN access to D01 / Unter Alt-Elem.');
+
+console.log('crawler-v3: OK (layered renderer, visible continuation fixes, explicit vertical exits, D-level access, compact UI)');

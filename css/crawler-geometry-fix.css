@@ -1,0 +1,19 @@
+#crawlerSvg .v3-side-opening{fill:#010202;stroke:rgba(166,197,183,.32);stroke-width:2}
+#crawlerSvg .v3-side-jamb{stroke:rgba(202,181,139,.78);stroke-width:4;filter:drop-shadow(0 0 5px rgba(0,0,0,.7))}
+#crawlerSvg .v3-portal.side .v3-portal-dark{fill:#010101}
+#crawlerSvg .v3-portal.side .v3-portal-frame{stroke-width:5;filter:drop-shadow(0 0 6px rgba(0,0,0,.7))}
+#crawlerSvg .v31-geometry-overlay{isolation:isolate}
+#crawlerSvg .v31-opening-dark,#crawlerSvg .v31-turn-dark{fill:#000;stroke:none}
+#crawlerSvg .v31-opening-frame,#crawlerSvg .v31-turn-frame{fill:none;stroke:#9b896c;stroke-width:5;stroke-linejoin:round;filter:drop-shadow(0 0 7px rgba(0,0,0,.9))}
+#crawlerSvg .v31-opening-floor,#crawlerSvg .v31-turn-floor{fill:#100e0b;opacity:.88}
+#crawlerSvg .v31-front-cutout .v31-opening-frame{stroke:#a9997b}
+#crawlerSvg .v31-turn-mouth{opacity:.98}
+#crawlerSvg .v31-vertical-exit{opacity:.98;filter:drop-shadow(0 0 5px rgba(0,0,0,.75))}
+#crawlerSvg .v31-stairwell{fill:#050505;stroke:#ab9369;stroke-width:3;filter:drop-shadow(0 0 9px rgba(0,0,0,.85))}
+#crawlerSvg .v31-stair-step{stroke:#88765d;stroke-width:2;opacity:.9}
+#crawlerSvg .v31-stair-arrow{fill:none;stroke:#e6c47c;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(216,165,80,.45))}
+#crawlerSvg .v31-stair-label{fill:#f0d8a5;font:700 16px Georgia,serif;text-anchor:middle;letter-spacing:.09em;paint-order:stroke;stroke:#0b0906;stroke-width:3px}
+body.view-crawler .vertical button.available{border-color:#cda65b!important;background:linear-gradient(180deg,#3f2d17,#20170f)!important;color:#ffe1a1!important;box-shadow:0 0 0 1px rgba(244,199,111,.22),0 0 15px rgba(196,142,61,.22)!important;font-weight:800;opacity:1!important}
+body.view-crawler .vertical button.available:hover{border-color:#f0c875!important;box-shadow:0 0 0 1px rgba(244,199,111,.34),0 0 20px rgba(196,142,61,.35)!important}
+body.view-crawler .vertical button.unavailable{opacity:.28}
+@media(prefers-reduced-motion:reduce){#crawlerSvg .v31-geometry-overlay{transition:none!important}}
