@@ -11,7 +11,8 @@ const catalog=read('../data/content/catalog.json'),pools=read('../data/content/p
 const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed});
 
-assert.equal(plan.version,4);
+assert.equal(plan.version,5,'Scenario actor upgrade raises the content plan to v5 without changing payload semantics.');
+assert.ok(plan.contentPacks.includes('selem-core-actors-v1'),'Plan v5 should include the Selem scenario actor pack.');
 assert.deepEqual(map.nodes.find(n=>n.id==='A25').exploreGrid,{w:3,h:3},'A25 should be locally explorable after secret overlay.');
 
 function assignments(nodeId){return plan.rooms[nodeId]?.assignments||[]}
@@ -48,11 +49,11 @@ assert.equal(secretContentStatus(state,'A25','secret-false-back').opened,true);
 let taken=applyContentAction(state,'A25','loot-false-back','take',{isGm:true});assert.equal(taken.ok,true);state=taken.state;assert.equal(state.roomState.A25.content.assignments.find(a=>a.slotId==='loot-false-back').state,'taken');
 let resolved=applyContentAction(state,'A25','secret-false-back','resolve',{isGm:true});assert.equal(resolved.ok,true);assert.equal(resolved.assignment.state,'resolved');
 
-// Plan-v4 migration adds dependencies without changing gameplay state.
+// A pre-v4 materialized room still gains the dependency metadata under plan v5 without changing gameplay state.
 const legacySecret={...a25Secret,state:'discovered'};delete legacySecret.reveals;const legacyLoot={...a25Loot,state:'unresolved'};delete legacyLoot.lockedBy;
 const legacy={roomState:{A25:{content:{generated:true,planVersion:3,assignments:[legacySecret,legacyLoot]}}}};
 const upgraded=materializeRoomState(legacy,plan,'A25');assert.equal(upgraded.changed,true);const upgradedAssignments=upgraded.state.roomState.A25.content.assignments;
-assert.deepEqual(upgradedAssignments.find(a=>a.slotId==='secret-false-back').reveals,['loot-false-back']);assert.equal(upgradedAssignments.find(a=>a.slotId==='loot-false-back').lockedBy,'secret-false-back');assert.equal(upgradedAssignments.find(a=>a.slotId==='secret-false-back').state,'discovered');assert.equal(upgradedAssignments.find(a=>a.slotId==='loot-false-back').state,'unresolved');
+assert.deepEqual(upgradedAssignments.find(a=>a.slotId==='secret-false-back').reveals,['loot-false-back']);assert.equal(upgradedAssignments.find(a=>a.slotId==='loot-false-back').lockedBy,'secret-false-back');assert.equal(upgradedAssignments.find(a=>a.slotId==='secret-false-back').state,'discovered');assert.equal(upgradedAssignments.find(a=>a.slotId==='loot-false-back').state,'unresolved');assert.equal(upgraded.state.roomState.A25.content.planVersion,5);
 
 // Broken dependency graphs fail during plan generation instead of producing runtime ghosts.
 const badSlots={generation:{useReusableCore:false},rooms:{A25:{slots:[{id:'secret',type:'secret',fixed:'secret_false_back',reveals:['missing']}]}}};
@@ -60,4 +61,4 @@ assert.throws(()=>generateContentPlan({map,slotConfig:badSlots,catalog,pools,pro
 
 const sql=fs.readFileSync(new URL('../supabase/migrations/20260906_secret_payload_metadata.sql',import.meta.url),'utf8');assert.match(sql,/'reveals'/);assert.match(sql,/'lockedBy'/);assert.match(sql,/v_old \? 'reveals'/);assert.match(sql,/v_old \? 'lockedBy'/);
 
-console.log('secret-payloads: OK (secret -> open -> payload reveal; dependency validation + plan-v4 migration)');
+console.log('secret-payloads: OK (plan v5 preserves secret -> open -> payload reveal, dependency validation and legacy dependency backfill)');
