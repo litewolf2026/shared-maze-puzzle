@@ -1,9 +1,6 @@
 const SELEM_STORY_PACK={
   id:'selem-core-actors-v1',
   version:4,
-  retiredContentIds:[
-    'selem_handout_a06','selem_handout_b12','selem_handout_c03','selem_handout_c10','selem_handout_c12','selem_handout_c14','selem_handout_c15'
-  ],
   items:{
     selem_nottel_witness:{
       id:'selem_nottel_witness',scope:'selem-01',type:'encounter',label:'Nottel',rarity:'unique',unique:true,
@@ -78,4 +75,3 @@ export function mergeScenarioCatalog(base,scenarioId){
 }
 export function scenarioRoomConfig(scenarioId,nodeId){return structuredClone(scenarioContentPack(scenarioId)?.rooms?.[nodeId]||null)}
 export function scenarioActorIds(scenarioId){return Object.values(scenarioContentPack(scenarioId)?.items||{}).filter(x=>x.mechanics?.actorId).map(x=>x.mechanics.actorId)}
-export function retiredScenarioContentIds(scenarioId){return new Set(scenarioContentPack(scenarioId)?.retiredContentIds||[])}
