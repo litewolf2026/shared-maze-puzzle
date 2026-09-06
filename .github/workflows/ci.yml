@@ -22,6 +22,8 @@ jobs:
           node --check js/direction-ui.js
           node --check js/map-readability.js
           node --check js/gm-route.js
+          node --check js/crawler-view.js
+          node --check js/crawler-controller.js
       - name: Validate maps and cipher references
         run: node tests/validate.mjs
       - name: Validate direction geometry and cipher semantics
@@ -30,3 +32,5 @@ jobs:
         run: node tests/route-uniqueness.mjs
       - name: Validate wrong-turn behavior
         run: node tests/deviations.mjs
+      - name: Validate crawler facing and sightline semantics
+        run: node tests/crawler-view.mjs
