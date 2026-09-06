@@ -99,6 +99,8 @@ jobs:
         run: node tests/dsa41-hazards.mjs
       - name: Validate reusable encounter archetypes
         run: node tests/dsa41-encounters.mjs
+      - name: Validate canonical Selem fauna
+        run: node tests/selem-fauna.mjs
       - name: Validate loot valuation and identification guidance
         run: node tests/dsa41-loot.mjs
       - name: Validate hidden connection lifecycle
