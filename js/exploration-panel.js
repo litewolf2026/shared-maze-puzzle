@@ -33,6 +33,7 @@ if(panel&&shell){
   function readStore(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch{return {}}}
   function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
   function bounds(){return {w:shell.clientWidth,h:shell.clientHeight}}
+  function layoutVisible(){const b=bounds();return b.w>=100&&b.h>=100&&panel.offsetWidth>=100&&panel.offsetHeight>=100}
   function setTab(next,persist=true){
     tab=next==='details'?'details':'controls';
     panel.classList.toggle('panel-tab-details',tab==='details');
@@ -41,13 +42,14 @@ if(panel&&shell){
     if(persist)scheduleSave();
   }
   function positionInside(){
+    if(!layoutVisible())return;
     const b=bounds(),w=panel.offsetWidth,h=panel.offsetHeight;
     const left=clamp(parseFloat(panel.style.left)||0,4,Math.max(4,b.w-w-4));
     const top=clamp(parseFloat(panel.style.top)||0,4,Math.max(4,b.h-h-4));
     panel.style.left=`${left}px`;panel.style.top=`${top}px`;panel.style.right='auto';panel.style.bottom='auto';
   }
-  function snapshot(){return {x:parseFloat(panel.style.left)||0,y:parseFloat(panel.style.top)||0,w:panel.offsetWidth,h:panel.offsetHeight,tab}}
-  function scheduleSave(){if(restoring)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>localStorage.setItem(STORE,JSON.stringify(snapshot())),80)}
+  function snapshot(){if(!layoutVisible())return null;return {x:parseFloat(panel.style.left)||0,y:parseFloat(panel.style.top)||0,w:panel.offsetWidth,h:panel.offsetHeight,tab}}
+  function scheduleSave(){if(restoring)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{const state=snapshot();if(state)localStorage.setItem(STORE,JSON.stringify(state))},80)}
   function applySize(kind){
     if(kind==='compact'){
       if(panel.offsetHeight>180)lastExpanded={w:panel.offsetWidth,h:panel.offsetHeight,tab};
@@ -78,13 +80,13 @@ if(panel&&shell){
   handle.addEventListener('dblclick',event=>{event.preventDefault();toggleCompact()});
   handle.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCompact()}});
   handle.addEventListener('pointerdown',event=>{
-    if(event.button!==0)return;
+    if(event.button!==0||!layoutVisible())return;
     const r=panel.getBoundingClientRect(),s=shell.getBoundingClientRect();
     dragging={pointerId:event.pointerId,dx:event.clientX-r.left,dy:event.clientY-r.top,shell:s};
     handle.setPointerCapture?.(event.pointerId);event.preventDefault();
   });
   handle.addEventListener('pointermove',event=>{
-    if(!dragging||dragging.pointerId!==event.pointerId)return;
+    if(!dragging||dragging.pointerId!==event.pointerId||!layoutVisible())return;
     const b=bounds(),w=panel.offsetWidth,h=panel.offsetHeight;
     const x=clamp(event.clientX-dragging.shell.left-dragging.dx,4,Math.max(4,b.w-w-4));
     const y=clamp(event.clientY-dragging.shell.top-dragging.dy,4,Math.max(4,b.h-h-4));
