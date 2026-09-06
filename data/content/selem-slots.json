@@ -1,5 +1,5 @@
 {
-  "version":3,
+  "version":4,
   "scenario":"selem-01",
   "generation":{"mode":"seeded","seed":"selem-01-authored-v2","maxProfileAssignmentsPerRoom":4,"useReusableCore":true},
   "rules":[
@@ -37,7 +37,8 @@
       {"id":"secret-pilgrim-room","type":"secret_connection","fixed":"secret_connection_pilgrim_reliquary","placement":["secret_connection_slot","wall","shrine"],"hidden":true}
     ]},
     "A25":{"slots":[
-      {"id":"secret-false-back","type":"secret","fixed":"secret_false_back","placement":["wall","wall_niche","shelf"],"hidden":true}
+      {"id":"secret-false-back","type":"secret","fixed":"secret_false_back","placement":["wall","wall_niche","shelf"],"hidden":true,"reveals":["loot-false-back"]},
+      {"id":"loot-false-back","type":"loot","fixed":"loot_pilgrim_coins","placement":["wall_niche","shelf"],"hidden":true,"lockedBy":"secret-false-back"}
     ]},
     "A27":{"slots":[
       {"id":"loot-alchemy","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}
@@ -98,8 +99,8 @@
       {"id":"discovery-memory","type":"discovery","fixed":"discovery_three_maps","placement":["table","floor"]}
     ]},
     "C24":{"slots":[
-      {"id":"secret-authored","type":"secret","pool":"cult_secrets","placement":["wall_niche","altar"],"hidden":true},
-      {"id":"loot-authored","type":"loot","pool":"old_elem_minor_loot","placement":["wall_niche","shelf"]}
+      {"id":"secret-authored","type":"secret","pool":"cult_secrets","placement":["wall_niche","altar"],"hidden":true,"reveals":["loot-authored"]},
+      {"id":"loot-authored","type":"loot","pool":"old_elem_minor_loot","placement":["wall_niche","shelf"],"hidden":true,"lockedBy":"secret-authored"}
     ]},
     "D08":{"slots":[
       {"id":"loot-deep","type":"loot","fixed":"loot_old_elem_component","placement":["workbench","machine"],"discoverDifficulty":3}
