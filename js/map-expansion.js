@@ -1,0 +1,16 @@
+export function applyExpansion(base,expansion){
+  if(!expansion)return structuredClone(base);
+  if(expansion.baseMap!==base.id)throw new Error(`Expansion ${expansion.id||''} targets ${expansion.baseMap}, not ${base.id}`);
+  const map=structuredClone(base);
+  map.gridSizeMeters=expansion.gridSizeMeters||map.gridSizeMeters||3;
+  map.displayUnitsPerGridCell=expansion.displayUnitsPerGridCell||map.displayUnitsPerGridCell||2.4;
+  const levelIds=new Set(map.levels.map(l=>Number(l.z)));
+  for(const level of expansion.levels||[]){if(!levelIds.has(Number(level.z))){map.levels.push(structuredClone(level));levelIds.add(Number(level.z))}}
+  const nodeIds=new Set(map.nodes.map(n=>n.id));
+  for(const node of expansion.nodes||[]){if(nodeIds.has(node.id))throw new Error(`Expansion duplicates node ${node.id}`);map.nodes.push(structuredClone(node));nodeIds.add(node.id)}
+  map.edges.push(...structuredClone(expansion.edges||[]));
+  map.decor=[...(map.decor||[]),...structuredClone(expansion.decor||[])];
+  map.edgeMeta={...(map.edgeMeta||{}),...(expansion.edgeMeta||{})};
+  map.expansionId=expansion.id||null;
+  return map;
+}
