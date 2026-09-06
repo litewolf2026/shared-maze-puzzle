@@ -31,6 +31,8 @@ jobs:
         run: node tests/validate.mjs
       - name: Validate direction geometry and cipher semantics
         run: node tests/direction-semantics.mjs
+      - name: Validate frontend and backend graph parity
+        run: node tests/backend-edge-parity.mjs
       - name: Validate unique shortest band route
         run: node tests/route-uniqueness.mjs
       - name: Validate wrong-turn behavior
