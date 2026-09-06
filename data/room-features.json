@@ -1,0 +1,22 @@
+{
+  "features": {
+    "A22":[{"id":"bedrolls","x":1,"y":1,"label":"Zerfallene Schlafrollen","description":"Mehrfach geflickte Pilgerdecken. Alles Brauchbare wurde vor langer Zeit mitgenommen."}],
+    "A23":[{"id":"wall_mark","x":2,"y":2,"label":"Freigelegte Ritzung","description":"Unter dem abgeplatzten Putz liegt ein älteres Bauzeichen Alt-Elems."}],
+    "A27":[{"id":"jars","x":3,"y":2,"label":"Zerbrochene Krüge","description":"Zwischen wertlosem Scherbenstaub steckt noch ein verschlossenes kleines Reagenzglas."}],
+    "B22":[{"id":"lime_marks","x":4,"y":2,"label":"Kalkstriche","description":"Jemand hat dieselbe Zählmarke immer wieder begonnen und nach wenigen Strichen abgebrochen."}],
+    "B27":[{"id":"lost_lamp","x":2,"y":3,"label":"Erloschene Reisendenlampe","description":"Daneben liegt ein Bündel Proviant für viele Tage. Der Besitzer behauptet, erst seit gestern hier zu sein."},{"id":"wall_note","x":4,"y":1,"label":"Kohlezeichen an der Wand","description":"Eine Wegnotiz endet mitten im Satz und beginnt darunter fast wortgleich erneut."}],
+    "B29":[{"id":"tools","x":2,"y":1,"label":"Korrodierter Werkzeugsatz","description":"Zwischen gewöhnlichem Gerät liegt ein gut erhaltener alter Ventilschlüssel."}],
+    "B31":[{"id":"tow_rope","x":5,"y":3,"label":"Verrottetes Treidelseil","description":"Das Seil führt zu einem im Schwarzwasser versunkenen Lastschlitten."}],
+    "C17":[{"id":"waiting_man","x":3,"y":3,"label":"Der wartende Mann","description":"Sein Bart und seine Vorräte sprechen von Wochen. Er ist sicher, erst seit einigen Stunden zu warten."}],
+    "C19":[{"id":"scraped_tablets","x":2,"y":2,"label":"Abgeschabte Tafeln","description":"Die Schriftflächen wurden sorgfältig getilgt. In den Rändern sind einzelne alte Zeichen erhalten."}],
+    "C21":[{"id":"three_maps","x":3,"y":2,"label":"Drei handgezeichnete Karten","description":"Alle drei stammen offenbar von derselben Hand und widersprechen sich an entscheidenden Stellen."}],
+    "C22":[{"id":"camp","x":2,"y":3,"label":"Lagerplatz","description":"Abfall und Asche belegen viele Tage Aufenthalt, obwohl die Notizen nur drei Tage zählen."}],
+    "C24":[{"id":"reliquary","x":3,"y":1,"label":"Alter Reliquienschrank","description":"Hinter jüngeren Kultgegenständen steckt ein kleines historisches Schmuckstück aus deutlich älterer Zeit."}],
+    "C26":[{"id":"sahira_notes","x":2,"y":2,"label":"Sahiras Notizen","description":"Mehrere Seiten beschreiben Erinnerungsausfälle und den Versuch, Wege nur noch über absolute Richtungen festzuhalten."}],
+    "D03":[{"id":"silent_machine","x":4,"y":3,"label":"Stumme Maschine","description":"Bronzene Zahnräder und Gewichte bilden einen Mechanismus, dessen ursprünglicher Zweck nicht mehr offensichtlich ist."}],
+    "D05":[{"id":"grave_niche","x":4,"y":2,"label":"Versiegelte Grabnische","description":"Die Fuge ist unberührt. Dahinter könnte noch ursprüngliches Grabinventar liegen."}],
+    "D08":[{"id":"workbench","x":4,"y":3,"label":"Versiegelte Werkbank","description":"In einer steinernen Fassung liegt ein außergewöhnlich gut erhaltener technomagischer Bestandteil."}],
+    "D10":[{"id":"lost_day","x":3,"y":3,"label":"Verwirrte Gestalt","description":"Sie erinnert sich an denselben Morgen in mehreren widersprüchlichen Fassungen und kann kein Datum nennen."}],
+    "D12":[{"id":"blind_lens","x":3,"y":3,"label":"Blinde Linse","description":"Eine milchige alte Fassung reagiert schwach auf Nähe. Sie scheint eher Erinnerung als Licht gebündelt zu haben."}]
+  }
+}
