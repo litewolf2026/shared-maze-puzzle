@@ -1,10 +1,9 @@
 import {actorStatus} from './content-outcomes.js';
 
 const ANCHORS=Object.freeze([
-  {id:'socket',label:'Leere Fassung / Entnahmespuren',mechanic:'handoutId',value:'a06-empty-lens'},
-  {id:'nottel',label:'Nottels unmittelbare Notizen',mechanic:'handoutId',value:'c10-nottel-notes'},
-  {id:'sahira',label:'Sahiras eigenes Richtungsprotokoll',mechanic:'handoutId',value:'c14-sahira-protocol'},
-  {id:'hero',label:'Eigener unabhängiger Anker',mechanic:'handoutId',value:'c15-time-anchor-network',runtimeOutcome:'own_anchor_created'}
+  {id:'socket',label:'Leere Fassung / Entnahmespuren',kind:'content',value:'selem_green_lens_clue'},
+  {id:'nottel',label:'Nottels Zeugnis / Untersuchung',kind:'actor',value:'nottel'},
+  {id:'sahira',label:'Sahiras eigenes Richtungsprotokoll',kind:'content',value:'selem_sahira_notes'}
 ]);
 const RITUAL_LABELS={
   unresolved:'vorbereitet / noch nicht ausgelöst',triggered:'aktiv',resolved:'abgeschlossen',
@@ -21,16 +20,16 @@ export function allAssignments(state){
   const out=[];for(const [nodeId,room] of Object.entries(state?.roomState||{}))for(const assignment of room?.content?.assignments||[])out.push({nodeId,assignment});return out;
 }
 export function assignmentByMechanic(state,key,value){return allAssignments(state).find(x=>x.assignment?.mechanics?.[key]===value)||null}
+export function assignmentByContentId(state,contentId){return allAssignments(state).find(x=>x.assignment?.contentId===contentId)||null}
 export function actorAssignment(state,actorId){return assignmentByMechanic(state,'actorId',actorId)}
 export function ritualAssignment(state){return assignmentByMechanic(state,'ritualId','sahira-rewrite')}
-function securedAssignment(row,def){
-  if(!row||['unresolved','disabled'].includes(row.assignment?.state))return false;
-  if(def.runtimeOutcome)return row.assignment?.runtime?.lastOutcome===def.runtimeOutcome;
-  return true;
-}
+function securedAssignment(row){return Boolean(row&&!['unresolved','disabled'].includes(row.assignment?.state))}
 
 export function finaleAnchorRows(state){
-  return ANCHORS.map(def=>{const row=assignmentByMechanic(state,def.mechanic,def.value);return {...def,nodeId:row?.nodeId||null,secured:securedAssignment(row,def),state:row?.assignment?.state||'missing',runtimeOutcome:row?.assignment?.runtime?.lastOutcome||null}});
+  return ANCHORS.map(def=>{
+    const row=def.kind==='actor'?actorAssignment(state,def.value):assignmentByContentId(state,def.value);
+    return {...def,nodeId:row?.nodeId||null,secured:securedAssignment(row),state:row?.assignment?.state||'missing'};
+  });
 }
 export function ritualStatus(state){
   const row=ritualAssignment(state);if(!row)return {present:false,id:'missing',label:'noch nicht materialisiert',terminal:false,nodeId:null};
