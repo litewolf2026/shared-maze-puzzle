@@ -5,7 +5,14 @@ const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 const index=read('../data/content/selem-scenes.json');
 assert.ok(index.setpiecesFile,'Scene index must reference the key setpiece file.');
 const setpieceData=JSON.parse(fs.readFileSync(new URL(`../${index.setpiecesFile.replace(/^\.\//,'')}`,import.meta.url),'utf8'));
-const setpieces=setpieceData.setpieces||{};
+const setpieces=structuredClone(setpieceData.setpieces||{});
+if(index.setpieceOverridesFile){
+  const overrideData=JSON.parse(fs.readFileSync(new URL(`../${index.setpieceOverridesFile.replace(/^\.\//,'')}`,import.meta.url),'utf8'));
+  for(const [id,patch] of Object.entries(overrideData.setpieces||{})){
+    assert.ok(setpieces[id],`Setpiece override ${id} must reference a base setpiece.`);
+    setpieces[id]={...setpieces[id],...patch};
+  }
+}
 const expected=['A06','B12','C03','C10','C12','C14','C15'];
 assert.deepEqual(Object.keys(setpieces).sort(),[...expected].sort(),'Exactly the seven canonical critical scenes should carry mandatory setpiece guidance.');
 
@@ -31,5 +38,8 @@ assert.ok(setpieces.C15.phases.length>=4,'Finale must have confrontation, Nachze
 assert.ok(setpieces.C15.successSignals?.length>=3,'Finale must define multiple success signals.');
 assert.ok(setpieces.C15.failurePressure?.length>=3,'Finale failure must create pressure without a single automatic total-retcon result.');
 assert.equal(Object.keys(setpieces).some(id=>id.startsWith('D')),false,'Optional Under Alt-Elem must not become a mandatory key setpiece chain.');
+const c14Text=JSON.stringify(setpieces.C14);
+assert.equal(c14Text.includes('Unter Alt-Elem erkunden'),false,'Sahira setpiece must not offer Under Alt-Elem as a room action.');
+assert.equal(c14Text.includes('Der Abstieg nach Unter Alt-Elem'),false,'Sahira setpiece must not describe the deep entrance as part of C14.');
 
 console.log(`selem-setpieces: OK (${expected.length} canonical key scenes, ${expected.reduce((n,id)=>n+setpieces[id].phases.length,0)} playable phases; external handout delivery is outside the app)`);
