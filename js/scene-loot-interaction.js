@@ -56,6 +56,7 @@ function openCard(nodeId,assignment){
 }
 
 function clearMarker(marker){
+  if(!marker.classList.contains('scene-loot-takeable')&&!marker.querySelector('.scene-loot-pickup-halo'))return;
   marker.classList.remove('scene-loot-takeable');
   marker.removeAttribute('data-loot-key');
   marker.removeAttribute('data-loot-slot');
@@ -72,21 +73,21 @@ function addHalo(marker){
   halo.setAttribute('cx',String(cx));halo.setAttribute('cy',String(cy));halo.setAttribute('r','12');halo.setAttribute('class','scene-loot-pickup-halo');
   marker.insertBefore(halo,marker.firstChild);
 }
+function markLoot(marker,nodeId,assignment){
+  marker.classList.add('scene-loot-takeable');
+  marker.dataset.lootKey=lootKey(nodeId,assignment);marker.dataset.lootSlot=assignment.slotId;
+  marker.setAttribute('role','button');marker.setAttribute('tabindex','0');marker.setAttribute('aria-label',`${assignment.label} ins Gruppeninventar nehmen`);
+  addHalo(marker);
+}
 function decorateMarkers(){
   const svg=document.querySelector('#crawlerSvg');if(!svg)return;
   const nodeId=currentNodeId(),loot=eligibleLoot();
   const byRenderedLabel=new Map();
   for(const assignment of loot){const key=visibleLabel(assignment.label);if(!byRenderedLabel.has(key))byRenderedLabel.set(key,[]);byRenderedLabel.get(key).push(assignment)}
   for(const marker of svg.querySelectorAll('.v3-feature-marker')){
-    clearMarker(marker);
     const label=marker.querySelector('.v3-feature-label')?.textContent?.trim()||'';
     const matches=byRenderedLabel.get(label)||[];
-    if(matches.length!==1)continue;
-    const assignment=matches[0];
-    marker.classList.add('scene-loot-takeable');
-    marker.dataset.lootKey=lootKey(nodeId,assignment);marker.dataset.lootSlot=assignment.slotId;
-    marker.setAttribute('role','button');marker.setAttribute('tabindex','0');marker.setAttribute('aria-label',`${assignment.label} ins Gruppeninventar nehmen`);
-    addHalo(marker);
+    if(matches.length===1)markLoot(marker,nodeId,matches[0]);else clearMarker(marker);
   }
   if(activeKey&&!findActive())closeCard();
 }
