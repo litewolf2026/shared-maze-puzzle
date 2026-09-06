@@ -15,30 +15,15 @@ Gemeinsames Browser-Dungeonrätsel für die DSA-Kampagne in Selem. Mehrere Spiel
 
 ## Dungeon
 
-Die V2-Erweiterung enthält **103 logische Orte auf vier Ebenen**:
-
-1. Obere Ruinen
-2. Tiefes Alt-Elem
-3. Die vergessene Tiefe
-4. Unter Alt-Elem
-
-Der ursprüngliche 25-Entscheidungen-Sollweg von A01 bis C15 bleibt unverändert. Die neue Ebene D ist vollständig optional.
+Die V2-Erweiterung enthält **103 logische Orte auf vier Ebenen**: Obere Ruinen, Tiefes Alt-Elem, Die vergessene Tiefe und Unter Alt-Elem. Der ursprüngliche 25-Entscheidungen-Sollweg von A01 bis C15 bleibt unverändert; Ebene D ist vollständig optional.
 
 ## Risiko und Inhalte
 
-Nebenräume tragen narrative Tags wie `water`, `memory`, `lost_people`, `old_elem`, `demonic`, `alchemy` oder `machinery`.
-
-`js/content-model.js` berechnet für jeden Ort die kürzeste Graphdistanz zum Sollweg. Daraus entsteht eine Grundgefahr, die durch `dangerFloor` einer Zone angehoben werden kann. Loot wird nicht zufällig verteilt: `lootTier` bleibt bewusst authored; die Distanz bestimmt nur, welche Qualität plausibel wäre.
-
-Thematische Begegnungspools liegen in `data/encounter-pools.json`. Gemeinsam entdeckbare Raumdetails liegen in `data/room-features.json`.
+Nebenräume tragen narrative Tags wie `water`, `memory`, `lost_people`, `old_elem`, `demonic`, `alchemy` oder `machinery`. `js/content-model.js` berechnet die kürzeste Graphdistanz zum Sollweg. Daraus entsteht eine Grundgefahr, die `dangerFloor` anheben kann. Loot bleibt mit `lootTier` bewusst authored. Begegnungspools liegen in `data/encounter-pools.json`, gemeinsam entdeckbare Details in `data/room-features.json`.
 
 ## Autoritative Daten und Supabase
 
-`data/maps.json` bleibt die Basis des ursprünglichen Dungeons. `data/selem-expansion.json` wird deterministisch darübergelegt.
-
-Supabase validiert serverseitig Graphkanten, vollständige Pfadkontinuität, laufenden Transit, Bandentscheidungen, zulässige Entscheidungsknoten, Bandlänge und Zielzustand.
-
-CI prüft zusätzlich die Parität zwischen Frontendgraph und den Supabase-Migrationen sowie die Bandknoten-Parität. Damit kann eine Richtungs- oder Entscheidungsänderung nicht unbemerkt nur auf einer Seite landen.
+`data/maps.json` bleibt die Basis des ursprünglichen Dungeons; `data/selem-expansion.json` wird deterministisch darübergelegt. Supabase validiert Graphkanten, Pfadkontinuität, Transit, Bandentscheidungen, Entscheidungsknoten, Bandlänge und Zielzustand. CI prüft zusätzlich Frontend-/Backend-Graphparität und Bandknoten-Parität.
 
 ## Wichtige Dateien
 
@@ -55,16 +40,12 @@ CI prüft zusätzlich die Parität zwischen Frontendgraph und den Supabase-Migra
 
 ## Tests
 
-GitHub Actions validiert JavaScript-Syntax, Karten-/Chiffreferenzen, Richtungsgeometrie, Frontend-/Backend-Graphparität, Frontend-/Backend-Bandknotenparität, den eindeutigen 25er-Sollweg, alle 325 Sollort-Paare gegen neue gleich kurze/kürzere Umwege, Fehlabbiegungen, Crawler-Blickrichtungen, Transit und Rückweg, die 103-Orte-Erweiterung, das Risiko-/Contentmodell und Raumerkundungsfeatures.
+GitHub Actions validiert Syntax, Datenreferenzen, Richtungsgeometrie, Frontend-/Backend-Parität, eindeutigen 25er-Sollweg, alle 325 Sollort-Paare gegen neue gleich kurze/kürzere Umwege, Fehlabbiegungen, Crawler-Blickrichtungen, Transit/Rückweg, die 103-Orte-Erweiterung, Risiko-/Contentmodell und Raumerkundungsfeatures.
 
 ## Lokal testen
-
-Einen statischen Server starten, z. B.:
 
 ```bash
 python -m http.server 8080
 ```
 
-Dann `http://localhost:8080` öffnen. Ohne Raumfragment startet die Anwendung als lokaler Probelauf.
-
-Private Raum-, Spieler- und SL-Tokens gehören niemals ins Repository.
+Dann `http://localhost:8080` öffnen. Ohne Raumfragment startet die Anwendung als lokaler Probelauf. Private Raum-, Spieler- und SL-Tokens gehören niemals ins Repository.
