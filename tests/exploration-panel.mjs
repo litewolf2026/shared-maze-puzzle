@@ -30,6 +30,8 @@ assert.match(js,/detailBody\.append\(featureList\)/,'Findings must move into the
 assert.match(js,/pointerdown/,'Both floating windows need drag interaction.');
 assert.match(js,/ResizeObserver/,'Manual detail-window resize persistence is missing.');
 assert.match(js,/data-detail-size/,'Detail-window size presets are missing.');
+assert.match(js,/if\(!original\.hidden\)original\.hidden=true/,'Search proxy must not repeatedly mutate hidden inside its own observer callback.');
+assert.match(js,/if\(detailPanel\.hidden===roomEnabled\)detailPanel\.hidden=!roomEnabled/,'Detail visibility updates must be idempotent.');
 assert.doesNotMatch(js,/maze-content-action|maze-move|update_room_state|supabase/i,'Local window chrome must never mutate shared maze state.');
 
-console.log('exploration-panel: OK (per-player permanent controls + separate movable/resizable details)');
+console.log('exploration-panel: OK (per-player split windows + observer-loop guard)');
