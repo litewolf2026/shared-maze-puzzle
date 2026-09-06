@@ -15,55 +15,59 @@ const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed});
 const DIRS={N:{opp:'S'},NE:{opp:'SW'},E:{opp:'W'},SE:{opp:'NW'},S:{opp:'N'},SW:{opp:'NE'},W:{opp:'E'},NW:{opp:'SE'},UP:{opp:'DOWN'},DOWN:{opp:'UP'}};
 
-assert.equal(map.nodes.length,104,'Secret overlay should add exactly one prepared room.');
-assert.ok(map.nodes.some(n=>n.id==='D13'&&n.name==='Versiegeltes Werkmeisterarchiv'));
-assert.equal(buildAdj(map).get('D12').W.to,'D13');
-assert.equal(buildAdj(map).get('D13').E.to,'D12');
+assert.equal(map.nodes.length,106,'Secret overlay should add three prepared rooms to the 103-location expansion.');
+for(const [id,name] of [['A31','Verborgene Pilgerkammer'],['B35','Vergessener Wartungsraum'],['D13','Versiegeltes Werkmeisterarchiv']])assert.ok(map.nodes.some(n=>n.id===id&&n.name===name),`Missing secret room ${id}`);
+for(const [from,dir,to] of [['A23','E','A31'],['A31','W','A23'],['B33','S','B35'],['B35','N','B33'],['D12','W','D13'],['D13','E','D12']])assert.equal(buildAdj(map).get(from)[dir].to,to,`Missing secret topology ${from}/${dir}/${to}`);
 
-let state=initialSharedState(map);state.node='D12';state.bandStep=25;state.step=25;
-state=materializeRoomState(state,plan,'D12').state;
-const secret=state.roomState.D12.content.assignments.find(a=>a.slotId==='secret-connection-authored');
-assert.ok(secret&&secret.type==='secret_connection','D12 must materialize the authored secret connection.');
-assert.equal(secret.state,'unresolved');
-assert.equal(secretConnectionStatus(state,'D12',secret.slotId).opened,false);
-assert.equal(availableDirections(map,state).includes('W'),false,'Locked hidden direction leaked into movement wheel.');
-assert.equal(visibleAdj(map,state).get('D12').W,undefined,'Locked hidden edge leaked into visible graph.');
-assert.equal(buildCrawlerAdj(map,DIRS,state).get('D12').W,undefined,'Locked hidden edge leaked into crawler.');
-let move=beginMove(map,state,'W');assert.equal(move.ok,false);assert.equal(move.error,'LOCKED_EXIT');
+function advanceUntilArrived(state,dir){let next=state,guard=0;while(next.transit&&guard++<32){const r=beginMove(map,next,dir);assert.equal(r.ok,true);next=r.state}assert.ok(guard<32,'Secret transit did not terminate.');return next}
 
-let reveal=applyContentAction(state,'D12',secret.slotId,'discover',{isGm:true});assert.equal(reveal.ok,true);state=reveal.state;
-assert.equal(secretConnectionStatus(state,'D12',secret.slotId).discovered,true);
-assert.equal(secretConnectionStatus(state,'D12',secret.slotId).opened,false);
-assert.equal(availableDirections(map,state).includes('W'),false,'Discovery alone must not open the passage.');
-assert.equal(buildCrawlerAdj(map,DIRS,state).get('D12').W,undefined,'Discovered-but-closed passage leaked into crawler.');
-let playerOpen=openSecretConnection(state,'D12',secret.slotId,{isGm:false});assert.equal(playerOpen.ok,false);assert.equal(playerOpen.error,'CONTENT_ACTION_FORBIDDEN');
+function lifecycle({nodeId,slotId,dir,target,bandStep,expectedBandAfterMove}){
+  let state=initialSharedState(map);state.node=nodeId;state.bandStep=bandStep;state.step=bandStep;
+  state=materializeRoomState(state,plan,nodeId).state;
+  const secret=state.roomState[nodeId].content.assignments.find(a=>a.slotId===slotId);
+  assert.ok(secret&&secret.type==='secret_connection',`${nodeId} must materialize ${slotId}.`);
+  assert.equal(secret.state,'unresolved');
+  assert.equal(secretConnectionStatus(state,nodeId,slotId).opened,false);
+  assert.equal(availableDirections(map,state).includes(dir),false,`${nodeId}/${dir} leaked into movement wheel while locked.`);
+  assert.equal(visibleAdj(map,state).get(nodeId)[dir],undefined,`${nodeId}/${dir} leaked into visible graph while locked.`);
+  assert.equal(buildCrawlerAdj(map,DIRS,state).get(nodeId)[dir],undefined,`${nodeId}/${dir} leaked into crawler while locked.`);
+  let move=beginMove(map,state,dir);assert.equal(move.ok,false);assert.equal(move.error,'LOCKED_EXIT');
 
-let opened=openSecretConnection(state,'D12',secret.slotId,{isGm:true});assert.equal(opened.ok,true);state=opened.state;
-assert.equal(secretConnectionStatus(state,'D12',secret.slotId).opened,true);
-assert.equal(availableDirections(map,state).includes('W'),true,'Opened passage missing from movement wheel.');
-assert.equal(visibleAdj(map,state).get('D12').W.to,'D13');
-assert.equal(buildCrawlerAdj(map,DIRS,state).get('D12').W,'D13','Opened passage missing from crawler.');
+  let reveal=applyContentAction(state,nodeId,slotId,'discover',{isGm:true});assert.equal(reveal.ok,true);state=reveal.state;
+  assert.equal(secretConnectionStatus(state,nodeId,slotId).discovered,true);
+  assert.equal(secretConnectionStatus(state,nodeId,slotId).opened,false);
+  assert.equal(availableDirections(map,state).includes(dir),false,'Discovery alone must not open the passage.');
+  let playerOpen=openSecretConnection(state,nodeId,slotId,{isGm:false});assert.equal(playerOpen.ok,false);assert.equal(playerOpen.error,'CONTENT_ACTION_FORBIDDEN');
 
-move=beginMove(map,state,'W');assert.equal(move.ok,true);state=move.state;
-while(state.transit){const r=beginMove(map,state,'W');assert.equal(r.ok,true);state=r.state}
-assert.equal(state.node,'D13');assert.equal(state.bandStep,25,'Post-band secret exploration must not consume imaginary band symbols.');
-assert.equal(availableDirections(map,state).includes('E'),true,'Return through opened passage must remain possible.');
+  let opened=openSecretConnection(state,nodeId,slotId,{isGm:true});assert.equal(opened.ok,true);state=opened.state;
+  assert.equal(secretConnectionStatus(state,nodeId,slotId).opened,true);
+  assert.equal(availableDirections(map,state).includes(dir),true,`${nodeId}/${dir} missing after opening.`);
+  assert.equal(visibleAdj(map,state).get(nodeId)[dir].to,target);
+  assert.equal(buildCrawlerAdj(map,DIRS,state).get(nodeId)[dir],target);
 
-const resolved=applyContentAction(state,'D12',secret.slotId,'resolve',{isGm:true});assert.equal(resolved.ok,true);state=resolved.state;
-assert.equal(secretConnectionStatus(state,'D12',secret.slotId).opened,true,'Resolved opened passage must stay physically open.');
-assert.equal(availableDirections(map,state).includes('E'),true);
+  move=beginMove(map,state,dir);assert.equal(move.ok,true);state=advanceUntilArrived(move.state,dir);
+  assert.equal(state.node,target);assert.equal(state.bandStep,expectedBandAfterMove,`${nodeId} secret traversal used the wrong band semantics.`);
+  const backDir=DIRS[dir].opp;assert.equal(availableDirections(map,state).includes(backDir),true,'Return through opened passage must remain possible.');
+  const resolved=applyContentAction(state,nodeId,slotId,'resolve',{isGm:true});assert.equal(resolved.ok,true);state=resolved.state;
+  assert.equal(secretConnectionStatus(state,nodeId,slotId).opened,true,'Resolved opened passage must stay physically open.');
+  return state;
+}
 
-// The prepared secret room must not alter the protected 25-step route.
+lifecycle({nodeId:'A23',slotId:'secret-pilgrim-room',dir:'E',target:'A31',bandStep:7,expectedBandAfterMove:7});
+lifecycle({nodeId:'B33',slotId:'secret-maintenance-room',dir:'S',target:'B35',bandStep:12,expectedBandAfterMove:13});
+lifecycle({nodeId:'D12',slotId:'secret-connection-authored',dir:'W',target:'D13',bandStep:25,expectedBandAfterMove:25});
+
+// Prepared secret rooms must not alter the protected 25-step route.
 const adj=buildAdj(map),queue=[[map.start,0]],dist=new Map([[map.start,0]]),ways=new Map([[map.start,1]]);
 for(let qi=0;qi<queue.length;qi++){const [id,d]=queue[qi];for(const edge of Object.values(adj.get(id)||{})){const nd=d+1;if(!dist.has(edge.to)){dist.set(edge.to,nd);ways.set(edge.to,ways.get(id));queue.push([edge.to,nd])}else if(dist.get(edge.to)===nd)ways.set(edge.to,ways.get(edge.to)+ways.get(id))}}
 assert.equal(dist.get(map.goal),25);assert.equal(ways.get(map.goal),1);
 
 const sql=fs.readFileSync(new URL('../supabase/migrations/20260906_hidden_connections.sql',import.meta.url),'utf8');
-assert.match(sql,/\('selem-01','D12','W','D13'\)/);
-assert.match(sql,/\('selem-01','D13','E','D12'\)/);
-assert.match(sql,/secret-connection-authored/);
-assert.match(sql,/maze_edge_is_available/);
-assert.match(sql,/required_states/);
+const moreSql=fs.readFileSync(new URL('../supabase/migrations/20260906_additional_hidden_rooms.sql',import.meta.url),'utf8');
+assert.match(sql,/\('selem-01','D12','W','D13'\)/);assert.match(sql,/secret-connection-authored/);
+assert.match(moreSql,/\('selem-01','A23','E','A31'\)/);assert.match(moreSql,/secret-pilgrim-room/);
+assert.match(moreSql,/\('selem-01','B33','S','B35'\)/);assert.match(moreSql,/secret-maintenance-room/);
+assert.match(sql,/maze_edge_is_available/);assert.match(sql,/required_states/);
 assert.match(sql,/maze_player_unlock_states_unchanged/,'Player-state transition guard is missing.');
 assert.match(sql,/SECRET_STATE_REQUIRES_GM/,'Player RPC must reject forged secret unlock transitions.');
 assert.match(sql,/v_new<>\'unresolved\'/,'First player materialization may only create unresolved secret state.');
@@ -76,4 +80,4 @@ assert.match(app,/openSecretConnection/,'GM open action is not wired to the auth
 const exploration=fs.readFileSync(new URL('../js/exploration-controller.js',import.meta.url),'utf8');
 assert.match(exploration,/sharedState:shared/,'Crawler is not receiving shared unlock state.');
 
-console.log('secret-connections: OK (hidden -> discovered -> opened -> traversable; runtime + player forgery guarded)');
+console.log('secret-connections: OK (three hidden rooms; locked -> discovered -> opened -> traversable; band semantics + player forgery guarded)');
