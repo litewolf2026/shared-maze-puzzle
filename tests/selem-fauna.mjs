@@ -22,6 +22,7 @@ const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,room
 const solution=solutionNodeSet(map);
 
 const faunaIds=['selem_fledermauskolonie','selem_riesenspringegel','selem_bleichmuraene','selem_grubenwurm','selem_morfu','selem_sumpfranzen'];
+const drownedCavernFauna=['selem_bleichmuraene','selem_riesenspringegel','selem_grubenwurm','selem_fledermauskolonie'];
 for(const id of faunaIds){
   const item=pack.items[id];assert.ok(item,`Missing Selem fauna ${id}`);assert.equal(item.type,'encounter');assert.match(item.mechanics?.source||'',/Zoo-Botanica Aventurica/);assert.ok(item.mechanics?.sourceKind,`${id} must distinguish official source from scenario adaptation.`);
   for(const forbidden of ['AT','PA','LeP','RS','INI','TP'])assert.equal(Object.prototype.hasOwnProperty.call(item.mechanics||{},forbidden),false,`${id} must not carry combat stat ${forbidden}.`);
@@ -37,18 +38,19 @@ for(const id of forbiddenGeneric){
   assert.equal(mergedPools.pools.water_encounters?.entries?.includes(id)??false,false,`${id} must not remain in Selem water encounters.`);
   assert.equal(mergedPools.pools.reusable_encounters?.entries?.includes(id)??false,false,`${id} must not remain in Selem reusable encounter pool.`);
 }
-for(const id of ['selem_bleichmuraene','selem_riesenspringegel','selem_grubenwurm','selem_fledermauskolonie'])assert.ok(mergedPools.pools.water_encounters.entries.includes(id),`${id} missing from Selem water pool.`);
+for(const id of drownedCavernFauna)assert.ok(mergedPools.pools.water_encounters.entries.includes(id),`${id} missing from Selem water pool.`);
 assert.ok(mergedPools.pools.ambient_encounters.entries.includes('selem_fledermauskolonie'));
 
 const all=Object.values(plan.rooms).flatMap(r=>r.assignments||[]),encounters=all.filter(a=>a.type==='encounter');
 for(const id of forbiddenGeneric)assert.equal(encounters.some(a=>a.contentId===id),false,`Generated Selem plan still contains placeholder encounter ${id}.`);
 const morfu=encounters.filter(a=>a.contentId==='selem_morfu');assert.equal(morfu.length,1,'Exactly one Morfu should exist in Selem.');assert.equal(morfu[0].nodeId,'D06');
 const ranzen=encounters.filter(a=>a.contentId==='selem_sumpfranzen');assert.equal(ranzen.length,1,'Exactly one authored Sumpfranzen rotte should exist.');assert.equal(ranzen[0].nodeId,'B31');assert.equal(ranzen[0].mechanics.occurrence,'2W6');
-assert.equal(solution.has('D06'),false,'Morfu must remain off the canonical story path.');assert.equal(solution.has('B31'),false,'Sumpfranzen must remain off the canonical story path.');
+const cavern=encounters.filter(a=>a.nodeId==='D14');assert.equal(cavern.length,1,'D14 should contain one sparse water-fauna encounter.');assert.ok(drownedCavernFauna.includes(cavern[0].contentId),`D14 drew non-canonical cavern fauna ${cavern[0].contentId}.`);
+assert.equal(solution.has('D06'),false,'Morfu must remain off the canonical story path.');assert.equal(solution.has('B31'),false,'Sumpfranzen must remain off the canonical story path.');assert.equal(solution.has('D14'),false,'The drowned cavern must remain optional and off the canonical story path.');
 for(const a of encounters.filter(x=>faunaIds.includes(x.contentId)))assert.equal(solution.has(a.nodeId),false,`Canonical fauna ${a.contentId} leaked onto required path at ${a.nodeId}.`);
 
 assert.equal(mergedCatalog.items.selem_grubenwurm.rarity,'very_rare');
 assert.equal(mergedCatalog.items.selem_morfu.unique,true);
 assert.equal(mergedCatalog.items.selem_sumpfranzen.unique,true);
 
-console.log(`selem-fauna: OK (${faunaIds.length} ZBA-grounded encounter types; Morfu D06 and Sumpfranzen B31 fixed off-route; no generic animal placeholders in Selem plan)`);
+console.log(`selem-fauna: OK (${faunaIds.length} ZBA-grounded encounter types; Morfu D06, Sumpfranzen B31, drowned-cavern fauna D14; no generic animal placeholders)`);
