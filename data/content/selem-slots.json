@@ -18,6 +18,12 @@
     {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"]},"profile":"generic_side_room"}
   ],
   "rooms":{
+    "A02":{"slots":[
+      {"id":"story-vorhalle-pilgrims","type":"discovery","fixed":"selem_vorhalle_pilgrim_traces","placement":["wall","pillar","floor"]}
+    ]},
+    "A04":{"slots":[
+      {"id":"hazard-falling-masonry","type":"hazard","fixed":"hazard_falling_masonry","placement":["ceiling","rubble"],"hidden":true}
+    ]},
     "A06":{"slots":[
       {"id":"story-green-lens","type":"discovery","fixed":"selem_green_lens_clue","placement":["lens","machine"]}
     ]},
@@ -29,6 +35,9 @@
     ]},
     "A23":{"slots":[
       {"id":"secret-pilgrim-room","type":"secret_connection","fixed":"secret_connection_pilgrim_reliquary","placement":["secret_connection_slot","wall","shrine"],"hidden":true}
+    ]},
+    "A25":{"slots":[
+      {"id":"secret-false-back","type":"secret","fixed":"secret_false_back","placement":["wall","wall_niche","shelf"],"hidden":true}
     ]},
     "A27":{"slots":[
       {"id":"loot-alchemy","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}
@@ -58,6 +67,9 @@
     "B35":{"slots":[
       {"id":"loot-service-tools","type":"loot","fixed":"loot_service_tools","placement":["workbench","machine"]},
       {"id":"hazard-pressure-plate","type":"hazard","fixed":"hazard_pressure_plate","placement":["floor","machine"],"hidden":true}
+    ]},
+    "C03":{"slots":[
+      {"id":"story-memory-niche","type":"event","fixed":"selem_memory_niche_echo","placement":["wall","relief","room"]}
     ]},
     "C07":{"slots":[
       {"id":"story-band-experiments","type":"discovery","fixed":"selem_band_experiments","placement":["table","wall","bands"]}
