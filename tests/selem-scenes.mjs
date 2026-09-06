@@ -20,9 +20,9 @@ const SCENE_KINDS=new Set(['room','lens','prison','goal','deadend','gate','glyph
 const sceneNodes=map.nodes.filter(n=>SCENE_KINDS.has(n.kind));
 const expectedIds=sceneNodes.map(n=>n.id).sort();
 const authoredIds=Object.keys(scenes).sort();
-assert.equal(map.nodes.length,106);
-assert.equal(sceneNodes.length,54);
-assert.deepEqual(authoredIds,expectedIds,'Authored scene layer must cover exactly all 54 scene-like locations.');
+assert.equal(map.nodes.length,107);
+assert.equal(sceneNodes.length,55);
+assert.deepEqual(authoredIds,expectedIds,'Authored scene layer must cover exactly all 55 scene-like locations.');
 
 const allowedHeroes=new Set(['Norel','Glacia','Quin','Grambosch','Rastafan']);
 const allowedPolicies=new Set(['ambient','authored_priority','authored_only']);
@@ -51,9 +51,10 @@ for(const id of ['A06','B12','C03','C10','C12','C14','C15']){
   assert.equal(scenes[id]?.critical,true,`${id} must remain a canonical critical scene.`);
   assert.equal(scenes[id]?.signature,true,`${id} must remain a signature scene.`);
 }
-for(const id of ['D08','D10','D12'])assert.equal(scenes[id]?.signature,true,`${id} should remain an optional signature scene.`);
+for(const id of ['D08','D10','D12','D14'])assert.equal(scenes[id]?.signature,true,`${id} should remain an optional signature scene.`);
 assert.equal(slots.rooms.C26?.slots?.[0]?.fixed,'discovery_recursive_route_notes','C26 needs fixed Sahira memory evidence instead of generic pool-only content.');
 assert.equal(slots.rooms.D10?.slots?.[0]?.fixed,'encounter_exhausted_explorer','D10 needs a fixed lost-person encounter instead of generic pool-only content.');
+assert.equal(slots.rooms.D14?.slots?.[0]?.pool,'water_encounters','D14 should use the curated Selem water-fauna pool.');
 
 const sparseNodes=map.nodes.filter(n=>!SCENE_KINDS.has(n.kind));
 assert.equal(sparseNodes.length,52,'Transit/scene classification changed; review authored-scene policy intentionally.');

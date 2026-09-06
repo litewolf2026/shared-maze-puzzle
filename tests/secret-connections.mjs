@@ -15,7 +15,7 @@ const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed});
 const DIRS={N:{opp:'S'},NE:{opp:'SW'},E:{opp:'W'},SE:{opp:'NW'},S:{opp:'N'},SW:{opp:'NE'},W:{opp:'E'},NW:{opp:'SE'},UP:{opp:'DOWN'},DOWN:{opp:'UP'}};
 
-assert.equal(map.nodes.length,106,'Secret overlay should add three prepared rooms to the 103-location expansion.');
+assert.equal(map.nodes.length,107,'Final overlay should add three prepared secret rooms plus the optional drowned cavern to the 103-location expansion.');
 for(const [id,name] of [['A31','Verborgene Pilgerkammer'],['B35','Vergessener Wartungsraum'],['D13','Versiegeltes Werkmeisterarchiv']])assert.ok(map.nodes.some(n=>n.id===id&&n.name===name),`Missing secret room ${id}`);
 for(const [from,dir,to] of [['A23','E','A31'],['A31','W','A23'],['B33','S','B35'],['B35','N','B33'],['D12','W','D13'],['D13','E','D12']])assert.equal(buildAdj(map).get(from)[dir].to,to,`Missing secret topology ${from}/${dir}/${to}`);
 
@@ -57,13 +57,13 @@ lifecycle({nodeId:'A23',slotId:'secret-pilgrim-room',dir:'E',target:'A31',bandSt
 lifecycle({nodeId:'B33',slotId:'secret-maintenance-room',dir:'S',target:'B35',bandStep:12,expectedBandAfterMove:13});
 lifecycle({nodeId:'D12',slotId:'secret-connection-authored',dir:'W',target:'D13',bandStep:25,expectedBandAfterMove:25});
 
-// Prepared secret rooms must not shorten or duplicate the protected canonical physical route.
+// Prepared secret rooms and other optional overlay spaces must not shorten or duplicate the protected canonical physical route.
 const adj=buildAdj(map),queue=[[map.start,0]],dist=new Map([[map.start,0]]),ways=new Map([[map.start,1]]);
 for(let qi=0;qi<queue.length;qi++){const [id,d]=queue[qi];for(const edge of Object.values(adj.get(id)||{})){const nd=d+1;if(!dist.has(edge.to)){dist.set(edge.to,nd);ways.set(edge.to,ways.get(id));queue.push([edge.to,nd])}else if(dist.get(edge.to)===nd)ways.set(edge.to,ways.get(edge.to)+ways.get(id))}}
 const canonicalPhysicalEdges=(map.canonicalPath?.length||1)-1;
 assert.equal(canonicalPhysicalEdges,28,'Canonical story route length changed unexpectedly.');
-assert.equal(dist.get(map.goal),canonicalPhysicalEdges,'A hidden-room detour shortened the canonical physical route.');
-assert.equal(ways.get(map.goal),1,'Hidden-room topology created a second equally short physical route.');
+assert.equal(dist.get(map.goal),canonicalPhysicalEdges,'An optional overlay detour shortened the canonical physical route.');
+assert.equal(ways.get(map.goal),1,'Optional overlay topology created a second equally short physical route.');
 assert.equal(map.solution.length,25,'Black-band decision count must remain independent from physical route length.');
 
 const sql=fs.readFileSync(new URL('../supabase/migrations/20260906_hidden_connections.sql',import.meta.url),'utf8');
@@ -84,4 +84,4 @@ assert.match(app,/openSecretConnection/,'GM open action is not wired to the auth
 const exploration=fs.readFileSync(new URL('../js/exploration-controller.js',import.meta.url),'utf8');
 assert.match(exploration,/sharedState:shared/,'Crawler is not receiving shared unlock state.');
 
-console.log(`secret-connections: OK (three hidden rooms; canonical physical route remains unique at ${canonicalPhysicalEdges} edges / ${map.solution.length} band decisions)`);
+console.log(`secret-connections: OK (three hidden rooms + optional D14; canonical physical route remains unique at ${canonicalPhysicalEdges} edges / ${map.solution.length} band decisions)`);
