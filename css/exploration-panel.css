@@ -107,7 +107,7 @@
   padding-right:3px;
 }
 
-/* Short labels, readable prose. Full names remain available via title/expanded detail. */
+/* Short labels, readable prose. */
 .look-panel .feature-item b{
   display:block;
   min-width:0;
@@ -117,31 +117,34 @@
   font-size:12px;
   line-height:1.25;
 }
-.look-panel .feature-item .feature-meta{
+/* Existing generated cards use the first <small> as status and the second as prose.
+   Existing static discovered cards use their first <small> as prose. */
+.look-panel.panel-tab-details .feature-item.generated-content>small:first-of-type{
   font-size:11px;
   line-height:1.35;
   color:#9f927e;
 }
-.look-panel .feature-item .feature-description{
+.look-panel.panel-tab-details .feature-item.generated-content>small:not(.dsa-check-hint):nth-of-type(2),
+.look-panel.panel-tab-details .feature-item.discovered:not(.generated-content)>small:first-of-type{
   font-size:15px;
   line-height:1.5;
   color:#d2c2a7;
   white-space:normal;
   overflow:visible;
 }
-.look-panel .feature-item .dsa-check-hint{font-size:12px;line-height:1.45}
+.look-panel .feature-item .feature-meta{font-size:11px;line-height:1.35;color:#9f927e}
+.look-panel .feature-item .feature-description{font-size:15px;line-height:1.5;color:#d2c2a7;white-space:normal;overflow:visible}
+.look-panel .feature-item .dsa-check-hint{font-size:12px!important;line-height:1.45}
 .look-panel.panel-tab-details .nothing-nearby{font-size:13px;line-height:1.45}
 
-/* Native browser resize grip is kept; the three presets are fast alternatives. */
-.look-panel.panel-size-compact{width:240px!important;height:160px!important;resize:both}
-.look-panel.panel-size-normal{width:320px;height:330px}
-.look-panel.panel-size-large{width:480px;height:470px}
-
+/* Native browser resize grip is kept; the presets are fast alternatives. */
 @media(max-width:900px){
   .look-panel.exploration-panel-enhanced{max-width:min(520px,calc(100% - 16px));max-height:calc(100% - 16px)}
 }
 @media(max-width:560px){
   .exploration-panel-size{display:none}
   .look-panel.exploration-panel-enhanced{min-width:210px;max-width:calc(100% - 12px)}
+  .look-panel.panel-tab-details .feature-item.generated-content>small:not(.dsa-check-hint):nth-of-type(2),
+  .look-panel.panel-tab-details .feature-item.discovered:not(.generated-content)>small:first-of-type,
   .look-panel .feature-item .feature-description{font-size:14px}
 }
