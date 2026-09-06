@@ -37,6 +37,12 @@ function forward(){
   clickDirection(facing);
 }
 
+function moveGmToggle(){
+  const toggle=document.querySelector('#gmToggle');
+  const bar=document.querySelector('.map-viewbar');
+  if(toggle&&bar&&!bar.contains(toggle))bar.append(toggle);
+}
+
 async function init(){
   const [mapsRes,scenariosRes]=await Promise.all([fetch('./data/maps.json'),fetch('./data/scenarios.json')]);
   const maps=(await mapsRes.json()).maps||[];
@@ -45,6 +51,7 @@ async function init(){
   map=maps.find(m=>m.id===scenario?.map)||maps[0];
   if(!map)return;
   if(!FACING_ORDER.includes(facing))facing='N';
+  moveGmToggle();
 
   crawler=createCrawlerView({
     map,
