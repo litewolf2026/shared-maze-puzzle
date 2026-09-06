@@ -1,6 +1,6 @@
 const SELEM_STORY_PACK={
   id:'selem-core-actors-v1',
-  version:2,
+  version:3,
   items:{
     selem_nottel_witness:{
       id:'selem_nottel_witness',scope:'selem-01',type:'encounter',label:'Nottel',rarity:'unique',unique:true,
@@ -36,6 +36,24 @@ const SELEM_STORY_PACK={
       ]},
       description:'Der Nachzehrer greift konkrete autobiographische Inhalte an: Namen, Bindungen und erlebte Szenen. Er löscht nicht pauschal Persönlichkeit oder sämtliche Erinnerung und ist nicht identisch mit dem Zeichen des verlorenen Weges.'
     },
+    selem_sahira_rewrite_ritual:{
+      id:'selem_sahira_rewrite_ritual',scope:'selem-01',type:'event',label:'Sahiras Umschreibungsritual',rarity:'unique',unique:true,
+      requires:{kinds:['goal']},placement:{features:['altar','glyph','floor','room']},
+      mechanics:{ritualId:'sahira-rewrite',effectTags:['ritual','time','memory'],outcomes:[
+        {id:'destabilized',label:'Ritual destabilisiert',from:['triggered'],next:'triggered',terminal:false},
+        {id:'control_recovered',label:'Sahira gewinnt Teilkontrolle zurück',from:['triggered'],next:'triggered',terminal:false},
+        {id:'broken',label:'Ritual gebrochen',from:['triggered'],next:'resolved',terminal:true},
+        {id:'aborted',label:'Ritual abgebrochen',from:['triggered'],next:'resolved',terminal:true},
+        {id:'partial_rewrite',label:'Teilbehauptung setzt sich vorläufig durch',from:['triggered'],next:'resolved',terminal:true}
+      ]},
+      description:'Das Ritual versucht nicht, die gesamte Vergangenheit neu zu schreiben. Es soll einen engen historischen Knoten widerspruchsfrei machen: Maruban habe das Auge nie aus der Fassung genommen. Linien, Fokus, Komponenten, Sahiras Konzentration und belastbare Gegenanker sind reale Angriffspunkte.'
+    },
+    selem_finale_own_anchor:{
+      id:'selem_finale_own_anchor',scope:'selem-01',type:'discovery',label:'Eigener unabhängiger Zeitanker',rarity:'unique',unique:true,hidden:true,
+      requires:{kinds:['goal']},placement:{features:['floor','room','altar']},
+      mechanics:{finaleAnchorId:'hero-created'},
+      description:'SL-Marker: Die Helden haben einen zusätzlichen, von Erinnerung unabhängigen Anker geschaffen oder gesichert. Der Marker ist kein automatischer Siegwert.'
+    },
 
     selem_handout_a06:{id:'selem_handout_a06',scope:'selem-01',type:'discovery',label:'Handout: Leere grüne Fassung',rarity:'unique',unique:true,hidden:true,requires:{kinds:['lens']},placement:{features:['lens','floor','room']},mechanics:{handoutId:'a06-empty-lens'},description:'Spielerhandout zur leeren Fassung und den materiellen Entnahmespuren.'},
     selem_handout_b12:{id:'selem_handout_b12',scope:'selem-01',type:'discovery',label:'Handout: Schwarzes Tor',rarity:'unique',unique:true,hidden:true,requires:{kinds:['gate']},placement:{features:['door','gate','wall']},mechanics:{handoutId:'b12-black-gate'},description:'Spielerhandout zu alten und jüngeren Nutzungsschichten am Schwarzen Tor.'},
@@ -58,6 +76,8 @@ const SELEM_STORY_PACK={
     C15:{slots:[
       {id:'actor-sahira',type:'encounter',fixed:'selem_sahira_antagonist',placement:['altar','glyph','floor'],additiveOnUpgrade:true},
       {id:'actor-nachzehrer',type:'encounter',fixed:'selem_nachzehrer',placement:['glyph','altar','room'],additiveOnUpgrade:true},
+      {id:'ritual-sahira-rewrite',type:'event',fixed:'selem_sahira_rewrite_ritual',placement:['altar','glyph','floor'],additiveOnUpgrade:true},
+      {id:'finale-own-anchor',type:'discovery',fixed:'selem_finale_own_anchor',placement:['floor','room'],additiveOnUpgrade:true},
       {id:'handout-c15',type:'discovery',fixed:'selem_handout_c15',placement:['altar','floor','room'],additiveOnUpgrade:true}
     ]}
   }
