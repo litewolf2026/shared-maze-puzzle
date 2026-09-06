@@ -1,0 +1,17 @@
+{
+  "version":1,
+  "scenario":"selem-01",
+  "setpieces":{
+    "C14":{
+      "facts":[
+        "Sahira protokolliert Erinnerungsausfälle und arbeitet deshalb mit absoluten Richtungen und physischen Notizen.",
+        "Auch ihre eigenen Aufzeichnungen enthalten Abbrüche und Korrekturen; sie ist nicht immun.",
+        "Ihr Ziel ist ein schmaler historischer Knoten: Es soll wahr sein, dass Maruban das Auge nie aus der Fassung nahm."
+      ],
+      "phases":[
+        {"title":"Arbeitsweise lesen","gm":"Der Raum soll zuerst nach Forschung aussehen: Kartenstücke, absolute Richtungen, Zeitmarken, Varianten. Das macht Sahira gefährlicher, nicht sympathisch-unschuldig.","choices":["Notizen sichern","Arbeitsmethode rekonstruieren","persönliche Kassette suchen"],"consequences":["Die Helden können Sahiras Plan im Finale mit ihren eigenen Begriffen angreifen."]},
+        {"title":"Grenze der Theorie","gm":"Lass die Notizen klar zeigen, was Sahira versucht, aber nicht garantieren, dass es funktioniert. Ihre Hypothese ist eine riskante Arbeitshypothese; ihre eigenen Korrekturen zeigen, dass sie gegen dieselbe Erinnerungsunsicherheit arbeitet.","choices":["Gegenbelege sammeln","Ritualkomponenten identifizieren","Widersprüche in Sahiras Aufzeichnungen sichern"],"consequences":["Mehr Gegenanker und Verständnis schaffen Optionen für C15; Sahiras Arbeitszimmer enthält keinen Zugang zur optionalen Tiefenebene."]}
+      ]
+    }
+  }
+}
