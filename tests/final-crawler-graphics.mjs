@@ -23,7 +23,9 @@ assert.match(renderer,/const PALETTES=\{/,'Renderer must keep zone-specific A/B/
 for(const hook of ["node.id==='C15'","node.id==='D06'","node.id==='D14'"])assert.ok(renderer.includes(hook),`Missing bespoke landmark hook ${hook}.`);
 for(const marker of ['crawler-ritual-dais','crawler-projected-pillar','crawler-stalactite','function terrainClass','dataset.room'])assert.ok(renderer.includes(marker),`Renderer lost ${marker}.`);
 assert.match(renderer,/crawler-terrain-\$\{type\}/,'Terrain cells must generate type-specific visual classes dynamically.');
-assert.equal(/<image\b|https?:\/\//i.test(renderer),false,'Final crawler must remain self-contained procedural SVG, not embed external image assets.');
+assert.equal(/<image\b/i.test(renderer),false,'Final crawler must not embed raster/vector image elements.');
+assert.equal(/\bfetch\s*\(|\bhref\s*=|\bxlink:href/i.test(renderer),false,'Final crawler must not load external visual assets.');
+assert.match(renderer,/http:\/\/www\.w3\.org\/2000\/svg/,'Renderer should still use the standard SVG namespace.');
 
 for(const cls of ['crawler-terrain-floor','crawler-terrain-bridge','crawler-terrain-deep_water','crawler-cavern-mouth','crawler-ritual-dais','crawler-lens-ring'])assert.ok(css.includes(`.${cls}`),`Missing final crawler style .${cls}.`);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/,'Atmospheric animation must respect reduced-motion preference.');
