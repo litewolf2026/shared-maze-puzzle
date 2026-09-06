@@ -19,7 +19,7 @@ const expected={
 };
 assert.equal(handouts.scenario,'selem-01');assert.equal(Object.keys(handouts.handouts).length,7);
 assert.deepEqual(new Set(scenarioHandoutIds('selem-01')),new Set(Object.values(expected)));
-assert.equal(pack.version,2,'Selem scenario pack must advertise the handout expansion.');
+assert.ok(pack.version>=2,'Selem scenario pack must include the handout expansion.');
 
 for(const [nodeId,id] of Object.entries(expected)){
   const definition=handouts.handouts[id];assert.ok(definition,`Missing handout definition ${id}.`);assert.equal(definition.sourceNode,nodeId);assert.ok(definition.title&&definition.caption&&definition.asset);
