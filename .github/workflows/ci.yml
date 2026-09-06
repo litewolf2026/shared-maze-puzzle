@@ -64,6 +64,8 @@ jobs:
         run: node tests/content-engine.mjs
       - name: Validate structured content outcomes
         run: node tests/content-outcomes.mjs
+      - name: Report scene content coverage
+        run: node tests/content-coverage.mjs
       - name: Guard content density
         run: node tests/content-density.mjs
       - name: Validate spatial content lifecycle
