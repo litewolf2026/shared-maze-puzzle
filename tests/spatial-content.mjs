@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {applyExpansion} from '../js/map-expansion.js';
+import {applyExpansions} from '../js/map-expansion.js';
 import {enrichMapContent} from '../js/content-model.js';
 import {generateContentPlan,assignContentAnchor,contentVisibleToPlayer,applyContentAction,materializeRoomState} from '../js/content-engine.js';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
-const map=applyExpansion(read('../data/maps.json').maps[0],read('../data/selem-expansion.json'));
+const map=applyExpansions(read('../data/maps.json').maps[0],read('../data/selem-expansion.json'),read('../data/selem-secrets.json'));
 const catalog=read('../data/content/catalog.json'),pools=read('../data/content/pools.json'),profiles=read('../data/content/profiles.json'),slots=read('../data/content/selem-slots.json'),roomFeatures=read('../data/room-features.json').features;
 const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 const args={map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed};
@@ -21,6 +21,12 @@ assert.ok(cache.anchor&&cache.hidden,'Sahira cache must stay hidden and spatiall
 const secretPassage=a.rooms.D12.assignments.find(x=>x.type==='secret_connection');
 assert.equal(secretPassage?.anchor?.kind,'feature','D12 secret connection must use the authored wall feature.');
 assert.equal(secretPassage?.anchor?.anchorId,'sealed_wall','D12 secret connection drifted away from the sealed wall.');
+const pilgrimPassage=a.rooms.A23.assignments.find(x=>x.slotId==='secret-pilgrim-room');
+assert.equal(pilgrimPassage?.anchor?.anchorId,'sealed_reliquary_wall','A23 secret room must stay on the prepared wall anchor.');
+const maintenancePassage=a.rooms.B33.assignments.find(x=>x.slotId==='secret-maintenance-room');
+assert.equal(maintenancePassage?.anchor?.anchorId,'maintenance_panel','B33 secret room must stay on the maintenance panel.');
+const serviceLoot=a.rooms.B35.assignments.find(x=>x.slotId==='loot-service-tools');
+assert.equal(serviceLoot?.anchor?.anchorId,'service_bench','B35 tools should be physically located at the workbench.');
 
 const syntheticNode={id:'R',kind:'room',z:0,tags:['test'],exploreGrid:{w:6,h:4}};
 const syntheticAssignment={slotId:'loot',placement:['floor']};
@@ -56,4 +62,4 @@ const upgraded=materializeRoomState(legacy,a,'C14');assert.equal(upgraded.change
 const upgradedAssignment=upgraded.state.roomState.C14.content.assignments[0];assert.ok(upgradedAssignment.anchor,'Legacy assignment did not gain anchor.');assert.equal(upgradedAssignment.state,'discovered','Anchor upgrade must preserve gameplay state.');assert.equal(upgradedAssignment.origin,sahira.origin,'Origin should be backfilled without rerolling content.');
 const stable=materializeRoomState(upgraded.state,a,'C14');assert.equal(stable.changed,false,'Upgraded materialized content must be idempotent.');
 
-console.log(`spatial-content: OK (${Object.values(a.rooms).flatMap(r=>r.assignments).filter(x=>x.anchor).length} anchored assignments)`);
+console.log(`spatial-content: OK (${Object.values(a.rooms).flatMap(r=>r.assignments).filter(x=>x.anchor).length} anchored assignments; three hidden-room anchors)`);

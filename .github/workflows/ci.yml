@@ -23,6 +23,7 @@ jobs:
           node --check js/navigation-model.js
           node --check js/map-expansion.js
           node --check js/content-model.js
+          node --check js/reusable-content-pack.js
           node --check js/content-engine.js
           node --check js/dsa41-exploration.js
           node --check js/secret-connections.js
@@ -56,6 +57,8 @@ jobs:
         run: node tests/expanded-map.mjs
       - name: Validate danger and content semantics
         run: node tests/content-model.mjs
+      - name: Validate reusable core content pack
+        run: node tests/reusable-content-pack.mjs
       - name: Validate seeded reusable content engine
         run: node tests/content-engine.mjs
       - name: Guard content density

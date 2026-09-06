@@ -1,7 +1,7 @@
 {
-  "version":2,
+  "version":3,
   "scenario":"selem-01",
-  "generation":{"mode":"seeded","seed":"selem-01-authored-v2","maxProfileAssignmentsPerRoom":4},
+  "generation":{"mode":"seeded","seed":"selem-01-authored-v2","maxProfileAssignmentsPerRoom":4,"useReusableCore":true},
   "rules":[
     {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["pilgrim"]},"profile":"pilgrim_optional_room"},
     {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["cult"]},"profile":"cult_optional_room"},
@@ -27,8 +27,15 @@
     "A12":{"slots":[
       {"id":"story-submerged-ledger","type":"discovery","fixed":"selem_submerged_ledger","placement":["desk","shelf","water"]}
     ]},
+    "A23":{"slots":[
+      {"id":"secret-pilgrim-room","type":"secret_connection","fixed":"secret_connection_pilgrim_reliquary","placement":["secret_connection_slot","wall","shrine"],"hidden":true}
+    ]},
     "A27":{"slots":[
       {"id":"loot-alchemy","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}
+    ]},
+    "A31":{"slots":[
+      {"id":"loot-hidden-pilgrim","type":"loot","fixed":"loot_hidden_coin_cache","placement":["wall_niche","altar","shelf"],"hidden":true},
+      {"id":"discovery-old-marker","type":"discovery","fixed":"discovery_old_route_marker","placement":["wall","pillar","threshold"]}
     ]},
     "B07":{"slots":[
       {"id":"story-shrine-reuse","type":"discovery","fixed":"selem_shrine_reuse","placement":["shrine","altar","wall"]}
@@ -44,6 +51,13 @@
     ]},
     "B29":{"slots":[
       {"id":"loot-machinery","type":"loot","pool":"old_elem_minor_loot","placement":["machinery","wall_niche"]}
+    ]},
+    "B33":{"slots":[
+      {"id":"secret-maintenance-room","type":"secret_connection","fixed":"secret_connection_maintenance","placement":["secret_connection_slot","wall","machine"],"hidden":true}
+    ]},
+    "B35":{"slots":[
+      {"id":"loot-service-tools","type":"loot","fixed":"loot_service_tools","placement":["workbench","machine"]},
+      {"id":"hazard-pressure-plate","type":"hazard","fixed":"hazard_pressure_plate","placement":["floor","machine"],"hidden":true}
     ]},
     "C07":{"slots":[
       {"id":"story-band-experiments","type":"discovery","fixed":"selem_band_experiments","placement":["table","wall","bands"]}
@@ -81,6 +95,10 @@
     "D12":{"slots":[
       {"id":"story-blind-lens","type":"discovery","fixed":"selem_blind_lens_memory","placement":["lens"]},
       {"id":"secret-connection-authored","type":"secret_connection","pool":"old_elem_secret_connections","placement":["secret_connection_slot"],"hidden":true}
+    ]},
+    "D13":{"slots":[
+      {"id":"discovery-recent-use","type":"discovery","fixed":"discovery_recent_tool_marks","placement":["machine","machinery","wall"]},
+      {"id":"loot-old-keyring","type":"loot","fixed":"loot_old_keyring","placement":["shelf","workbench"],"hidden":true}
     ]}
   }
 }
