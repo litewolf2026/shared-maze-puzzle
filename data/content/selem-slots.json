@@ -1,19 +1,69 @@
 {
-  "version":1,
+  "version":2,
   "scenario":"selem-01",
-  "generation":{"mode":"seeded","seed":"selem-01-authored-v1"},
+  "generation":{"mode":"seeded","seed":"selem-01-authored-v2","maxProfileAssignmentsPerRoom":4},
   "rules":[
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["pilgrim"]},"profile":"pilgrim_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["cult"]},"profile":"cult_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["old_elem"]},"profile":"old_elem_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"tagsAny":["alchemy"]},"profile":"alchemy_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend"],"tagsAny":["grave"]},"profile":"grave_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"tagsAny":["machinery"]},"profile":"machinery_optional_room"},
     {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"tagsAny":["water"]},"profile":"wet_optional_room"},
-    {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"tagsAny":["memory","time_echo"]},"profile":"memory_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["memory","time_echo"]},"profile":"memory_optional_room"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"tagsAny":["magic","demonic"]},"profile":"magic_optional_room"},
     {"when":{"minDistance":1,"kinds":["room","deadend","lens"],"levels":[-3]},"profile":"deep_old_elem_room"},
-    {"when":{"minDistance":1,"tagsAny":["unstable","structural"]},"profile":"unstable_optional_area"}
+    {"when":{"minDistance":1,"tagsAny":["unstable","structural"]},"profile":"unstable_optional_area"},
+    {"when":{"minDistance":1,"tagsAny":["stale_air"]},"profile":"stale_air_area"},
+    {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"]},"profile":"generic_side_room"}
   ],
   "rooms":{
+    "A06":{"slots":[
+      {"id":"story-green-lens","type":"discovery","fixed":"selem_green_lens_clue","placement":["lens","machine"]}
+    ]},
+    "A08":{"slots":[
+      {"id":"story-sacrifice-layer","type":"discovery","fixed":"selem_sacrifice_layer","placement":["altar","floor"]}
+    ]},
+    "A12":{"slots":[
+      {"id":"story-submerged-ledger","type":"discovery","fixed":"selem_submerged_ledger","placement":["desk","shelf","water"]}
+    ]},
     "A27":{"slots":[
-      {"id":"loot-authored","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}
+      {"id":"loot-alchemy","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}
+    ]},
+    "B07":{"slots":[
+      {"id":"story-shrine-reuse","type":"discovery","fixed":"selem_shrine_reuse","placement":["shrine","altar","wall"]}
+    ]},
+    "B12":{"slots":[
+      {"id":"story-black-gate","type":"discovery","fixed":"selem_black_gate_residue","placement":["gate","threshold","glyph"]}
+    ]},
+    "B14":{"slots":[
+      {"id":"story-pump-sequence","type":"discovery","fixed":"selem_pump_sequence","placement":["machine","machinery","wall"]}
+    ]},
+    "B17":{"slots":[
+      {"id":"story-whisper","type":"event","fixed":"selem_whisper_memory","placement":["room"]}
     ]},
     "B29":{"slots":[
-      {"id":"loot-authored","type":"loot","pool":"minor_loot","placement":["machinery","wall_niche"]}
+      {"id":"loot-machinery","type":"loot","pool":"old_elem_minor_loot","placement":["machinery","wall_niche"]}
+    ]},
+    "C07":{"slots":[
+      {"id":"story-band-experiments","type":"discovery","fixed":"selem_band_experiments","placement":["table","wall","bands"]}
+    ]},
+    "C10":{"slots":[
+      {"id":"story-nottel","type":"discovery","fixed":"selem_nottel_cell_marks","placement":["wall","bed","door"]}
+    ]},
+    "C11":{"slots":[
+      {"id":"story-cult-roster","type":"discovery","fixed":"selem_cult_roster","placement":["bedroll","table","crate"]},
+      {"id":"loot-cult","type":"loot","pool":"cult_loot","placement":["crate","shelf","bedroll"]}
+    ]},
+    "C12":{"slots":[
+      {"id":"story-pale-threshold","type":"event","fixed":"selem_pale_threshold_echo","placement":["glyph","threshold"]}
+    ]},
+    "C14":{"slots":[
+      {"id":"story-sahira-notes","type":"discovery","fixed":"selem_sahira_notes","placement":["desk","table","chest"]},
+      {"id":"story-sahira-cache","type":"loot","fixed":"selem_sahira_personal_cache","placement":["chest","wall_niche","bed"],"hidden":true}
+    ]},
+    "C15":{"slots":[
+      {"id":"story-ritual-traces","type":"discovery","fixed":"selem_cult_ritual_traces","placement":["altar","glyph","floor"]}
     ]},
     "C17":{"slots":[
       {"id":"encounter-memory","type":"encounter","fixed":"encounter_lost_waiter","placement":["camp","room"]}
@@ -22,13 +72,14 @@
       {"id":"discovery-memory","type":"discovery","fixed":"discovery_three_maps","placement":["table","floor"]}
     ]},
     "C24":{"slots":[
-      {"id":"secret-authored","type":"secret","pool":"minor_secrets","placement":["wall_niche"],"hidden":true},
-      {"id":"loot-authored","type":"loot","pool":"minor_loot","placement":["wall_niche","shelf"]}
+      {"id":"secret-authored","type":"secret","pool":"cult_secrets","placement":["wall_niche","altar"],"hidden":true},
+      {"id":"loot-authored","type":"loot","pool":"old_elem_minor_loot","placement":["wall_niche","shelf"]}
     ]},
     "D08":{"slots":[
       {"id":"loot-deep","type":"loot","fixed":"loot_old_elem_component","placement":["workbench","machine"],"discoverDifficulty":3}
     ]},
     "D12":{"slots":[
+      {"id":"story-blind-lens","type":"discovery","fixed":"selem_blind_lens_memory","placement":["lens"]},
       {"id":"secret-connection-authored","type":"secret_connection","pool":"old_elem_secret_connections","placement":["secret_connection_slot"],"hidden":true}
     ]}
   }

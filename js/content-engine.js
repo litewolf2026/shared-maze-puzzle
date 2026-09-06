@@ -42,7 +42,13 @@ export function itemMatches(item,context,slot={}){
   return true;
 }
 
-function mergeSlots(target,source,{replace=false}={}){for(const slot of arr(source)){const index=target.findIndex(x=>x.id===slot.id);if(index>=0)target[index]=replace?structuredClone(slot):{...target[index],...structuredClone(slot)};else target.push(structuredClone(slot))}}
+function mergeSlots(target,source,{replace=false,origin='profile'}={}){
+  for(const raw of arr(source)){
+    const slot={...structuredClone(raw),_origin:origin};
+    const index=target.findIndex(x=>x.id===slot.id);
+    if(index>=0)target[index]=replace?slot:{...target[index],...slot};else target.push(slot);
+  }
+}
 
 export function expandSlotConfig({map,slotConfig,profiles={profiles:{}},derivedByNode={}}){
   const rooms={};
@@ -51,17 +57,17 @@ export function expandSlotConfig({map,slotConfig,profiles={profiles:{}},derivedB
     for(const rule of arr(slotConfig.rules)){
       if(!conditionMatches(rule.when||{},context))continue;
       for(const profileId of arr(rule.profiles||[rule.profile]).filter(Boolean)){
-        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots);
+        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots,{origin:'profile'});
       }
     }
     const authored=slotConfig.rooms?.[node.id];
     if(authored){
       for(const profileId of arr(authored.profiles||[authored.profile]).filter(Boolean)){
-        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots);
+        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots,{origin:'authored_profile'});
       }
-      mergeSlots(slots,authored.slots,{replace:true});
+      mergeSlots(slots,authored.slots,{replace:true,origin:'authored'});
     }
-    if(slots.length)rooms[node.id]={slots};
+    if(slots.length)rooms[node.id]={slots,maxProfileAssignmentsPerRoom:authored?.maxProfileAssignmentsPerRoom};
   }
   return {...slotConfig,rooms};
 }
@@ -76,6 +82,7 @@ function weightedPick(candidates,seed){
 }
 
 function slotSelected(slot,seed,nodeId){const chance=slot.chance==null?1:Math.max(0,Math.min(1,Number(slot.chance)));return chance>=1||rngFor(`${seed}|${nodeId}|${slot.id}|chance`)()<chance}
+function budgetRank(seed,nodeId,slotId){return hash32(`${seed}|${nodeId}|${slotId}|budget`)}
 
 export function resolveSlot({slot,node,context,catalog,pools,seed,claimedUnique=new Set()}){
   const items=catalog.items||{};
@@ -100,6 +107,7 @@ function materialize(item,slot,node,source){
     type:item.type,
     label:item.label,
     source,
+    origin:slot._origin||'authored',
     placement:slot.placement||item.placement?.features||[],
     hidden:Boolean(slot.hidden??item.hidden),
     discoverDifficulty:Number(slot.discoverDifficulty??item.discover?.difficulty??0),
@@ -122,22 +130,33 @@ function reserveAuthoredUniques(slotConfig,catalog){
   return reserved;
 }
 
+function selectedInstances(config,seed,nodeId,globalBudget){
+  const instances=[];
+  for(const slot of [...arr(config.slots)].sort((a,b)=>a.id.localeCompare(b.id))){
+    if(!slotSelected(slot,seed,nodeId))continue;
+    const count=Math.max(1,Number(slot.count||1));
+    for(let i=0;i<count;i++)instances.push(count===1?slot:{...slot,id:`${slot.id}-${i+1}`});
+  }
+  const profile=instances.filter(x=>x._origin==='profile');
+  const budgetRaw=config.maxProfileAssignmentsPerRoom??globalBudget;
+  const budget=Number.isFinite(Number(budgetRaw))?Math.max(0,Math.floor(Number(budgetRaw))):Infinity;
+  if(profile.length<=budget)return instances;
+  const allowed=new Set([...profile].sort((a,b)=>budgetRank(seed,nodeId,a.id)-budgetRank(seed,nodeId,b.id)||a.id.localeCompare(b.id)).slice(0,budget).map(x=>x.id));
+  return instances.filter(x=>x._origin!=='profile'||allowed.has(x.id));
+}
+
 export function generateContentPlan({map,slotConfig,catalog,pools,profiles={profiles:{}},derivedByNode={},seed='default'}){
   const expanded=expandSlotConfig({map,slotConfig,profiles,derivedByNode});
   const rooms={},claimedUnique=reserveAuthoredUniques(expanded,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id));
+  const globalBudget=slotConfig.generation?.maxProfileAssignmentsPerRoom;
   for(const node of nodes){
     const config=expanded.rooms?.[node.id];if(!config)continue;
     const context=contentContext(map,node,derivedByNode[node.id]||{}),assignments=[];
-    for(const slot of [...arr(config.slots)].sort((a,b)=>a.id.localeCompare(b.id))){
-      if(!slotSelected(slot,seed,node.id))continue;
-      const count=Math.max(1,Number(slot.count||1));
-      for(let i=0;i<count;i++){
-        const instanceSlot=count===1?slot:{...slot,id:`${slot.id}-${i+1}`};
-        const resolved=resolveSlot({slot:instanceSlot,node,context,catalog,pools,seed,claimedUnique});
-        if(!resolved)continue;
-        const item=catalog.items[resolved.contentId];if(item?.unique||item?.rarity==='unique')claimedUnique.add(item.id);
-        assignments.push(resolved);
-      }
+    for(const instanceSlot of selectedInstances(config,seed,node.id,globalBudget)){
+      const resolved=resolveSlot({slot:instanceSlot,node,context,catalog,pools,seed,claimedUnique});
+      if(!resolved)continue;
+      const item=catalog.items[resolved.contentId];if(item?.unique||item?.rarity==='unique')claimedUnique.add(item.id);
+      assignments.push(resolved);
     }
     if(assignments.length)rooms[node.id]={generated:true,seed:String(seed),assignments};
   }

@@ -13,6 +13,18 @@ assert.equal(map.levels.length,4,'Expanded map must contain four levels.');
 assert.equal(map.gridSizeMeters,3);
 assert.ok(map.nodes.some(n=>n.id==='D12'&&n.z===-3));
 
+// Metadata overlays may enrich old locations, but never move or renumber them.
+for(const patch of expansion.nodeUpdates||[]){
+  const before=base.nodes.find(n=>n.id===patch.id),after=map.nodes.find(n=>n.id===patch.id);
+  assert.ok(before&&after,`Missing metadata overlay node ${patch.id}`);
+  assert.equal(after.id,before.id);assert.equal(after.x,before.x);assert.equal(after.y,before.y);assert.equal(after.z,before.z);
+  if(patch.tags)assert.deepEqual(after.tags,patch.tags,`${patch.id} tags not applied.`);
+  if(patch.exploreGrid)assert.deepEqual(after.exploreGrid,patch.exploreGrid,`${patch.id} exploreGrid not applied.`);
+}
+assert.ok(map.nodes.find(n=>n.id==='A06').tags.includes('magic'));
+assert.deepEqual(map.nodes.find(n=>n.id==='C15').exploreGrid,{w:7,h:7});
+assert.ok(map.nodes.find(n=>n.id==='B14').tags.includes('machinery'));
+
 const adj=new Map(map.nodes.map(n=>[n.id,{}]));
 for(const [a,d,b] of map.edges){
   assert.ok(adj.has(a)&&adj.has(b),`Bad expansion edge ${a}/${b}`);
@@ -44,4 +56,4 @@ for(let qi=0;qi<q.length;qi++){
 assert.equal(dist.get(map.goal),25,'Expansion created a shorter/longer shortest route.');
 assert.equal(ways.get(map.goal),1,'Expansion created another shortest route to the goal.');
 assert.ok(solutionNodes.every(id=>map.nodes.find(n=>n.id===id)?.z!==-3));
-console.log('expanded-map: OK (103 nodes, 4 levels, unique 25-step band route)');
+console.log(`expanded-map: OK (103 nodes, ${expansion.nodeUpdates?.length||0} safe metadata overlays, unique 25-step band route)`);

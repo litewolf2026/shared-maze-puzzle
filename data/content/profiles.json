@@ -1,23 +1,63 @@
 {
-  "version":1,
+  "version":2,
   "profiles":{
+    "generic_side_room":{"slots":[
+      {"id":"discovery-generic","type":"discovery","pool":"general_discoveries","placement":["wall","floor","rubble","shelf"],"chance":0.25},
+      {"id":"secret-generic","type":"secret","pool":"minor_secrets","placement":["wall","wall_niche","floor"],"chance":0.12}
+    ]},
+    "pilgrim_optional_room":{"slots":[
+      {"id":"loot-pilgrim","type":"loot","pool":"pilgrim_loot","placement":["bedroll","floor","rubble","wall_niche","altar"],"chance":0.45},
+      {"id":"discovery-pilgrim","type":"discovery","pool":"pilgrim_discoveries","placement":["table","shelf","wall","floor"],"chance":0.4}
+    ]},
+    "cult_optional_room":{"slots":[
+      {"id":"loot-cult","type":"loot","pool":"cult_loot","placement":["crate","shelf","bedroll","altar"],"chance":0.4},
+      {"id":"discovery-cult","type":"discovery","pool":"cult_discoveries","placement":["table","shelf","wall","bedroll","crate"],"chance":0.45},
+      {"id":"encounter-cult","type":"encounter","pool":"cult_encounters","placement":["room","camp","guard_post"],"chance":0.22},
+      {"id":"secret-cult","type":"secret","pool":"cult_secrets","placement":["wall_niche","altar","floor"],"chance":0.18}
+    ]},
+    "old_elem_optional_room":{"slots":[
+      {"id":"loot-old-elem","type":"loot","pool":"old_elem_minor_loot","placement":["rubble","wall_niche","machinery","altar"],"chance":0.35},
+      {"id":"discovery-old-elem","type":"discovery","pool":"old_elem_discoveries","placement":["wall","pillar","rubble","machinery","grave"],"chance":0.5},
+      {"id":"secret-old-elem","type":"secret","pool":"old_elem_secrets","placement":["wall","wall_niche","machinery"],"chance":0.16}
+    ]},
+    "alchemy_optional_room":{"slots":[
+      {"id":"loot-alchemy","type":"loot","pool":"alchemy_loot","placement":["workbench","shelf","jars","rubble"],"chance":0.65},
+      {"id":"hazard-alchemy","type":"hazard","pool":"air_hazards","placement":["room","floor"],"chance":0.2}
+    ]},
+    "grave_optional_room":{"slots":[
+      {"id":"loot-grave","type":"loot","pool":"grave_loot","placement":["grave","sarcophagus","wall_niche","altar"],"chance":0.4},
+      {"id":"discovery-grave","type":"discovery","pool":"grave_discoveries","placement":["grave","sarcophagus","wall"],"chance":0.5},
+      {"id":"encounter-grave","type":"encounter","pool":"ambient_encounters","placement":["grave","rubble","room"],"chance":0.22}
+    ]},
+    "machinery_optional_room":{"slots":[
+      {"id":"loot-machinery","type":"loot","pool":"old_elem_minor_loot","placement":["machinery","workbench","rubble"],"chance":0.42},
+      {"id":"discovery-machinery","type":"discovery","pool":"machinery_discoveries","placement":["machine","machinery","wall"],"chance":0.55},
+      {"id":"secret-machinery","type":"secret","pool":"old_elem_secrets","placement":["machine","machinery","wall"],"chance":0.18}
+    ]},
     "wet_optional_room":{"slots":[
-      {"id":"hazard-wet","type":"hazard","pool":"environment_hazards","placement":["water","floor"],"chance":0.8},
-      {"id":"encounter-wet","type":"encounter","pool":"ambient_encounters","placement":["water","room"],"chance":0.35}
+      {"id":"hazard-wet","type":"hazard","pool":"water_hazards","placement":["water","floor","ledge","bridge"],"chance":0.8},
+      {"id":"encounter-wet","type":"encounter","pool":"water_encounters","placement":["water","room"],"chance":0.35}
     ]},
     "memory_optional_room":{"slots":[
       {"id":"event-memory","type":"event","pool":"memory_events","placement":["room","corridor"],"chance":0.65},
       {"id":"discovery-memory","type":"discovery","pool":"memory_discoveries","placement":["table","camp","floor","wall"],"chance":0.45},
-      {"id":"encounter-memory","type":"encounter","pool":"lost_people_encounters","placement":["camp","room"],"chance":0.3}
+      {"id":"encounter-memory","type":"encounter","pool":"memory_encounters","placement":["camp","room"],"chance":0.3}
+    ]},
+    "magic_optional_room":{"slots":[
+      {"id":"hazard-magic","type":"hazard","pool":"magic_hazards","placement":["lens","machine","glyph","room","threshold"],"chance":0.35},
+      {"id":"event-magic","type":"event","pool":"magic_events","placement":["lens","machine","glyph","room"],"chance":0.45}
     ]},
     "deep_old_elem_room":{"slots":[
       {"id":"hazard-deep","type":"hazard","pool":"environment_hazards","placement":["machinery","water","ceiling","floor","room"],"chance":0.7},
       {"id":"loot-deep","type":"loot","pool":"deep_old_elem_loot","placement":["machinery","rubble","wall_niche","workbench","machine"],"chance":0.5},
-      {"id":"secret-deep","type":"secret","pool":"minor_secrets","placement":["wall_niche","wall"],"chance":0.25},
+      {"id":"secret-deep","type":"secret","pool":"old_elem_secrets","placement":["wall_niche","wall","machinery"],"chance":0.25},
       {"id":"event-deep","type":"event","pool":"memory_events","placement":["room"],"chance":0.4}
     ]},
     "unstable_optional_area":{"slots":[
-      {"id":"hazard-structural","type":"hazard","pool":"environment_hazards","placement":["ceiling","rubble"],"chance":0.75}
+      {"id":"hazard-structural","type":"hazard","pool":"structural_hazards","placement":["ceiling","rubble","floor","bridge"],"chance":0.75}
+    ]},
+    "stale_air_area":{"slots":[
+      {"id":"hazard-air","type":"hazard","pool":"air_hazards","placement":["room","shaft","pit"],"chance":0.7}
     ]}
   }
 }

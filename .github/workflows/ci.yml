@@ -56,5 +56,7 @@ jobs:
         run: node tests/content-model.mjs
       - name: Validate seeded reusable content engine
         run: node tests/content-engine.mjs
+      - name: Guard content density
+        run: node tests/content-density.mjs
       - name: Validate discoverable room features
         run: node tests/room-features.mjs

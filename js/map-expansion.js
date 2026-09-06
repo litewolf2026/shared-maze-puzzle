@@ -6,6 +6,12 @@ export function applyExpansion(base,expansion){
   map.displayUnitsPerGridCell=expansion.displayUnitsPerGridCell||map.displayUnitsPerGridCell||2.4;
   const levelIds=new Set(map.levels.map(l=>Number(l.z)));
   for(const level of expansion.levels||[]){if(!levelIds.has(Number(level.z))){map.levels.push(structuredClone(level));levelIds.add(Number(level.z))}}
+  const byId=new Map(map.nodes.map(n=>[n.id,n]));
+  for(const patch of expansion.nodeUpdates||[]){
+    const current=byId.get(patch.id);if(!current)throw new Error(`Expansion node update references missing node ${patch.id}`);
+    const immutable=['id','x','y','z'];for(const key of immutable)if(key in patch&&patch[key]!==current[key])throw new Error(`Expansion node update may not change ${patch.id}.${key}`);
+    Object.assign(current,structuredClone(patch));
+  }
   const nodeIds=new Set(map.nodes.map(n=>n.id));
   for(const node of expansion.nodes||[]){if(nodeIds.has(node.id))throw new Error(`Expansion duplicates node ${node.id}`);map.nodes.push(structuredClone(node));nodeIds.add(node.id)}
   map.edges.push(...structuredClone(expansion.edges||[]));
