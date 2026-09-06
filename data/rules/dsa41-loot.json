@@ -1,0 +1,75 @@
+{
+  "version":1,
+  "system":"DSA4.1",
+  "projectPolicy":{
+    "valueScaleIsProjectConvention":true,
+    "valueTiersAreNotCurrency":true,
+    "noAutomaticDukatPrices":true,
+    "exactMarketPriceRequiresLocalBuyerContext":true,
+    "identificationGuidanceIsNotAutomaticCheck":true,
+    "portabilityDoesNotReplaceEncumbranceRules":true
+  },
+  "valueScale":{
+    "0":{"label":"gering/ideell","intent":"kaum eigenständiger Handelswert; Nutzen oder Bedeutung entsteht vor allem aus Kontext"},
+    "1":{"label":"klein","intent":"brauchbarer oder merkbarer Fund, aber keine große Belohnung"},
+    "2":{"label":"bedeutend","intent":"klar wertvoll, nützlich oder sammelwürdig; kann eine echte Nebenbelohnung sein"},
+    "3":{"label":"hoch","intent":"seltener Fund mit erheblichem Fach-, Sammler- oder Nutzwert"},
+    "4":{"label":"außergewöhnlich","intent":"einzigartiger oder kampagnenrelevanter Fund; nicht wie gewöhnliche Handelsware behandeln"}
+  },
+  "portability":{
+    "pocket":{"label":"Tasche","intent":"problemlos am Körper oder in kleiner Tasche transportierbar"},
+    "pack":{"label":"Gepäck","intent":"passt in Rucksack, Tasche oder kleine Kassette"},
+    "two_hands":{"label":"sperrig","intent":"tragbar, bindet aber Hände oder merkbaren Packraum"},
+    "bulky":{"label":"schwer/sperrig","intent":"Transport ist eine eigene logistische Entscheidung"}
+  },
+  "profiles":{
+    "coin_pouch":{"label":"Münz- oder Kleindepot","valueTier":1,"portability":"pocket","identification":{"level":"none","expertise":[],"note":"Art und unmittelbarer Zweck sind ohne Fachprobe erkennbar; genaue Kaufkraft bleibt orts- und zeitabhängig."},"primaryUse":"direkter Geld-, Tausch- oder Erinnerungswert","relevance":["resource"],"market":"leicht verwertbar, konkrete Kaufkraft wird nicht automatisch festgelegt","preservation":"unproblematisch"},
+    "devotional_silver":{"label":"kleine Kult-/Votivarbeit","valueTier":2,"portability":"pocket","identification":{"level":"expert","expertise":["Götter/Kulte","Geschichtswissen"],"note":"Materialwert ist sichtbar; Herkunft, Alter und kultische Bedeutung benötigen Fachkenntnis."},"primaryUse":"Sammler-, Kult- oder Forschungsstück","relevance":["research","culture"],"market":"spezialisierte Käufer können deutlich anders bewerten als gewöhnliche Händler","preservation":"nicht reinigen oder umarbeiten, bevor Herkunft geklärt ist"},
+    "supplies":{"label":"brauchbare Vorräte","valueTier":1,"portability":"pack","identification":{"level":"basic","expertise":[],"note":"Nutzbarkeit ist im Wesentlichen direkt erkennbar; verdorbene oder unbekannte Bestandteile im Zweifel aussortieren."},"primaryUse":"unmittelbarer Reise- oder Expeditionsbedarf","relevance":["practical"],"market":"eher Nutzwert als bedeutende Beute","preservation":"trocken und getrennt von verdorbenem Material lagern"},
+    "historic_devotional":{"label":"historisches Kultobjekt","valueTier":3,"portability":"pocket","identification":{"level":"expert","expertise":["Götter/Kulte","Geschichtswissen"],"note":"Alter, Kulturzuordnung und mögliche seltene Symbolik sind ohne Fachkenntnis nicht belastbar."},"primaryUse":"historische, kultische oder sammlerische Forschung","relevance":["research","culture","history"],"market":"nicht zum bloßen Materialwert ansetzen; Herkunft kann wichtiger sein als Edelmetallanteil","preservation":"Fundkontext dokumentieren und Oberfläche nicht aggressiv reinigen"},
+    "old_elem_tools":{"label":"Spezialwerkzeug Alt-Elems","valueTier":2,"portability":"pack","identification":{"level":"expert","expertise":["Geschichtswissen","Feinmechanik/Bau- oder Handwerkskenntnis"],"note":"Werkzeugfunktion und Zugehörigkeit zu einer alten technischen Tradition müssen erschlossen werden."},"primaryUse":"Forschung, Vergleichsstück oder situatives Spezialwerkzeug","relevance":["research","practical","old_elem"],"market":"Spezialisten bewerten Funktions- und Herkunftsnachweis höher als Altmetall","preservation":"zusammengehörige Werkzeuge nicht voneinander trennen"},
+    "old_elem_fragment":{"label":"bearbeitetes Alt-Elem-Fragment","valueTier":2,"portability":"pocket","identification":{"level":"expert","expertise":["Geschichtswissen","Magiekunde oder technische Fachkenntnis"],"note":"Funktion und ursprünglicher Zusammenhang sind ohne Vergleichsmaterial nicht sicher bestimmbar."},"primaryUse":"Forschungs- und Vergleichsstück","relevance":["research","old_elem"],"market":"unsicherer Spezialistenwert; Provenienz erhöht den Wert stärker als Materialgewicht","preservation":"Fundort und Einbaulage dokumentieren"},
+    "alchemy_unknown":{"label":"unbekannte alchemistische Substanz","valueTier":2,"portability":"pocket","identification":{"level":"specialist","expertise":["Alchimie"],"note":"Inhalt, Haltbarkeit, Gefährlichkeit und Verwendbarkeit müssen vor Öffnung oder Nutzung bestimmt werden."},"primaryUse":"alchemistische Analyse oder späterer Verbrauch","relevance":["research","practical","alchemy"],"market":"nur nach Identifikation sinnvoll zu bewerten","preservation":"versiegelt, kühl und getrennt von Lebensmitteln transportieren","caution":"Nicht kosten, erhitzen oder mischen, bevor die Substanz bestimmt wurde."},
+    "alchemy_reagents":{"label":"alchemistische Reststoffe","valueTier":1,"portability":"pack","identification":{"level":"expert","expertise":["Alchimie"],"note":"Verwertbare Bestandteile müssen von verdorbenen oder reaktiven Resten getrennt werden."},"primaryUse":"Rohstoff oder Analyseprobe","relevance":["practical","alchemy"],"market":"Wert hängt stark von Reinheit und tatsächlicher Verwendbarkeit ab","preservation":"einzeln verpacken und beschriften"},
+    "technomagic_unique":{"label":"einzigartiger technomagischer Alt-Elem-Bestandteil","valueTier":4,"portability":"two_hands","identification":{"level":"specialist","expertise":["Magiekunde","Geschichtswissen","technische Fachkenntnis"],"note":"Funktion, Vollständigkeit, mögliche Aktivität und Gefährlichkeit sind vor jedem Eingriff zu klären."},"primaryUse":"hochwertiges Forschungs-, Schlüssel- oder Kampagnenobjekt","relevance":["research","plot","old_elem","unique"],"market":"nicht wie Altmetall behandeln; sinnvoller Wert entsteht erst bei spezialisierten Institutionen oder Kennern","preservation":"nicht zerlegen, polieren oder aktivieren; Einbaulage und Begleitspuren sichern","caution":"Kann funktional, magisch oder gefährlich sein, obwohl äußerlich keine Aktivität erkennbar ist."},
+    "grave_jewelry":{"label":"historischer Grabschmuck","valueTier":2,"portability":"pocket","identification":{"level":"expert","expertise":["Geschichtswissen","Götter/Kulte"],"note":"Alter, Statusbezug und Begräbniskontext bestimmen die Bedeutung stärker als der reine Materialwert."},"primaryUse":"historische Forschung oder Wertgegenstand","relevance":["history","culture","ethical_context"],"market":"Handelswert vorhanden, aber Herkunft und Umgang mit Grabbeigaben sind eine bewusste Spielentscheidung","preservation":"Fundzusammenhang dokumentieren; zusammengehörige Stücke nicht trennen"},
+    "tools":{"label":"brauchbares Werkzeug","valueTier":1,"portability":"pack","identification":{"level":"basic","expertise":["passendes Handwerk"],"note":"Allgemeine Nutzbarkeit ist sichtbar; spezielle Funktion kann Fachkenntnis erfordern."},"primaryUse":"direkter Werkzeugnutzen","relevance":["practical"],"market":"gewöhnlicher Nutzwert, Spezialformen können für Fachleute interessanter sein","preservation":"trocken halten und lose Teile sichern"},
+    "salvage":{"label":"verwertbares Material","valueTier":1,"portability":"pack","identification":{"level":"basic","expertise":["passendes Handwerk"],"note":"Materialart ist meist erkennbar; besondere Legierungen oder Funktionen können übersehen werden."},"primaryUse":"Reparatur, Ersatzteile oder Verkauf als Material","relevance":["practical"],"market":"meist Material- oder Handwerkswert, kein automatischer Sammlerwert","preservation":"funktionale Baugruppen möglichst nicht unnötig zerlegen"},
+    "ritual":{"label":"Ritualmaterialien","valueTier":2,"portability":"pack","identification":{"level":"expert","expertise":["Magiekunde","Götter/Kulte oder passende Ritualkenntnis"],"note":"Einzelne Materialien sind erkennbar, Zweck, Qualität und mögliche Kontamination benötigen Fachkenntnis."},"primaryUse":"Ritualvorbereitung, Analyse oder Beweisstück","relevance":["practical","research","cult"],"market":"Wert hängt von Seltenheit, Reinheit und legalem Käuferkreis ab","preservation":"getrennt von unbekannten Rückständen verpacken"},
+    "key":{"label":"Schlüssel-/Zugangsobjekt","valueTier":0,"portability":"pocket","identification":{"level":"basic","expertise":["Feinmechanik"],"note":"Monetär oft unbedeutend, funktional aber potenziell wichtiger als sein Materialwert."},"primaryUse":"Zugang, Mechanismus oder Zuordnung zu einem Schloss","relevance":["practical","route","possible_plot"],"market":"geringer Materialwert; tatsächlicher Wert entsteht durch das passende Schloss","preservation":"Form und Reihenfolge am Ring erhalten"},
+    "personal_cache":{"label":"persönliche Wertkassette","valueTier":2,"portability":"pack","identification":{"level":"basic","expertise":[],"note":"Geld und Gebrauchsgegenstände sind direkt erkennbar; persönliche Stücke können zusätzlichen Informationswert besitzen."},"primaryUse":"Ressource, persönliche Spur und mögliches Beweisstück","relevance":["resource","information","plot"],"market":"Inhalt nicht pauschal zusammenrechnen; persönliche Dokumente oder Kennzeichen können wertvoller als Geld sein","preservation":"persönliche Stücke und Schriftzeug getrennt dokumentieren"},
+    "generic_common":{"label":"gewöhnlicher Fund","valueTier":1,"portability":"pack","identification":{"level":"basic","expertise":[],"note":"Grundfunktion ist meist erkennbar; besondere Eigenschaften sind nicht automatisch ausgeschlossen."},"primaryUse":"Nutz- oder kleiner Handelswert","relevance":["practical"],"market":"keine automatische Preisfestsetzung","preservation":"situationsabhängig"},
+    "generic_uncommon":{"label":"ungewöhnlicher Fund","valueTier":2,"portability":"pack","identification":{"level":"expert","expertise":["passende Fachkenntnis"],"note":"Eine fachliche Einordnung kann Herkunft oder Wert deutlich verändern."},"primaryUse":"Nutz-, Sammler- oder Forschungswert","relevance":["practical","research"],"market":"kontext- und käuferabhängig","preservation":"Fundkontext möglichst erhalten"},
+    "generic_rare":{"label":"seltener Fund","valueTier":3,"portability":"pack","identification":{"level":"expert","expertise":["passende Fachkenntnis"],"note":"Vor Verkauf oder Nutzung sollte der Fund fachlich bestimmt werden."},"primaryUse":"hochwertiger Sammler-, Nutz- oder Forschungswert","relevance":["research"],"market":"Spezialistenmarkt; gewöhnlicher Händler kann deutlich unterbewerten","preservation":"nicht verändern, bevor Herkunft und Funktion geklärt sind"},
+    "generic_unique":{"label":"einzigartiger Fund","valueTier":4,"portability":"pack","identification":{"level":"specialist","expertise":["mehrere passende Fachkenntnisse"],"note":"Einzigartige Funde benötigen eine individuelle Einordnung; Standardpreise sind ungeeignet."},"primaryUse":"Kampagnen-, Forschungs- oder Schlüsselobjekt","relevance":["research","plot","unique"],"market":"kein Standardmarktwert","preservation":"vollständig dokumentieren und unverändert sichern"}
+  },
+  "categoryBindings":{
+    "cache":"coin_pouch",
+    "tools":"tools",
+    "supplies":"supplies",
+    "salvage":"salvage",
+    "ritual":"ritual",
+    "key":"key"
+  },
+  "itemProfiles":{
+    "loot_pilgrim_coins":"coin_pouch",
+    "loot_votive_silver":"devotional_silver",
+    "loot_lamp_oil":"supplies",
+    "loot_cult_supplies":"supplies",
+    "loot_historic_devotional":"historic_devotional",
+    "loot_old_elem_tools":"old_elem_tools",
+    "loot_old_elem_fragment":"old_elem_fragment",
+    "loot_alchemy_vial":"alchemy_unknown",
+    "loot_alchemy_residue":"alchemy_reagents",
+    "loot_old_elem_component":"technomagic_unique",
+    "loot_grave_jewelry":"grave_jewelry",
+    "selem_sahira_personal_cache":"personal_cache"
+  },
+  "rarityFallback":{
+    "common":"generic_common",
+    "uncommon":"generic_uncommon",
+    "rare":"generic_rare",
+    "very_rare":"generic_rare",
+    "unique":"generic_unique"
+  }
+}
