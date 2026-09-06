@@ -17,12 +17,13 @@ for(const part of sceneParts){
 }
 
 const SCENE_KINDS=new Set(['room','lens','prison','goal','deadend','gate','glyph']);
+const AUTHORED_TRANSIT_SCENES=new Set(['A32']);
 const sceneNodes=map.nodes.filter(n=>SCENE_KINDS.has(n.kind));
-const expectedIds=sceneNodes.map(n=>n.id).sort();
+const expectedIds=[...sceneNodes.map(n=>n.id),...AUTHORED_TRANSIT_SCENES].sort();
 const authoredIds=Object.keys(scenes).sort();
-assert.equal(map.nodes.length,107);
+assert.equal(map.nodes.length,108);
 assert.equal(sceneNodes.length,55);
-assert.deepEqual(authoredIds,expectedIds,'Authored scene layer must cover exactly all 55 scene-like locations.');
+assert.deepEqual(authoredIds,expectedIds,'Authored scene layer must cover all 55 scene-like locations plus the explicit A32 collapsed-transit vignette.');
 
 const allowedHeroes=new Set(['Norel','Glacia','Quin','Grambosch','Rastafan']);
 const allowedPolicies=new Set(['ambient','authored_priority','authored_only']);
@@ -40,7 +41,8 @@ for(const [id,scene] of Object.entries(scenes)){
   const budget=slots.rooms?.[id]?.maxProfileAssignmentsPerRoom;
   if(scene.randomPolicy==='authored_only'){
     authoredOnly++;
-    assert.equal(budget,0,`${id} is authored_only and must suppress generated profile content.`);
+    if(AUTHORED_TRANSIT_SCENES.has(id))assert.equal(budget,undefined,`${id} is authored transit and must stay outside generated room content.`);
+    else assert.equal(budget,0,`${id} is authored_only and must suppress generated profile content.`);
   }else if(scene.randomPolicy==='authored_priority'){
     authoredPriority++;
     assert.equal(budget,1,`${id} is authored_priority and must allow at most one generated profile assignment.`);
@@ -57,6 +59,7 @@ assert.equal(slots.rooms.D10?.slots?.[0]?.fixed,'encounter_exhausted_explorer','
 assert.equal(slots.rooms.D14?.slots?.[0]?.pool,'water_encounters','D14 should use the curated Selem water-fauna pool.');
 
 const sparseNodes=map.nodes.filter(n=>!SCENE_KINDS.has(n.kind));
-assert.equal(sparseNodes.length,52,'Transit/scene classification changed; review authored-scene policy intentionally.');
-console.log(`selem-scenes: ${authoredIds.length}/${sceneNodes.length} authored; policies ${authoredOnly} authored-only / ${authoredPriority} authored-priority / ${ambient} ambient; ${sparseNodes.length} transit locations outside scene layer`);
+assert.equal(sparseNodes.length,53,'Transit/scene classification changed; review authored-scene policy intentionally.');
+assert.ok(sparseNodes.some(n=>n.id==='A32'),'A32 must remain a sparse transit dead end despite its authored arrival vignette.');
+console.log(`selem-scenes: ${authoredIds.length} authored (${sceneNodes.length} scene locations + ${AUTHORED_TRANSIT_SCENES.size} authored transit vignette); policies ${authoredOnly} authored-only / ${authoredPriority} authored-priority / ${ambient} ambient; ${sparseNodes.length} transit locations outside scene classification`);
 console.log('signature:',authoredIds.filter(id=>scenes[id].signature).join(', '));
