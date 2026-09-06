@@ -108,6 +108,7 @@
 }
 
 /* Short labels, readable prose. */
+.v3-feature-label{font-size:9px}
 .look-panel .feature-item b{
   display:block;
   min-width:0;
