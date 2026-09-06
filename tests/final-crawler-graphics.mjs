@@ -31,7 +31,7 @@ for(const cls of ['crawler-terrain-floor','crawler-terrain-bridge','crawler-terr
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/,'Atmospheric animation must respect reduced-motion preference.');
 
 assert.match(index,/crawler\.css\?v=20260906-final1/,'Legacy final crawler stylesheet must remain cache-busted.');
-assert.ok(/exploration-controller(?:-v3)?\.js\?v=20260906-(?:final1|v3)/.test(index),'An active cache-busted exploration controller is required.');
+assert.ok(/exploration-controller(?:-v3)?\.js\?v=20260906-(?:final1|v3|inv1)/.test(index),'An active cache-busted exploration controller is required.');
 assert.match(exploration,/crawler-view\.js\?v=20260906-final1/,'Nested legacy crawler module import is not cache-busted.');
 assert.match(exploration,/room-terrain\.js\?v=20260906-final1/,'Nested legacy terrain module import is not cache-busted.');
 
