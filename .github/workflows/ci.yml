@@ -46,6 +46,7 @@ jobs:
           node --check js/crawler-controller.js
           node --check js/exploration-controller.js
           node --check js/exploration-controller-v3.js
+          node --check js/exploration-panel.js
           node --check js/direction-ui.js
           node --check js/map-readability.js
           node --check js/gm-route.js
@@ -76,6 +77,8 @@ jobs:
         run: node tests/final-crawler-graphics.mjs
       - name: Validate Crawler V3 visual architecture
         run: node tests/crawler-v3.mjs
+      - name: Validate movable readable exploration panel
+        run: node tests/exploration-panel.mjs
       - name: Validate readable GM workspace and local graphics preview
         run: node tests/gm-ui-tools.mjs
       - name: Validate shared group inventory lifecycle
