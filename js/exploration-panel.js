@@ -59,7 +59,6 @@ if(controlPanel&&shell&&featureList){
   const count=detailPanel.querySelector('.panel-detail-count');
   const searchProxy=detailPanel.querySelector('.details-search-proxy');
   const collapse=detailPanel.querySelector('.detail-collapse');
-  let controlDragging=null,detailDragging=null;
   let controlSaveTimer=null,detailSaveTimer=null;
   let detailCollapsed=false;
 
@@ -98,7 +97,10 @@ if(controlPanel&&shell&&featureList){
     const original=roomExplore?.querySelector('#roomSearch');
     if(!original){searchProxy.disabled=true;searchProxy.title='Suche ist an diesem Ort nicht verfügbar.';return}
     original.classList.add('details-search-origin');
-    original.hidden=true;
+    /* Important: only mutate hidden when it actually changes. The roomExplore
+       observer watches hidden attributes; repeatedly setting hidden=true here
+       would otherwise schedule itself forever and freeze the page. */
+    if(!original.hidden)original.hidden=true;
     searchProxy.disabled=false;
     searchProxy.textContent=original.textContent||'⌕ Gründlich suchen';
     searchProxy.title=original.title||'';
@@ -109,7 +111,7 @@ if(controlPanel&&shell&&featureList){
   }
   function syncVisibility(){
     const roomEnabled=roomExplore&&!roomExplore.hidden;
-    detailPanel.hidden=!roomEnabled;
+    if(detailPanel.hidden===roomEnabled)detailPanel.hidden=!roomEnabled;
     if(roomEnabled){connectSearch();positionInside(detailPanel)}
   }
   function updateCount(){
@@ -138,7 +140,8 @@ if(controlPanel&&shell&&featureList){
   collapse.addEventListener('click',()=>setCollapsed(!detailCollapsed));
   for(const button of detailPanel.querySelectorAll('[data-detail-size]'))button.addEventListener('click',()=>applyDetailSize(button.dataset.detailSize));
 
-  new MutationObserver(()=>{connectSearch();syncVisibility()}).observe(roomExplore||controlPanel,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
+  const roomObserver=new MutationObserver(()=>{connectSearch();syncVisibility()});
+  if(roomExplore)roomObserver.observe(roomExplore,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
   new MutationObserver(updateCount).observe(featureList,{childList:true,subtree:true});
   if('ResizeObserver'in window){
     new ResizeObserver(()=>{positionInside(controlPanel);scheduleControlSave()}).observe(controlPanel);
