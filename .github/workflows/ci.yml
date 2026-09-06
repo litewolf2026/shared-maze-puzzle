@@ -98,6 +98,8 @@ jobs:
         run: node tests/dsa41-encounters.mjs
       - name: Validate canonical Selem fauna
         run: node tests/selem-fauna.mjs
+      - name: Validate curated Selem alchemical loot
+        run: node tests/selem-alchemy-loot.mjs
       - name: Validate loot valuation and identification guidance
         run: node tests/dsa41-loot.mjs
       - name: Validate hidden connection lifecycle
