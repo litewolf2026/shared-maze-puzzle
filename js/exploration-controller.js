@@ -1,5 +1,6 @@
 import {createCrawlerView,FACING_ORDER,rotateFacing} from './crawler-view.js';
 import {contentVisibleToPlayer} from './content-engine.js';
+import {reusableDefinition} from './reusable-content-pack.js';
 import {playerInvestigationMode,formatCheck} from './dsa41-exploration.js';
 let map=null,shared=null,crawler=null,featureCatalog={},contentCatalog={},explorationRules=null;
 let viewFacing=localStorage.getItem('maze-view-facing')||'N';
@@ -28,15 +29,16 @@ function visibleStaticFeatures(node,pos){const discovered=new Set(shared?.discov
 function roomAssignments(node){return shared?.roomState?.[node.id]?.content?.assignments||[]}
 function visibleContent(node,pos){return roomAssignments(node).filter(a=>contentVisibleToPlayer(a)&&a.anchor&&near(pos,a.anchor))}
 function crawlerMarkers(node,pos){return [...visibleStaticFeatures(node,pos),...visibleContent(node,pos).map(a=>({id:`content:${a.slotId}`,x:a.anchor.x,y:a.anchor.y,label:a.label}))]}
+function definitionFor(a){return contentCatalog[a.contentId]||reusableDefinition(a.contentId)||{description:a.description||'',mechanics:a.mechanics||null,placement:{features:a.placement||[]}}}
 
 function appendStaticFeature(list,node,feature,discovered){
   const key=featureKey(node.id,feature.id),known=discovered.has(key),box=document.createElement('div');box.className='feature-item'+(known?' discovered':'');const title=document.createElement('b');title.textContent=feature.label;box.append(title);
   if(known){const text=document.createElement('small');text.textContent=feature.description;box.append(text)}else{const button=document.createElement('button');button.textContent='Untersuchen';button.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('maze-discover',{detail:{node:node.id,feature:feature.id,label:feature.label}})));box.append(button)}list.append(box);
 }
 function appendContent(list,node,a){
-  const definition=contentCatalog[a.contentId]||{},box=document.createElement('div');box.className=`feature-item generated-content type-${a.type} state-${a.state}`;const title=document.createElement('b');title.textContent=a.label;box.append(title);
+  const definition=definitionFor(a),box=document.createElement('div');box.className=`feature-item generated-content type-${a.type} state-${a.state}`;const title=document.createElement('b');title.textContent=a.label;box.append(title);
   const meta=document.createElement('small');meta.textContent=a.state==='triggered'?'Hier geschieht gerade etwas.':a.state==='discovered'?'Von der Gruppe entdeckt.':'In deiner Nähe.';box.append(meta);
-  if(a.state!=='unresolved'&&definition.description){const text=document.createElement('small');text.textContent=definition.description;box.append(text)}
+  const description=definition.description||a.description;if(a.state!=='unresolved'&&description){const text=document.createElement('small');text.textContent=description;box.append(text)}
   if(a.state==='unresolved'&&!a.hidden&&['loot','discovery'].includes(a.type)){
     const mode=explorationRules?playerInvestigationMode(a,definition,explorationRules):{mode:'direct'};
     const button=document.createElement('button');
