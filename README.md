@@ -30,7 +30,7 @@ Nebenräume tragen narrative Tags wie `water`, `memory`, `lost_people`, `old_ele
 
 `js/content-model.js` berechnet für jeden Ort die kürzeste Graphdistanz zum Sollweg. Daraus entsteht eine Grundgefahr, die durch `dangerFloor` einer Zone angehoben werden kann. Loot wird nicht zufällig verteilt: `lootTier` bleibt bewusst authored; die Distanz bestimmt nur, welche Qualität plausibel wäre.
 
-Thematische Begegnungspools liegen in `data/encounter-pools.json`. Erste gemeinsam entdeckbare Raumdetails liegen in `data/room-features.json`.
+Thematische Begegnungspools liegen in `data/encounter-pools.json`. Gemeinsam entdeckbare Raumdetails liegen in `data/room-features.json`.
 
 ## Autoritative Daten und Supabase
 
