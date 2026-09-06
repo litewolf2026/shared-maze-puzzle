@@ -1,6 +1,7 @@
 import {loadSelemScenes,sceneForNode,setpieceForNode,randomPolicyLabel} from './selem-scenes.js';
 
 let sceneBook=null,last=null;
+const SHAPE_LABEL={rectangular:'rechteckig',square:'quadratisch',irregular:'unregelmäßig',narrow_irregular:'eng / unregelmäßig',narrow_rectangular:'schmal / rechteckig',small_rectangular:'klein / rechteckig',shaft_room:'Schachtraum',threshold:'Schwellenbereich',industrial_rectangular:'technische Halle',cavern:'Naturgrotte',workshop:'Werkstatt',large_hall:'Großhalle',low_rectangular:'niedriger Rechteckraum',round_hall:'Rundhalle',machine_hall:'Maschinenhalle',burial_hall:'Grablege',cavern_hall:'Großkaverne',ossuary_hall:'Ossuarium',lens_chamber:'Linsenkammer',archive:'Archivraum'};
 
 function ensurePlayerArrival(){
   let box=document.querySelector('#sceneArrival');
@@ -20,6 +21,10 @@ function ensureGmGuide(){
 
 function addRow(box,label,text){if(!text)return;const row=document.createElement('small'),b=document.createElement('b');b.textContent=`${label}: `;row.append(b,document.createTextNode(text));box.append(row)}
 function addList(box,label,items){if(!Array.isArray(items)||!items.length)return;addRow(box,label,items.join(' · '))}
+function geometryText(node){
+  const grid=node?.exploreGrid;if(!grid?.w||!grid?.h)return null;const cell=Number(last?.map?.gridSizeMeters||3),w=grid.w*cell,d=grid.h*cell,h=Number(node.geometry?.ceilingM),shape=SHAPE_LABEL[node.geometry?.shape]||node.geometry?.shape;
+  return `${w} × ${d} m${Number.isFinite(h)?` · ca. ${String(h).replace('.',',')} m hoch`:''}${shape?` · ${shape}`:''}`;
+}
 
 function renderPlayer(scene){
   const box=ensurePlayerArrival();if(!box)return;
@@ -42,12 +47,13 @@ function appendSetpiece(box,setpiece){
   box.append(details);
 }
 
-function renderGm(scene,setpiece,nodeId){
+function renderGm(scene,setpiece,nodeId,node){
   const box=ensureGmGuide();if(!box)return;
   if(!last?.isGm||!scene||last?.state?.transit){box.hidden=true;box.innerHTML='';return}
   box.hidden=false;box.innerHTML='';
   const title=document.createElement('h4');title.textContent=`Szenenführung · ${nodeId}`;box.append(title);
   if(scene.signature){const badge=document.createElement('span');badge.className='scene-signature';badge.textContent=scene.critical?'SCHLÜSSELSZENE':'SIGNATURE';box.append(badge)}
+  addRow(box,'Raum',geometryText(node));
   addRow(box,'Funktion',scene.gmPurpose);
   addRow(box,'Ausspielen',(scene.beats||[]).map((x,i)=>`${i+1}. ${x}`).join(' → '));
   addRow(box,'Hinweise',(scene.clues||[]).join(' · '));
@@ -58,8 +64,8 @@ function renderGm(scene,setpiece,nodeId){
 
 function render(){
   if(!sceneBook||!last)return;
-  const nodeId=last.state?.transit?.from||last.state?.node,scene=sceneForNode(sceneBook,nodeId),setpiece=setpieceForNode(sceneBook,nodeId);
-  renderPlayer(scene);renderGm(scene,setpiece,nodeId);
+  const nodeId=last.state?.transit?.from||last.state?.node,scene=sceneForNode(sceneBook,nodeId),setpiece=setpieceForNode(sceneBook,nodeId),node=last.map?.nodes?.find(n=>n.id===nodeId);
+  renderPlayer(scene);renderGm(scene,setpiece,nodeId,node);
 }
 
 loadSelemScenes().then(data=>{sceneBook=data;render()}).catch(console.error);
