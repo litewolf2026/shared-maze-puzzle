@@ -78,12 +78,11 @@ export function advanceTransit(map,input,dir){
 export function beginMove(map,input,dir){
   let state=normalizeSharedState(input,map);if(state.transit)return advanceTransit(map,state,dir);const edge=buildAdj(map).get(state.node)?.[dir];if(!edge)return {ok:false,state,error:'NO_EXIT'};
   const lastPath=state.pathHistory.at(-1),rewinding=Boolean(lastPath&&lastPath.to===state.node&&lastPath.from===edge.to&&OPP[lastPath.dir]===dir);let decisionAdded=false;
-  if(!rewinding&&isDecisionNode(map,state.node)){
-    if(state.bandStep>=map.solution.length)return {ok:false,state,error:'BAND_EXHAUSTED'};
+  if(!rewinding&&isDecisionNode(map,state.node)&&state.bandStep<map.solution.length){
     state.decisionHistory.push({from:edge.from,dir:edge.dir,to:edge.to,stepBefore:state.bandStep});state.bandStep+=1;decisionAdded=true;
   }
   state.transit={from:edge.from,to:edge.to,dir:edge.dir,cells:edge.cells,progress:0,rewind:rewinding,decisionAdded};state=advanceTransit(map,state,dir).state;
-  return {ok:true,state,event:rewinding?'REWIND_STARTED':decisionAdded?'DECISION_TAKEN':'TRANSIT_STARTED'};
+  return {ok:true,state,event:rewinding?'REWIND_STARTED':decisionAdded?'DECISION_TAKEN':state.bandStep>=map.solution.length&&isDecisionNode(map,edge.from)?'POST_BAND_DECISION':'TRANSIT_STARTED'};
 }
 
 export function gmUndoDecision(map,input){
