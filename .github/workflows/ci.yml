@@ -40,6 +40,8 @@ jobs:
         run: node tests/decision-parity.mjs
       - name: Validate unique shortest band route
         run: node tests/route-uniqueness.mjs
+      - name: Validate all solution-node pair detours
+        run: node tests/solution-pair-safety.mjs
       - name: Validate wrong-turn behavior
         run: node tests/deviations.mjs
       - name: Validate crawler facing and sightline semantics
