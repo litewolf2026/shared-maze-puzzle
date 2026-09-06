@@ -1,0 +1,20 @@
+{
+  "version":1,
+  "items":{
+    "loot_old_elem_tools":{"id":"loot_old_elem_tools","type":"loot","label":"Bronzene Werkzeugkassette","rarity":"uncommon","requires":{"tagsAny":["old_elem","machinery"]},"placement":{"features":["machinery","rubble","wall_niche"]},"discover":{"difficulty":1}},
+    "loot_alchemy_vial":{"id":"loot_alchemy_vial","type":"loot","label":"Versiegeltes alchemistisches Reagenzglas","rarity":"uncommon","requires":{"tagsAny":["alchemy"]},"placement":{"features":["shelf","rubble","workbench"]},"discover":{"difficulty":1}},
+    "loot_old_elem_component":{"id":"loot_old_elem_component","type":"loot","label":"Technomagischer Bestandteil Alt-Elems","rarity":"unique","unique":true,"requires":{"tagsAll":["old_elem","machinery"],"minDanger":3},"placement":{"features":["workbench","machine"]},"discover":{"difficulty":3}},
+    "hazard_unstable_ceiling":{"id":"hazard_unstable_ceiling","type":"hazard","label":"Instabile Deckenplatte","rarity":"common","requires":{"tagsAny":["unstable","structural"]},"placement":{"features":["ceiling","rubble"]},"hidden":true,"discover":{"difficulty":1}},
+    "hazard_black_water":{"id":"hazard_black_water","type":"hazard","label":"Tückisches Schwarzwasser","rarity":"common","requires":{"tagsAny":["water"]},"placement":{"features":["water","floor"]}},
+    "hazard_stale_air":{"id":"hazard_stale_air","type":"hazard","label":"Schwere abgestandene Luft","rarity":"common","requires":{"tagsAny":["stale_air"]},"placement":{"features":["room","shaft"]}},
+    "encounter_lost_waiter":{"id":"encounter_lost_waiter","type":"encounter","label":"Der wartende Mann","rarity":"unique","unique":true,"requires":{"tagsAll":["lost_people","memory"]},"placement":{"features":["camp","room"]}},
+    "encounter_vermin":{"id":"encounter_vermin","type":"encounter","label":"Unterirdisches Ungeziefer","rarity":"common","requires":{"tagsAny":["vermin","water"]},"placement":{"features":["rubble","water","room"]}},
+    "encounter_memory_echo":{"id":"encounter_memory_echo","type":"encounter","label":"Erinnerungsecho eines Verirrten","rarity":"rare","requires":{"tagsAny":["memory","time_echo"]},"placement":{"features":["room","corridor"]}},
+    "discovery_three_maps":{"id":"discovery_three_maps","type":"discovery","label":"Drei widersprüchliche Karten","rarity":"rare","unique":true,"requires":{"tagsAny":["writings","memory"]},"placement":{"features":["table","camp","floor"]},"discover":{"difficulty":0}},
+    "discovery_erased_names":{"id":"discovery_erased_names","type":"discovery","label":"Ausgelöschte Namenslisten","rarity":"uncommon","requires":{"tagsAny":["writings","memory","old_elem"]},"placement":{"features":["wall","tablet","shelf"]},"discover":{"difficulty":1}},
+    "secret_wall_niche":{"id":"secret_wall_niche","type":"secret","label":"Verborgene Wandnische","rarity":"uncommon","hidden":true,"requires":{"kinds":["room","deadend","lens"]},"placement":{"features":["wall_niche","wall"]},"discover":{"difficulty":2}},
+    "secret_connection_old_elem":{"id":"secret_connection_old_elem","type":"secret_connection","label":"Verborgener Durchgang Alt-Elems","rarity":"rare","hidden":true,"requires":{"tagsAny":["old_elem"],"kinds":["room","deadend"]},"placement":{"features":["secret_connection_slot"]},"discover":{"difficulty":3}},
+    "event_memory_skip":{"id":"event_memory_skip","type":"event","label":"Kurzer Erinnerungsaussetzer","rarity":"uncommon","requires":{"tagsAny":["memory","time_echo"]},"placement":{"features":["room","corridor"]}},
+    "event_demonic_shadow":{"id":"event_demonic_shadow","type":"event","label":"Fremder Schatten im Augenwinkel","rarity":"rare","requires":{"tagsAny":["demonic"]},"placement":{"features":["room","corridor"]}}
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "version":1,
+  "profiles":{
+    "wet_optional_room":{"slots":[
+      {"id":"hazard-wet","type":"hazard","pool":"environment_hazards","placement":["water","floor"],"chance":0.8},
+      {"id":"encounter-wet","type":"encounter","pool":"ambient_encounters","placement":["water","room"],"chance":0.35}
+    ]},
+    "memory_optional_room":{"slots":[
+      {"id":"event-memory","type":"event","pool":"memory_events","placement":["room","corridor"],"chance":0.65},
+      {"id":"discovery-memory","type":"discovery","pool":"memory_discoveries","placement":["table","camp","floor","wall"],"chance":0.45},
+      {"id":"encounter-memory","type":"encounter","pool":"lost_people_encounters","placement":["camp","room"],"chance":0.3}
+    ]},
+    "deep_old_elem_room":{"slots":[
+      {"id":"hazard-deep","type":"hazard","pool":"environment_hazards","placement":["machinery","water","ceiling","floor","room"],"chance":0.7},
+      {"id":"loot-deep","type":"loot","pool":"deep_old_elem_loot","placement":["machinery","rubble","wall_niche","workbench","machine"],"chance":0.5},
+      {"id":"secret-deep","type":"secret","pool":"minor_secrets","placement":["wall_niche","wall"],"chance":0.25},
+      {"id":"event-deep","type":"event","pool":"memory_events","placement":["room"],"chance":0.4}
+    ]},
+    "unstable_optional_area":{"slots":[
+      {"id":"hazard-structural","type":"hazard","pool":"environment_hazards","placement":["ceiling","rubble"],"chance":0.75}
+    ]}
+  }
+}

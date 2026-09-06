@@ -1,0 +1,14 @@
+{
+  "version":1,
+  "pools":{
+    "minor_loot":{"types":["loot"],"entries":["loot_old_elem_tools","loot_alchemy_vial"]},
+    "deep_old_elem_loot":{"types":["loot"],"entries":["loot_old_elem_tools","loot_old_elem_component"]},
+    "environment_hazards":{"types":["hazard"],"entries":["hazard_unstable_ceiling","hazard_black_water","hazard_stale_air"]},
+    "ambient_encounters":{"types":["encounter"],"entries":["encounter_vermin","encounter_memory_echo"]},
+    "lost_people_encounters":{"types":["encounter"],"entries":["encounter_lost_waiter","encounter_memory_echo"]},
+    "memory_discoveries":{"types":["discovery"],"entries":["discovery_three_maps","discovery_erased_names"]},
+    "minor_secrets":{"types":["secret"],"entries":["secret_wall_niche"]},
+    "old_elem_secret_connections":{"types":["secret_connection"],"entries":["secret_connection_old_elem"]},
+    "memory_events":{"types":["event"],"entries":["event_memory_skip","event_demonic_shadow"]}
+  }
+}
