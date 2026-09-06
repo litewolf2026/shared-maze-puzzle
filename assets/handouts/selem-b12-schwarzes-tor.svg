@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Schwarzes Tor – Nutzungsschichten</title><desc id="desc">Detailzeichnung eines alten dunklen Tores mit alten Fugen, jüngeren blanken Griffstellen und Wachsspuren.</desc>
+  <rect width="1200" height="800" fill="#e8dec2"/><rect x="42" y="42" width="1116" height="716" rx="18" fill="none" stroke="#302a22" stroke-width="5"/>
+  <text x="82" y="108" font-family="serif" font-size="42" fill="#2c2720">Schwarzes Tor · Nutzungsschichten</text>
+  <g transform="translate(260 165)">
+    <rect x="0" y="0" width="680" height="500" rx="8" fill="#262522" stroke="#181714" stroke-width="12"/>
+    <path d="M0 82 H680 M0 171 H680 M0 267 H680 M0 365 H680 M138 0 V500 M292 0 V500 M454 0 V500 M578 0 V500" stroke="#4b4942" stroke-width="6" opacity=".72"/>
+    <rect x="277" y="54" width="132" height="348" fill="#171715" stroke="#716d62" stroke-width="5"/>
+    <rect x="323" y="201" width="42" height="104" rx="18" fill="#a49a82" opacity=".75"/>
+    <path d="M309 184 C325 164 365 163 386 181 M307 322 C333 339 371 338 394 317" stroke="#d2b776" stroke-width="7" fill="none" opacity=".85"/>
+    <g fill="#a98552" opacity=".9"><circle cx="462" cy="111" r="13"/><circle cx="476" cy="126" r="7"/><circle cx="455" cy="145" r="9"/></g>
+  </g>
+  <g font-family="sans-serif" font-size="24" fill="#2d281f">
+    <line x1="175" y1="282" x2="285" y2="282" stroke="#2d281f" stroke-width="3"/><text x="80" y="255">alte, tief sitzende Fugen</text><text x="80" y="286">gleichmäßig gealtert</text>
+    <line x1="928" y1="387" x2="635" y2="387" stroke="#2d281f" stroke-width="3"/><text x="946" y="365">Griff blank gerieben;</text><text x="946" y="396">regelmäßige jüngere Nutzung</text>
+    <line x1="928" y1="514" x2="720" y2="330" stroke="#2d281f" stroke-width="3"/><text x="946" y="500">Wachs / dunkler Rückstand</text><text x="946" y="531">über älterem Stein</text>
+  </g>
+  <text x="83" y="713" font-family="serif" font-size="25" fill="#4b4233">Der Abschluss ist alt. Die heutige Bedeutung ist es nicht.</text>
+</svg>
