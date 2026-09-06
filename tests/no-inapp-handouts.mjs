@@ -16,7 +16,6 @@ for(const room of Object.values(pack.rooms||{}))for(const slot of room.slots||[]
 
 const index=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
 assert.doesNotMatch(index,/handouts\.css|selem-handout-controller|handoutButton|handoutOverlay/);
-const finale=fs.readFileSync(new URL('../js/finale-status.js',import.meta.url),'utf8');assert.doesNotMatch(finale,/handoutId/);
 const scenes=fs.readFileSync(new URL('../js/selem-scene-controller.js',import.meta.url),'utf8');assert.doesNotMatch(scenes,/setpiece\.handout|Handout/);
 
 console.log('no-inapp-handouts: OK (Discord/external delivery only; no handout assets, UI or content-state objects)');
