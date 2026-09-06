@@ -8,13 +8,13 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Shared Maze Puzzle – Selem</title>
-  <link rel="stylesheet" href="./css/app.css?v=20260906-4">
-  <link rel="stylesheet" href="./css/ui-cleanup.css?v=20260906-4">
-  <link rel="stylesheet" href="./css/gm-route.css?v=20260906-4">
-  <link rel="stylesheet" href="./css/map-readability.css?v=20260906-4">
-  <link rel="stylesheet" href="./css/crawler.css?v=20260906-4">
-  <link rel="stylesheet" href="./css/exploration-v2.css?v=20260906-4">
-  <script src="./config.js?v=20260906-4"></script>
+  <link rel="stylesheet" href="./css/app.css?v=20260906-5">
+  <link rel="stylesheet" href="./css/ui-cleanup.css?v=20260906-5">
+  <link rel="stylesheet" href="./css/gm-route.css?v=20260906-5">
+  <link rel="stylesheet" href="./css/map-readability.css?v=20260906-5">
+  <link rel="stylesheet" href="./css/crawler.css?v=20260906-5">
+  <link rel="stylesheet" href="./css/exploration-v2.css?v=20260906-5">
+  <script src="./config.js?v=20260906-5"></script>
 </head>
 <body class="view-crawler">
 <div id="app">
@@ -38,9 +38,14 @@
         <div class="look-panel" aria-label="Persönlicher Blick">
           <b>BLICK</b>
           <div class="look-buttons"><button id="crawlerLeft">↶<small>45°</small></button><button id="crawlerAround">↩<small>180°</small></button><button id="crawlerRight">↷<small>45°</small></button></div>
-          <div id="roomExplore" class="room-explore" hidden><b>ERKUNDEN</b><div class="explore-buttons"><button id="heroForward">▲<small>Schritt</small></button><button id="heroBack">▼<small>zurück</small></button></div><small id="heroPosition">Position –</small></div>
+          <div id="roomExplore" class="room-explore" hidden>
+            <b>ERKUNDEN</b>
+            <div class="explore-buttons"><button id="heroForward">▲<small>Schritt</small></button><button id="heroBack">▼<small>zurück</small></button></div>
+            <small id="heroPosition">Position –</small>
+            <div id="featureList" class="feature-list"></div>
+          </div>
         </div>
-        <div class="crawler-help">Umschauen und Raumerkundung sind persönlich und verändern weder Gruppe noch Band.</div>
+        <div class="crawler-help">Umschauen und Raumerkundung sind persönlich; Entdeckungen werden mit der Gruppe geteilt.</div>
       </section>
 
       <section class="map-shell">
@@ -62,6 +67,7 @@
           <div class="center-mark"><span>GRUPPE</span><small>absolute Richtung</small></div>
         </div>
         <div class="vertical"><button data-d="UP">AUF</button><button data-d="DOWN">AB</button></div>
+        <button id="continueTransit" class="continue-transit" hidden>▶ Bis zum nächsten Ort</button>
         <button id="backtrack" class="backtrack">↶ Auf demselben Weg zurück</button>
         <p id="movementNote" class="compass-note">Das Band nennt die absolute Himmelsrichtung des nächsten relevanten Ausgangs.</p>
       </div>
@@ -75,9 +81,9 @@
 
 <div class="gm gm-panel"><h3>Spielleitung</h3><p class="gm-help">Korrektur- und Einladungswerkzeuge.</p><div class="gm-row"><button id="undo">Band-Undo</button><button id="reset">Reset</button></div><div class="gm-row"><button id="reveal">Karte aufdecken</button></div><div class="gm-row"><button id="copyPlayer">Spielerlink kopieren</button><button id="copyCurrent">SL-Link kopieren</button></div></div>
 
-<script type="module" src="./js/app-v2.js?v=20260906-4"></script>
-<script type="module" src="./js/exploration-controller.js?v=20260906-4"></script>
-<script type="module" src="./js/map-readability.js?v=20260906-4"></script>
-<script type="module" src="./js/gm-route.js?v=20260906-4"></script>
+<script type="module" src="./js/app-v2.js?v=20260906-5"></script>
+<script type="module" src="./js/exploration-controller.js?v=20260906-5"></script>
+<script type="module" src="./js/map-readability.js?v=20260906-5"></script>
+<script type="module" src="./js/gm-route.js?v=20260906-5"></script>
 </body>
 </html>
