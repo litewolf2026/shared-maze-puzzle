@@ -1,0 +1,147 @@
+/* Movable/readable personal exploration panel.
+   Purely local UI: position, size and selected tab never enter shared maze state. */
+
+.look-panel.exploration-panel-enhanced{
+  box-sizing:border-box;
+  width:320px;
+  min-width:230px;
+  max-width:520px;
+  min-height:150px;
+  max-height:calc(100% - 18px);
+  resize:both;
+  overflow:hidden;
+  gap:8px;
+}
+
+.exploration-panel-bar{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  margin:-2px -2px 1px;
+  padding-bottom:7px;
+  border-bottom:1px solid #4a3b2b;
+  user-select:none;
+}
+.panel-drag-handle{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:28px;
+  border:1px solid #5c4933;
+  border-radius:7px;
+  color:#bda986;
+  background:#17110d;
+  cursor:grab;
+  font-size:14px;
+  letter-spacing:-2px;
+}
+.panel-drag-handle:active{cursor:grabbing}
+.exploration-panel-tabs{display:flex;gap:4px;min-width:0;flex:1}
+.exploration-panel-tabs button,
+.exploration-panel-size button{
+  min-height:28px;
+  padding:4px 7px;
+  border:1px solid #5e4b35;
+  border-radius:7px;
+  background:#18120e;
+  color:#cdbb9b;
+  font:12px/1.2 Georgia,serif;
+  cursor:pointer;
+}
+.exploration-panel-tabs button{min-width:0;flex:1;white-space:nowrap}
+.exploration-panel-tabs button.active{
+  border-color:#9a7a50;
+  color:#f0d9aa;
+  background:#2a2117;
+}
+.panel-detail-count{
+  display:inline-grid;
+  place-items:center;
+  min-width:18px;
+  height:18px;
+  margin-left:3px;
+  padding:0 4px;
+  border-radius:9px;
+  background:#3a2c1b;
+  color:#e8cf9f;
+  font-size:10px;
+}
+.exploration-panel-size{display:flex;gap:3px;flex:0 0 auto}
+.exploration-panel-size button{width:29px;padding:3px;font-size:13px}
+
+/* Controls tab: movement stays compact and never competes with reading space. */
+.look-panel.panel-tab-controls .room-search,
+.look-panel.panel-tab-controls .feature-list{display:none!important}
+.look-panel.panel-tab-controls .room-explore{overflow:visible}
+
+/* Details tab: keep only search/results and turn the rest into a reading pane. */
+.look-panel.panel-tab-details>b,
+.look-panel.panel-tab-details>.look-buttons,
+.look-panel.panel-tab-details .room-explore>b,
+.look-panel.panel-tab-details .explore-buttons,
+.look-panel.panel-tab-details #heroPosition{display:none!important}
+.look-panel.panel-tab-details .room-explore:not([hidden]){
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+  border-top:0;
+  padding-top:0;
+}
+.look-panel.panel-tab-details .room-search{
+  flex:0 0 auto;
+  margin:0 0 7px;
+  font-size:13px;
+  min-height:35px;
+}
+.look-panel.panel-tab-details .feature-list{
+  display:grid!important;
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none;
+  overflow:auto;
+  margin-top:0;
+  padding-right:3px;
+}
+
+/* Short labels, readable prose. Full names remain available via title/expanded detail. */
+.look-panel .feature-item b{
+  display:block;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:12px;
+  line-height:1.25;
+}
+.look-panel .feature-item .feature-meta{
+  font-size:11px;
+  line-height:1.35;
+  color:#9f927e;
+}
+.look-panel .feature-item .feature-description{
+  font-size:15px;
+  line-height:1.5;
+  color:#d2c2a7;
+  white-space:normal;
+  overflow:visible;
+}
+.look-panel .feature-item .dsa-check-hint{font-size:12px;line-height:1.45}
+.look-panel.panel-tab-details .nothing-nearby{font-size:13px;line-height:1.45}
+
+/* Native browser resize grip is kept; the three presets are fast alternatives. */
+.look-panel.panel-size-compact{width:240px!important;height:160px!important;resize:both}
+.look-panel.panel-size-normal{width:320px;height:330px}
+.look-panel.panel-size-large{width:480px;height:470px}
+
+@media(max-width:900px){
+  .look-panel.exploration-panel-enhanced{max-width:min(520px,calc(100% - 16px));max-height:calc(100% - 16px)}
+}
+@media(max-width:560px){
+  .exploration-panel-size{display:none}
+  .look-panel.exploration-panel-enhanced{min-width:210px;max-width:calc(100% - 12px)}
+  .look-panel .feature-item .feature-description{font-size:14px}
+}
