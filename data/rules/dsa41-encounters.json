@@ -1,5 +1,5 @@
 {
-  "version":1,
+  "version":2,
   "system":"DSA4.1",
   "projectPolicy":{
     "archetypesAreProjectConvention":true,
@@ -24,7 +24,9 @@
     "scavenger_swarm":{"label":"Unterirdische Aas- und Schuttfresser","threatTier":1,"defaultDisposition":"territorial","opening":"weichen Licht zunächst aus, verteidigen aber Futter/Nest","escalation":["warnendes Verhalten","Schwarm drängt vor","kurzer Angriff","zerstreut sich bei Verlusten oder Feuer"],"retreat":"zieht sich in Spalten, Wasser oder Schutt zurück","gmLevers":["reagiert stärker auf Nahrung/Geruch als auf Personen","kann durch Lärm vertrieben werden","zeigt indirekt tote Tiere/Menschen oder Abfall an"],"informationTags":["vermin","environment"]},
     "cave_creatures":{"label":"Aufgescheuchte Höhlenbewohner","threatTier":1,"defaultDisposition":"startled","opening":"fliehen normalerweise; eingeschlossene oder brütende Tiere können angreifen","escalation":["auffliegen/ausbrechen","Panik im engen Raum","vereinzelte Angriffe","Rückzug in Höhe oder Spalten"],"retreat":"sucht Dunkelheit und Abstand","gmLevers":["kann Licht/Fackeln stören","macht Lärm","weist auf natürliche Öffnungen hin"],"informationTags":["vermin","cave"]},
     "water_predator":{"label":"Lauernder Wasserjäger","threatTier":3,"defaultDisposition":"ambush","opening":"beobachtet Erschütterungen aus dem dunklen Wasser und zeigt sich zunächst kaum","escalation":["Annäherung unter Wasser","kurzer überraschender Zugriff","Ziehen ins Wasser","Abbruch, wenn Beute zu gefährlich wird"],"retreat":"taucht ab und nutzt schlechte Sicht statt bis zum Tod zu kämpfen","gmLevers":["Wasserbewegung verrät Anwesenheit","Futter kann ablenken","trockener hoher Stand ist klarer Vorteil"],"informationTags":["water","creature"]},
-    "memory_echo":{"label":"Erinnerungs- oder Zeitecho","threatTier":0,"defaultDisposition":"echo","opening":"wiederholt einen vergangenen Ablauf und reagiert nur begrenzt auf die Gegenwart","escalation":["beobachten","Muster erkennen","gezielt ansprechen/unterbrechen","Echo löst sich auf oder wiederholt sich"],"retreat":"kein normaler Rückzug; endet nach Muster oder Störung","gmLevers":["zeigt frühere Nutzung des Ortes","kann einen Mechanismus vorführen","liefert keine verlässliche Gegenwartsinformation"],"informationTags":["memory","old_elem","time_echo"]}
+    "memory_echo":{"label":"Erinnerungs- oder Zeitecho","threatTier":0,"defaultDisposition":"echo","opening":"wiederholt einen vergangenen Ablauf und reagiert nur begrenzt auf die Gegenwart","escalation":["beobachten","Muster erkennen","gezielt ansprechen/unterbrechen","Echo löst sich auf oder wiederholt sich"],"retreat":"kein normaler Rückzug; endet nach Muster oder Störung","gmLevers":["zeigt frühere Nutzung des Ortes","kann einen Mechanismus vorführen","liefert keine verlässliche Gegenwartsinformation"],"informationTags":["memory","old_elem","time_echo"]},
+    "sahira_antagonist":{"label":"Methodische Ritualgegnerin","threatTier":3,"defaultDisposition":"controlled","opening":"versucht zunächst Zeit zu gewinnen, Gegenbelege zu entwerten und die Helden in eine Diskussion über widersprüchliche Erinnerungen zu ziehen","escalation":["Beweise gegeneinander ausspielen","Ritual unter Druck weiterführen","Helfer oder Magie zur Verzögerung einsetzen","bei Zusammenbruch des Rituals Aufgabe, Flucht oder direkter Konflikt"],"retreat":"Sahira ist keine Selbstmörderin; wenn die Umschreibung offensichtlich scheitert, kann sie fliehen oder sich festsetzen lassen","gmLevers":["unabhängige Zeitanker destabilisieren ihre Argumentation und ihr Ritual","auch Sahira ist von Erinnerungsausfällen betroffen","ihr Ziel ist eine enge historische Umschreibung, keine allmächtige Zeitkontrolle"],"informationTags":["cult","ritual","time_anchor"]},
+    "memory_predator":{"label":"Nachzehrer – Erinnerungsräuber","threatTier":4,"defaultDisposition":"predatory","opening":"richtet seine Aufmerksamkeit auf konkrete persönliche Erinnerungsinhalte und auf Zeugen, deren Aussage für das Ritual gefährlich ist","escalation":["einen benennbaren Erinnerungsinhalt bedrohen","eine Person von ihren Ankern isolieren","unter Ritualdruck aggressiver an einem Inhalt reißen","bei Bindung oder gebrochenen Ankern Rückzug oder Auflösung"],"retreat":"kann vertrieben, gebunden oder vernichtet werden und muss nicht bis zur physischen Vernichtung kämpfen","gmLevers":["greift konkrete Inhalte an, nicht pauschal die ganze Persönlichkeit","materielle Notizen und unabhängige Gegenstände bleiben als externe Anker bestehen","Bindung, Vertreibung und Zerstörung sind unterschiedliche gültige Lösungen"],"informationTags":["memory","demonic","time_anchor"]}
   },
   "bindings":{
     "encounter_lost_waiter":"lost_noncombatant",
@@ -39,6 +41,9 @@
     "encounter_exhausted_explorer":"lost_noncombatant",
     "encounter_wounded_porter":"lost_injured",
     "encounter_water_predator":"water_predator",
-    "encounter_old_elem_echo_worker":"memory_echo"
+    "encounter_old_elem_echo_worker":"memory_echo",
+    "selem_nottel_witness":"lost_noncombatant",
+    "selem_sahira_antagonist":"sahira_antagonist",
+    "selem_nachzehrer":"memory_predator"
   }
 }
