@@ -22,6 +22,7 @@ jobs:
           node --check js/app-v2.js
           node --check js/navigation-model.js
           node --check js/map-expansion.js
+          node --check js/room-terrain.js
           node --check js/content-model.js
           node --check js/reusable-content-pack.js
           node --check js/scenario-content-pack.js
@@ -60,8 +61,12 @@ jobs:
         run: node tests/deviations.mjs
       - name: Validate crawler facing and sightline semantics
         run: node tests/crawler-view.mjs
+      - name: Validate final crawler environment renderer
+        run: node tests/final-crawler-graphics.mjs
       - name: Validate grid decision and transit semantics
         run: node tests/navigation-model.mjs
+      - name: Validate authored room terrain
+        run: node tests/room-terrain.mjs
       - name: Validate expanded dungeon safety
         run: node tests/expanded-map.mjs
       - name: Validate danger and content semantics
