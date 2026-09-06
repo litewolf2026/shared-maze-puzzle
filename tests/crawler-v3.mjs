@@ -11,7 +11,6 @@ const renderer=readText('../js/crawler-view-v3.js');
 const css=readText('../css/crawler-v3.css');
 const geometryOverlay=readText('../js/crawler-geometry-overlay.js');
 const geometryGuard=readText('../js/crawler-geometry-guard.js');
-const oneClickTransit=readText('../js/one-click-transit.js');
 const geometryCss=readText('../css/crawler-geometry-fix.css');
 const index=readText('../index.html');
 const controller=readText('../js/exploration-controller-v3.js');
@@ -52,10 +51,9 @@ for(const cls of ['v31-front-cutout','v31-turn-mouth','v31-vertical-exit','v31-s
 assert.match(index,/crawler-geometry-fix\.css\?v=20260906-geometry1/,'Geometry visibility stylesheet must be cache-busted.');
 assert.match(index,/crawler-geometry-overlay\.js\?v=20260906-geometry1/,'Geometry visibility overlay must be active.');
 assert.match(index,/crawler-geometry-guard\.js\?v=20260906-geometry2/,'Crawler rerenders must keep the geometry guard active.');
-assert.match(index,/one-click-transit\.js\?v=20260906-move1/,'Direction clicks must activate the one-click corridor traversal helper.');
+assert.equal(index.includes('one-click-transit.js'),false,'Crawler must preserve explicit 3-m stepwise corridor movement.');
 for(const hook of ['MutationObserver','renderGeometryOverlay','v31-geometry-overlay'])assert.ok(geometryGuard.includes(hook),`Geometry guard is missing ${hook}.`);
-for(const hook of ['captureDirection','continueTransit','pending.live?2:1'])assert.ok(oneClickTransit.includes(hook),`One-click transit helper is missing ${hook}.`);
 assert.ok(map.edges.some(([from,dir,to])=>from==='B14'&&dir==='DOWN'&&to==='D01'),'B14 must provide the optional DOWN access to D01 / Unter Alt-Elem.');
 assert.equal(map.edges.some(([from,dir,to])=>from==='C14'&&dir==='DOWN'&&to==='D01'),false,'C14 / Sahiras Kammer must not connect directly to Unter Alt-Elem.');
 
-console.log('crawler-v3: OK (persistent openings, all horizontal exits forward-visible, one-click corridor traversal, relocated D-level access)');
+console.log('crawler-v3: OK (persistent openings, all horizontal exits forward-visible, explicit 3-m stepwise movement, relocated D-level access)');
