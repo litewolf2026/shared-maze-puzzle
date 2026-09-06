@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "scenario": "selem-01",
   "files": [
     "./data/content/scenes/selem-a.json",
@@ -8,6 +8,7 @@
     "./data/content/scenes/selem-d.json"
   ],
   "setpiecesFile": "./data/content/selem-setpieces.json",
+  "setpieceOverridesFile": "./data/content/selem-setpiece-overrides.json",
   "policy": {
     "sceneKinds": ["room", "lens", "prison", "goal", "deadend", "gate", "glyph"],
     "criticalScenesAreAuthored": true,
@@ -18,8 +19,8 @@
   },
   "zones": {
     "A": {"name":"Obere Ruinen","identity":"Pilgerstätte, frische Einstürze und erste Alt-Elem-Schichten; noch überwiegend menschlich lesbar.","sensory":["feuchte Wärme","Wachs und Staub","nahes Wasser"]},
-    "B": {"name":"Tiefes Alt-Elem","identity":"Wasserwerke, technische Alt-Elem-Strukturen und Übergang zur aktiven Kultnutzung.","sensory":["schwarzes Wasser","Bronze und Kalk","fernes Tropfen"]},
-    "C": {"name":"Die vergessene Tiefe","identity":"Erinnerung, Menschen und Kultpraxis; hier werden Verlust und Schuld persönlich.","sensory":["Tinte und kalter Rauch","flüsternde Akustik","schwarze Bänder"]},
+    "B": {"name":"Tiefes Alt-Elem","identity":"Wasserwerke, technische Alt-Elem-Strukturen und Übergang zur aktiven Kultnutzung. Die Alte Pumpkammer besitzt den optionalen Wartungsabstieg nach Unter Alt-Elem.","sensory":["schwarzes Wasser","Bronze und Kalk","fernes Tropfen"]},
+    "C": {"name":"Die vergessene Tiefe","identity":"Erinnerung, Menschen und Kultpraxis; hier werden Verlust und Schuld persönlich. Sahiras Räume sind vom optionalen Unter Alt-Elem getrennt.","sensory":["Tinte und kalter Rauch","flüsternde Akustik","schwarze Bänder"]},
     "D": {"name":"Unter Alt-Elem","identity":"Optionaler, älterer und gefährlicher Forschungsraum; keine Pflichtlösung, sondern tiefer Kontext und seltene Funde.","sensory":["kalter Stein","stehende Luft","fremde Magietechnik"]}
   }
 }
