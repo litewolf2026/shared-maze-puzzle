@@ -23,7 +23,6 @@ for(const id of expected){
     assert.ok(Array.isArray(phase.consequences)&&phase.consequences.length>=1,`${id}/${phase.title} needs consequences.`);
   }
   assert.ok(s.handoff?.trim().length>=30,`${id} needs a handoff into the next part of the adventure.`);
-  assert.ok(s.handout?.title&&s.handout?.idea,`${id} needs a concrete handout hook.`);
 }
 
 assert.ok(setpieces.C10.phases.length>=3,'Nottel rescue must cover securing, evidence work and what happens with her afterwards.');
@@ -33,4 +32,4 @@ assert.ok(setpieces.C15.successSignals?.length>=3,'Finale must define multiple s
 assert.ok(setpieces.C15.failurePressure?.length>=3,'Finale failure must create pressure without a single automatic total-retcon result.');
 assert.equal(Object.keys(setpieces).some(id=>id.startsWith('D')),false,'Optional Under Alt-Elem must not become a mandatory key setpiece chain.');
 
-console.log(`selem-setpieces: OK (${expected.length} canonical key scenes, ${expected.reduce((n,id)=>n+setpieces[id].phases.length,0)} playable phases)`);
+console.log(`selem-setpieces: OK (${expected.length} canonical key scenes, ${expected.reduce((n,id)=>n+setpieces[id].phases.length,0)} playable phases; external handout delivery is outside the app)`);

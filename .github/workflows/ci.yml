@@ -36,7 +36,6 @@ jobs:
           node --check js/selem-scenes.js
           node --check js/selem-scene-controller.js
           node --check js/actor-status-controller.js
-          node --check js/selem-handout-controller.js
           node --check js/finale-status.js
           node --check js/finale-status-controller.js
           node --check js/crawler-view.js
@@ -78,10 +77,10 @@ jobs:
         run: node tests/content-outcomes.mjs
       - name: Validate persistent Selem core actors
         run: node tests/selem-core-actors.mjs
-      - name: Validate synchronized Selem handouts
-        run: node tests/selem-handouts.mjs
       - name: Validate persistent Selem finale state
         run: node tests/selem-finale-state.mjs
+      - name: Guard against in-app handouts
+        run: node tests/no-inapp-handouts.mjs
       - name: Report scene content coverage
         run: node tests/content-coverage.mjs
       - name: Validate authored Selem scene coverage

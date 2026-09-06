@@ -1,4 +1,4 @@
-import {finaleSignals,assignmentByMechanic} from './finale-status.js';
+import {finaleSignals} from './finale-status.js';
 
 let last=null;
 
@@ -29,8 +29,6 @@ function render(){
   const sh=document.createElement('b');sh.className='gm-finale-subhead';sh.textContent='Erfolgssignale · nicht automatisch';box.append(sh);
   for(const signal of model.signals)box.append(row(signal.met?'✓':'○',signal.label,signal.met?'signal-met':'signal-open'));
 
-  const worksheet=assignmentByMechanic(last.state,'handoutId','c15-time-anchor-network');
-  if(worksheet&&worksheet.assignment.state==='unresolved'){const n=document.createElement('small');n.className='gm-finale-reminder';n.textContent='Zeitanker-Netz noch nicht für die Spieler aufgedeckt.';box.append(n)}
   if(model.ritual.id==='partial_rewrite'){const n=document.createElement('small');n.className='gm-finale-warning';n.textContent='Teilbehauptung bedeutet lokalen Schaden / neuen Kampagnendruck – keinen automatischen Total-Retcon.';box.append(n)}
 }
 

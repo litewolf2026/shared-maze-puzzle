@@ -1,6 +1,6 @@
 const SELEM_STORY_PACK={
   id:'selem-core-actors-v1',
-  version:3,
+  version:4,
   items:{
     selem_nottel_witness:{
       id:'selem_nottel_witness',scope:'selem-01',type:'encounter',label:'Nottel',rarity:'unique',unique:true,
@@ -47,34 +47,14 @@ const SELEM_STORY_PACK={
         {id:'partial_rewrite',label:'Teilbehauptung setzt sich vorläufig durch',from:['triggered'],next:'resolved',terminal:true}
       ]},
       description:'Das Ritual versucht nicht, die gesamte Vergangenheit neu zu schreiben. Es soll einen engen historischen Knoten widerspruchsfrei machen: Maruban habe das Auge nie aus der Fassung genommen. Linien, Fokus, Komponenten, Sahiras Konzentration und belastbare Gegenanker sind reale Angriffspunkte.'
-    },
-
-    selem_handout_a06:{id:'selem_handout_a06',scope:'selem-01',type:'discovery',label:'Handout: Leere grüne Fassung',rarity:'unique',unique:true,hidden:true,requires:{kinds:['lens']},placement:{features:['lens','floor','room']},mechanics:{handoutId:'a06-empty-lens'},description:'Spielerhandout zur leeren Fassung und den materiellen Entnahmespuren.'},
-    selem_handout_b12:{id:'selem_handout_b12',scope:'selem-01',type:'discovery',label:'Handout: Schwarzes Tor',rarity:'unique',unique:true,hidden:true,requires:{kinds:['gate']},placement:{features:['door','gate','wall']},mechanics:{handoutId:'b12-black-gate'},description:'Spielerhandout zu alten und jüngeren Nutzungsschichten am Schwarzen Tor.'},
-    selem_handout_c03:{id:'selem_handout_c03',scope:'selem-01',type:'discovery',label:'Handout: Drei Fassungen des Reliefs',rarity:'unique',unique:true,hidden:true,requires:{kinds:['room']},placement:{features:['glyph','wall','room']},mechanics:{handoutId:'c03-relief-variants'},description:'Vergleichsblatt mit drei beinahe identischen Fassungen desselben Reliefs.'},
-    selem_handout_c10:{id:'selem_handout_c10',scope:'selem-01',type:'discovery',label:'Handout: Nottels Notizen',rarity:'unique',unique:true,hidden:true,requires:{kinds:['prison']},placement:{features:['bed','wall','floor']},mechanics:{handoutId:'c10-nottel-notes'},description:'Nottels nummerierte Richtungs- und Geräuschlisten mit ausdrücklich unsicheren Erinnerungen.'},
-    selem_handout_c12:{id:'selem_handout_c12',scope:'selem-01',type:'discovery',label:'Handout: Zeichen des verlorenen Weges',rarity:'unique',unique:true,hidden:true,requires:{kinds:['glyph']},placement:{features:['glyph','threshold','wall']},mechanics:{handoutId:'c12-lost-way-glyph'},description:'Abzeichnung des Zeichens des verlorenen Weges an der Schwelle.'},
-    selem_handout_c14:{id:'selem_handout_c14',scope:'selem-01',type:'discovery',label:'Handout: Sahiras Richtungsprotokoll',rarity:'unique',unique:true,hidden:true,requires:{kinds:['room']},placement:{features:['table','shelf','floor']},mechanics:{handoutId:'c14-sahira-protocol'},description:'Sahiras Arbeitsprotokoll mit absoluten Richtungen, gestrichenen Erinnerungsaussagen und enger Zielbehauptung.'},
-    selem_handout_c15:{id:'selem_handout_c15',scope:'selem-01',type:'discovery',label:'Handout: Netz der Zeitanker',rarity:'unique',unique:true,hidden:true,requires:{kinds:['goal']},placement:{features:['altar','floor','room']},mechanics:{handoutId:'c15-time-anchor-network',outcomes:[
-      {id:'own_anchor_created',label:'Eigenen unabhängigen Anker markieren',from:['discovered'],next:'discovered',terminal:false},
-      {id:'own_anchor_lost',label:'Eigenen Anker als verloren / unbrauchbar markieren',from:['discovered'],next:'discovered',terminal:false}
-    ]},description:'Arbeitsblatt zum Ordnen unabhängiger Zeitanker im Finale.'}
+    }
   },
   rooms:{
-    A06:{slots:[{id:'handout-a06',type:'discovery',fixed:'selem_handout_a06',placement:['lens','floor'],additiveOnUpgrade:true}]},
-    B12:{slots:[{id:'handout-b12',type:'discovery',fixed:'selem_handout_b12',placement:['door','gate','wall'],additiveOnUpgrade:true}]},
-    C03:{slots:[{id:'handout-c03',type:'discovery',fixed:'selem_handout_c03',placement:['glyph','wall'],additiveOnUpgrade:true}]},
-    C10:{slots:[
-      {id:'actor-nottel',type:'encounter',fixed:'selem_nottel_witness',placement:['bed','wall','door'],additiveOnUpgrade:true},
-      {id:'handout-c10',type:'discovery',fixed:'selem_handout_c10',placement:['bed','wall','floor'],additiveOnUpgrade:true}
-    ]},
-    C12:{slots:[{id:'handout-c12',type:'discovery',fixed:'selem_handout_c12',placement:['glyph','threshold','wall'],additiveOnUpgrade:true}]},
-    C14:{slots:[{id:'handout-c14',type:'discovery',fixed:'selem_handout_c14',placement:['table','shelf','floor'],additiveOnUpgrade:true}]},
+    C10:{slots:[{id:'actor-nottel',type:'encounter',fixed:'selem_nottel_witness',placement:['bed','wall','door'],additiveOnUpgrade:true}]},
     C15:{slots:[
       {id:'actor-sahira',type:'encounter',fixed:'selem_sahira_antagonist',placement:['altar','glyph','floor'],additiveOnUpgrade:true},
       {id:'actor-nachzehrer',type:'encounter',fixed:'selem_nachzehrer',placement:['glyph','altar','room'],additiveOnUpgrade:true},
-      {id:'ritual-sahira-rewrite',type:'event',fixed:'selem_sahira_rewrite_ritual',placement:['altar','glyph','floor'],additiveOnUpgrade:true},
-      {id:'handout-c15',type:'discovery',fixed:'selem_handout_c15',placement:['altar','floor','room'],additiveOnUpgrade:true}
+      {id:'ritual-sahira-rewrite',type:'event',fixed:'selem_sahira_rewrite_ritual',placement:['altar','glyph','floor'],additiveOnUpgrade:true}
     ]}
   }
 };
@@ -95,4 +75,3 @@ export function mergeScenarioCatalog(base,scenarioId){
 }
 export function scenarioRoomConfig(scenarioId,nodeId){return structuredClone(scenarioContentPack(scenarioId)?.rooms?.[nodeId]||null)}
 export function scenarioActorIds(scenarioId){return Object.values(scenarioContentPack(scenarioId)?.items||{}).filter(x=>x.mechanics?.actorId).map(x=>x.mechanics.actorId)}
-export function scenarioHandoutIds(scenarioId){return Object.values(scenarioContentPack(scenarioId)?.items||{}).filter(x=>x.mechanics?.handoutId).map(x=>x.mechanics.handoutId)}

@@ -39,7 +39,6 @@ function appendSetpiece(box,setpiece){
     addRow(card,'SL',phase.gm);addList(card,'Optionen',phase.choices);addList(card,'Folgen',phase.consequences);body.append(card);
   }
   addList(body,'Erfolgssignale',setpiece.successSignals);addList(body,'Druck bei Scheitern',setpiece.failurePressure);addRow(body,'Weiterführung',setpiece.handoff);
-  if(setpiece.handout)addRow(body,'Handout',`${setpiece.handout.title} · ${setpiece.handout.idea}`);
   box.append(details);
 }
 
