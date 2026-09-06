@@ -23,9 +23,7 @@ export function contentContext(map,node,derived={}){
   };
 }
 
-export function itemMatches(item,context,slot={}){
-  if(slot.type&&item.type!==slot.type)return false;
-  const req=item.requires||{};
+function conditionMatches(req,context){
   if(req.tagsAny?.length&&!intersects(req.tagsAny,context.tags))return false;
   if(req.tagsAll?.length&&!includesAll(context.tags,req.tagsAll))return false;
   if(req.kinds?.length&&!req.kinds.includes(context.kind))return false;
@@ -34,8 +32,38 @@ export function itemMatches(item,context,slot={}){
   if(Number.isFinite(req.maxDanger)&&context.dangerTier>req.maxDanger)return false;
   if(Number.isFinite(req.minDistance)&&context.distanceFromSolution<req.minDistance)return false;
   if(Number.isFinite(req.maxDistance)&&context.distanceFromSolution>req.maxDistance)return false;
+  return true;
+}
+
+export function itemMatches(item,context,slot={}){
+  if(slot.type&&item.type!==slot.type)return false;
+  if(!conditionMatches(item.requires||{},context))return false;
   if(slot.placement?.length&&item.placement?.features?.length&&!intersects(slot.placement,item.placement.features))return false;
   return true;
+}
+
+function mergeSlots(target,source){for(const slot of arr(source)){const index=target.findIndex(x=>x.id===slot.id);if(index>=0)target[index]={...target[index],...structuredClone(slot)};else target.push(structuredClone(slot))}}
+
+export function expandSlotConfig({map,slotConfig,profiles={profiles:{}},derivedByNode={}}){
+  const rooms={};
+  for(const node of map.nodes){
+    const context=contentContext(map,node,derivedByNode[node.id]||{}),slots=[];
+    for(const rule of arr(slotConfig.rules)){
+      if(!conditionMatches(rule.when||{},context))continue;
+      for(const profileId of arr(rule.profiles||[rule.profile]).filter(Boolean)){
+        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots);
+      }
+    }
+    const authored=slotConfig.rooms?.[node.id];
+    if(authored){
+      for(const profileId of arr(authored.profiles||[authored.profile]).filter(Boolean)){
+        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots);
+      }
+      mergeSlots(slots,authored.slots);
+    }
+    if(slots.length)rooms[node.id]={slots};
+  }
+  return {...slotConfig,rooms};
 }
 
 function weightedPick(candidates,seed){
@@ -47,9 +75,11 @@ function weightedPick(candidates,seed){
   return weighted.at(-1).item;
 }
 
+function slotSelected(slot,seed,nodeId){const chance=slot.chance==null?1:Math.max(0,Math.min(1,Number(slot.chance)));return chance>=1||rngFor(`${seed}|${nodeId}|${slot.id}|chance`)()<chance}
+
 export function resolveSlot({slot,node,context,catalog,pools,seed,claimedUnique=new Set()}){
   const items=catalog.items||{};
-  if(slot.fixed){const item=items[slot.fixed];if(!item)throw new Error(`Unknown fixed content ${slot.fixed}`);return materialize(item,slot,node,'fixed')}
+  if(slot.fixed){const item=items[slot.fixed];if(!item)throw new Error(`Unknown fixed content ${slot.fixed}`);if(!itemMatches(item,context,slot))throw new Error(`Fixed content ${slot.fixed} is incompatible with ${node.id}/${slot.id}`);return materialize(item,slot,node,'fixed')}
   const pool=pools.pools?.[slot.pool];if(!pool)throw new Error(`Unknown content pool ${slot.pool}`);
   const allowedTypes=arr(pool.types),poolEntries=arr(pool.entries),candidates=[];
   for(const id of poolEntries){
@@ -92,12 +122,14 @@ function reserveAuthoredUniques(slotConfig,catalog){
   return reserved;
 }
 
-export function generateContentPlan({map,slotConfig,catalog,pools,derivedByNode={},seed='default'}){
-  const rooms={},claimedUnique=reserveAuthoredUniques(slotConfig,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id));
+export function generateContentPlan({map,slotConfig,catalog,pools,profiles={profiles:{}},derivedByNode={},seed='default'}){
+  const expanded=expandSlotConfig({map,slotConfig,profiles,derivedByNode});
+  const rooms={},claimedUnique=reserveAuthoredUniques(expanded,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id));
   for(const node of nodes){
-    const config=slotConfig.rooms?.[node.id];if(!config)continue;
+    const config=expanded.rooms?.[node.id];if(!config)continue;
     const context=contentContext(map,node,derivedByNode[node.id]||{}),assignments=[];
     for(const slot of [...arr(config.slots)].sort((a,b)=>a.id.localeCompare(b.id))){
+      if(!slotSelected(slot,seed,node.id))continue;
       const count=Math.max(1,Number(slot.count||1));
       for(let i=0;i<count;i++){
         const instanceSlot=count===1?slot:{...slot,id:`${slot.id}-${i+1}`};
