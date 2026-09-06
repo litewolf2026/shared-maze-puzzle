@@ -69,6 +69,11 @@ function appendContent(list,node,a){
     }
     box.append(button);
   }
+  if(a.type==='loot'&&a.state==='discovered'){
+    const take=document.createElement('button');take.className='loot-take';take.textContent='＋ Ins Gruppeninventar nehmen';
+    take.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('maze-content-action',{detail:{node:node.id,slot:a.slotId,action:'take'}})));
+    box.append(take);
+  }
   list.append(box);
 }
 function ensureRoomSearch(box){
