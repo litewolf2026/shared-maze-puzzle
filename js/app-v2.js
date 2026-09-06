@@ -1,4 +1,5 @@
 import {HORIZONTAL_DIRS,OPP,buildAdj,initialSharedState,normalizeSharedState,availableDirections,beginMove,gmUndoDecision,locationLabel,nodeById} from './navigation-model.js';
+import {applyExpansion} from './map-expansion.js';
 
 const DIR_LABEL={N:'N',NE:'NO',E:'O',SE:'SO',S:'S',SW:'SW',W:'W',NW:'NW',UP:'AUF',DOWN:'AB'};
 const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
@@ -29,10 +30,7 @@ function renderLevels(){
   map.levels.forEach(l=>{const b=document.createElement('button');b.className='level-btn';b.dataset.z=l.z;b.textContent=l.name;b.onclick=()=>{activeLevel=Number(l.z);renderMap()};box.append(b)});
 }
 
-function currentDisplayNode(){
-  if(state.transit)return nodeById(map,state.transit.from);
-  return nodeById(map,state.node);
-}
+function currentDisplayNode(){return nodeById(map,state.transit?.from||state.node)}
 
 function renderDirections(){
   const dirs=new Set(availableDirections(map,state));
@@ -48,98 +46,42 @@ function renderHistory(){
 }
 
 function renderLocation(){
-  const n=currentDisplayNode();
-  const level=map.levels.find(l=>Number(l.z)===Number(n?.z));
-  const loc=$('#loc');
-  if(state.transit){loc.innerHTML=`${locationLabel(map,state)}<small>${level?.name||''} · Band ${state.bandStep}/${map.solution.length}</small>`}
+  const n=currentDisplayNode(),level=map.levels.find(l=>Number(l.z)===Number(n?.z)),loc=$('#loc');
+  if(state.transit)loc.innerHTML=`${locationLabel(map,state)}<small>${level?.name||''} · Band ${state.bandStep}/${map.solution.length}</small>`;
   else loc.innerHTML=`${labelFor(n,isGm)}<small>${level?.name||''} · Band ${state.bandStep}/${map.solution.length}</small>`;
-  $('#stepPill').textContent=`${state.bandStep} / ${map.solution.length}`;
-  $('#roomPill').textContent=roomCode?`Raum ${roomCode}`:'Lokaler Probelauf';
-  $('#gmToggle').style.display=isGm?'':'none';
+  $('#stepPill').textContent=`${state.bandStep} / ${map.solution.length}`;$('#roomPill').textContent=roomCode?`Raum ${roomCode}`:'Lokaler Probelauf';$('#gmToggle').style.display=isGm?'':'none';
 }
 
 function svgEl(name,attrs={}){const e=document.createElementNS(NS,name);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));return e}
+function fitMapView(svg){const nodes=map.nodes.filter(n=>n.z===activeLevel);if(!nodes.length)return;const xs=nodes.map(n=>n.x),ys=nodes.map(n=>n.y),pad=6;const minX=Math.min(...xs)-pad,maxX=Math.max(...xs)+pad,minY=Math.min(...ys)-pad,maxY=Math.max(...ys)+pad;svg.setAttribute('viewBox',`${minX} ${minY} ${Math.max(24,maxX-minX)} ${Math.max(20,maxY-minY)}`)}
 function renderMap(){
-  const svg=$('#mapSvg');if(!svg)return;svg.innerHTML='';
-  svg.append(svgEl('rect',{x:4,y:0,width:68,height:36,class:'map-bg'}));
-  const byId=new Map(map.nodes.map(n=>[n.id,n])),visited=new Set(state.visited),reveal=document.body.classList.contains('reveal-all')&&isGm;
-  const known=new Set(visited);for(const id of visited){for(const e of Object.values(buildAdj(map).get(id)||{}))known.add(e.to)}
+  const svg=$('#mapSvg');if(!svg)return;svg.innerHTML='';fitMapView(svg);
+  const levelNodes=map.nodes.filter(n=>n.z===activeLevel),xs=levelNodes.map(n=>n.x),ys=levelNodes.map(n=>n.y);if(xs.length)svg.append(svgEl('rect',{x:Math.min(...xs)-8,y:Math.min(...ys)-8,width:Math.max(...xs)-Math.min(...xs)+16,height:Math.max(...ys)-Math.min(...ys)+16,class:'map-bg'}));
+  const byId=new Map(map.nodes.map(n=>[n.id,n])),visited=new Set(state.visited),reveal=document.body.classList.contains('reveal-all')&&isGm,adj=buildAdj(map);
+  const known=new Set(visited);for(const id of visited){for(const e of Object.values(adj.get(id)||{}))known.add(e.to)}
   for(const [from,,to] of map.edges){const a=byId.get(from),b=byId.get(to);if(!a||!b||a.z!==activeLevel||b.z!==activeLevel)continue;if(!reveal&&!visited.has(from)&&!visited.has(to))continue;svg.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'corridor-wall'}));svg.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'corridor-floor'}))}
   for(const h of state.pathHistory){const a=byId.get(h.from),b=byId.get(h.to);if(a?.z===activeLevel&&b?.z===activeLevel)svg.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'pathline'}))}
   for(const n of map.nodes.filter(n=>n.z===activeLevel&&(reveal||known.has(n.id)))){const g=svgEl('g',{class:`room-node ${n.kind}${visited.has(n.id)?' visited':''}${n.id===state.node&&!state.transit?' current':''}`});const r=n.kind==='goal'?2.6:n.kind==='junction'?1.8:2.1;g.append(svgEl('circle',{cx:n.x,cy:n.y,r,class:'room-shape'}));if(reveal||visited.has(n.id)){const t=svgEl('text',{x:n.x,y:n.y+3,class:'room-label'});t.textContent=labelFor(n,reveal);g.append(t)}svg.append(g)}
-  const markerNode=state.transit?byId.get(state.transit.from):byId.get(state.node);if(markerNode?.z===activeLevel){let x=markerNode.x,y=markerNode.y;if(state.transit){const to=byId.get(state.transit.to),ratio=state.transit.progress/state.transit.cells;if(to){x+=((to.x-x)*ratio);y+=((to.y-y)*ratio)}}svg.append(svgEl('circle',{cx:x,cy:y,r:1,class:'marker-ring'}));svg.append(svgEl('circle',{cx:x,cy:y,r:.42,class:'marker-core'}))}
-  $('#levelName').textContent=map.levels.find(l=>l.z===activeLevel)?.name||'';
-  $$('.level-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.z)===activeLevel));
+  const markerNode=state.transit?byId.get(state.transit.from):byId.get(state.node);if(markerNode?.z===activeLevel){let x=markerNode.x,y=markerNode.y;if(state.transit){const to=byId.get(state.transit.to),ratio=state.transit.progress/state.transit.cells;if(to){x+=(to.x-x)*ratio;y+=(to.y-y)*ratio}}svg.append(svgEl('circle',{cx:x,cy:y,r:1,class:'marker-ring'}));svg.append(svgEl('circle',{cx:x,cy:y,r:.42,class:'marker-core'}))}
+  $('#levelName').textContent=map.levels.find(l=>l.z===activeLevel)?.name||'';$$('.level-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.z)===activeLevel));
 }
 
-function announce(){
-  window.MAZE_APP={map,state:structuredClone(state),isGm};
-  window.dispatchEvent(new CustomEvent('maze-state',{detail:{map,state:structuredClone(state),isGm}}));
-}
-
-function render(){
-  state=normalizeSharedState(state,map);
-  $$('.symbol').forEach((x,i)=>{x.classList.toggle('used',i<state.bandStep);x.classList.toggle('current',i===state.bandStep&&state.bandStep<map.solution.length)});
-  const n=currentDisplayNode();if(n&&activeLevel!==n.z)activeLevel=n.z;
-  renderLocation();renderDirections();renderHistory();renderMap();announce();
-}
-
+function announce(){window.MAZE_APP={map,state:structuredClone(state),isGm};window.dispatchEvent(new CustomEvent('maze-state',{detail:{map,state:structuredClone(state),isGm}}))}
+function render(){state=normalizeSharedState(state,map);$$('.symbol').forEach((x,i)=>{x.classList.toggle('used',i<state.bandStep);x.classList.toggle('current',i===state.bandStep&&state.bandStep<map.solution.length)});const n=currentDisplayNode();if(n&&activeLevel!==n.z)activeLevel=n.z;renderLocation();renderDirections();renderHistory();renderMap();announce()}
 async function commit(next,gmOnly=false,success=''){const previous=structuredClone(state);state=normalizeSharedState(next,map);render();if(await syncState(gmOnly)){if(success)message(success);return true}state=previous;render();return false}
+async function move(dir){const result=beginMove(map,state,dir);if(!result.ok){message(result.error==='NO_EXIT'?'Dort ist kein begehbarer Weg.':result.error==='BAND_EXHAUSTED'?'Das schwarze Band ist zu Ende.':'Diese Bewegung ist hier nicht möglich.');return}const before=state.bandStep,after=result.state.bandStep,text=result.state.node===map.goal&&!result.state.transit?'Ihr habt die geheime Kultstätte erreicht.':after>before?'Ihr wählt diesen Ausgang. Das nächste Bandzeichen wird aktiv.':'Ihr bewegt euch weiter durch den Gang.';await commit(result.state,false,text)}
+async function undo(){if(!isGm){message('Nur die Spielleitung kann Undo benutzen.');return}const result=gmUndoDecision(map,state);if(!result.ok){message('Keine Entscheidung zum Zurücknehmen.');return}await commit(result.state,true,'Letzte Bandentscheidung zurückgenommen.')}
+async function backtrack(){if(state.transit){const r=beginMove(map,state,OPP[state.transit.dir]);if(r.ok)await commit(r.state,false,'Ihr geht zurück.');return}const last=state.pathHistory.at(-1);if(!last){message('Kein Rückweg vorhanden.');return}const r=beginMove(map,state,OPP[last.dir]);if(r.ok)await commit(r.state,false,'Ihr kehrt auf demselben Weg zurück.')}
+async function reset(){if(!isGm){message('Nur die Spielleitung kann zurücksetzen.');return}if(!confirm('Rätsel wirklich vollständig zurücksetzen?'))return;await commit(initialSharedState(map),true,'Der gemeinsame Spielstand wurde zurückgesetzt.')}
+function setupControls(){$$('.dir,.vertical button[data-d]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.d)));$('#backtrack').addEventListener('click',backtrack);$('#undo').addEventListener('click',undo);$('#reset').addEventListener('click',reset);$('#gmToggle').addEventListener('click',()=>{if(!isGm)return;gmPanelOpen=!gmPanelOpen;$('.gm-panel').classList.toggle('on',gmPanelOpen);$('#gmToggle').textContent=gmPanelOpen?'SL schließen':'SL'});$('#reveal').addEventListener('click',()=>{if(!isGm)return;document.body.classList.toggle('reveal-all');renderMap()});$('#copyPlayer').addEventListener('click',()=>playerToken?copyText(inviteUrl(playerToken),'Spielerlink'):message('Dieser SL-Link enthält keinen Spieler-Token.'));$('#copyCurrent').addEventListener('click',()=>copyText(location.href,'Aktueller Link'));$('#zoomIn').onclick=$('#zoomOut').onclick=$('#zoomReset').onclick=()=>message('Die V2-Automap passt sich automatisch an die aktuelle Ebene an.')}
 
-async function move(dir){
-  const result=beginMove(map,state,dir);
-  if(!result.ok){message(result.error==='NO_EXIT'?'Dort ist kein begehbarer Weg.':result.error==='BAND_EXHAUSTED'?'Das schwarze Band ist zu Ende.':'Diese Bewegung ist hier nicht möglich.');return}
-  const before=state.bandStep,after=result.state.bandStep;
-  const text=result.state.node===map.goal&&!result.state.transit?'Ihr habt die geheime Kultstätte erreicht.':after>before?'Ihr wählt diesen Ausgang. Das nächste Bandzeichen wird aktiv.':'Ihr bewegt euch weiter durch den Gang.';
-  await commit(result.state,false,text);
-}
-
-async function undo(){
-  if(!isGm){message('Nur die Spielleitung kann Undo benutzen.');return}
-  const result=gmUndoDecision(map,state);if(!result.ok){message('Keine Entscheidung zum Zurücknehmen.');return}await commit(result.state,true,'Letzte Bandentscheidung zurückgenommen.');
-}
-
-async function backtrack(){
-  if(state.transit){const r=beginMove(map,state,OPP[state.transit.dir]);if(r.ok)await commit(r.state,false,'Ihr geht zurück.');return}
-  const last=state.pathHistory.at(-1);if(!last){message('Kein Rückweg vorhanden.');return}
-  const r=beginMove(map,state,OPP[last.dir]);if(r.ok)await commit(r.state,false,'Ihr kehrt auf demselben Weg zurück.');
-}
-
-async function reset(){
-  if(!isGm){message('Nur die Spielleitung kann zurücksetzen.');return}if(!confirm('Rätsel wirklich vollständig zurücksetzen?'))return;await commit(initialSharedState(map),true,'Der gemeinsame Spielstand wurde zurückgesetzt.');
-}
-
-function setupControls(){
-  $$('.dir,.vertical button[data-d]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.d)));
-  $('#backtrack').addEventListener('click',backtrack);$('#undo').addEventListener('click',undo);$('#reset').addEventListener('click',reset);
-  $('#gmToggle').addEventListener('click',()=>{if(!isGm)return;gmPanelOpen=!gmPanelOpen;$('.gm-panel').classList.toggle('on',gmPanelOpen);$('#gmToggle').textContent=gmPanelOpen?'SL schließen':'SL'});
-  $('#reveal').addEventListener('click',()=>{if(!isGm)return;document.body.classList.toggle('reveal-all');renderMap()});
-  $('#copyPlayer').addEventListener('click',()=>playerToken?copyText(inviteUrl(playerToken),'Spielerlink'):message('Dieser SL-Link enthält keinen Spieler-Token.'));$('#copyCurrent').addEventListener('click',()=>copyText(location.href,'Aktueller Link'));
-  $('#zoomIn').onclick=$('#zoomOut').onclick=$('#zoomReset').onclick=()=>message('Zoom folgt nach der Engine-Migration wieder; derzeit ist die Automap auf Gesamtansicht fixiert.');
-}
-
-async function fetchRemoteState(){
-  const {data,error}=await supabase.rpc('get_maze_room',{p_room_code:roomCode,p_token:accessToken});if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row)throw new Error('Raum oder Zugangslink ungültig.');
-  state=normalizeSharedState(row.state,map);version=Number(row.version);channelSecret=row.channel_secret;isGm=Boolean(row.is_gm);render();return row;
-}
-
-async function setupRealtime(){
-  const cfg=window.MAZE_CONFIG||{},cred=credentialsFromHash();roomCode=cred.room;accessToken=cred.token;playerToken=cred.play;
-  if(!cfg.supabaseUrl||!cfg.supabaseKey||!roomCode||!accessToken){$('#syncState').textContent='lokal';message('Lokaler Probelauf.');return}
-  try{
-    const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');supabase=createClient(cfg.supabaseUrl,cfg.supabaseKey);await fetchRemoteState();if(channel)await supabase.removeChannel(channel);
-    channel=supabase.channel(`maze:${roomCode}:${channelSecret}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:'state'},p=>{const incoming=p?.payload||{};if(Number(incoming.version)<=version)return;version=Number(incoming.version);state=normalizeSharedState(incoming.state,map);render();message('Die Gruppe wurde auf einem anderen Gerät bewegt.')}).subscribe(s=>{$('#syncState').textContent=s==='SUBSCRIBED'?'live':s==='CHANNEL_ERROR'?'offline':'verbinden…'});
-  }catch(e){console.error(e);$('#syncState').textContent='offline';message(e.message||'Live-Sync nicht erreichbar.')}
-}
-
-async function syncState(gmOnly=false){
-  if(!supabase)return true;
-  try{const fn=gmOnly?'gm_update_maze_room':'update_maze_room',args=gmOnly?{p_room_code:roomCode,p_gm_token:accessToken,p_expected_version:version,p_state:state}:{p_room_code:roomCode,p_token:accessToken,p_expected_version:version,p_state:state};const {data,error}=await supabase.rpc(fn,args);if(error)throw error;const row=Array.isArray(data)?data[0]:data;version=Number(row.version);state=normalizeSharedState(row.state,map);render();return true}catch(e){console.error(e);if(String(e.message).includes('STALE_VERSION')){message('Jemand war schneller – aktueller Gruppenstand wird geladen.');try{await fetchRemoteState()}catch{}}else message(`Synchronisation fehlgeschlagen: ${e.message||e}`);return false}
-}
+async function fetchRemoteState(){const {data,error}=await supabase.rpc('get_maze_room',{p_room_code:roomCode,p_token:accessToken});if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row)throw new Error('Raum oder Zugangslink ungültig.');state=normalizeSharedState(row.state,map);version=Number(row.version);channelSecret=row.channel_secret;isGm=Boolean(row.is_gm);render();return row}
+async function setupRealtime(){const cfg=window.MAZE_CONFIG||{},cred=credentialsFromHash();roomCode=cred.room;accessToken=cred.token;playerToken=cred.play;if(!cfg.supabaseUrl||!cfg.supabaseKey||!roomCode||!accessToken){$('#syncState').textContent='lokal';message('Lokaler Probelauf.');return}try{const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');supabase=createClient(cfg.supabaseUrl,cfg.supabaseKey);await fetchRemoteState();if(channel)await supabase.removeChannel(channel);channel=supabase.channel(`maze:${roomCode}:${channelSecret}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:'state'},p=>{const incoming=p?.payload||{};if(Number(incoming.version)<=version)return;version=Number(incoming.version);state=normalizeSharedState(incoming.state,map);render();message('Die Gruppe wurde auf einem anderen Gerät bewegt.')}).subscribe(s=>{$('#syncState').textContent=s==='SUBSCRIBED'?'live':s==='CHANNEL_ERROR'?'offline':'verbinden…'})}catch(e){console.error(e);$('#syncState').textContent='offline';message(e.message||'Live-Sync nicht erreichbar.')}}
+async function syncState(gmOnly=false){if(!supabase)return true;try{const fn=gmOnly?'gm_update_maze_room':'update_maze_room',args=gmOnly?{p_room_code:roomCode,p_gm_token:accessToken,p_expected_version:version,p_state:state}:{p_room_code:roomCode,p_token:accessToken,p_expected_version:version,p_state:state};const {data,error}=await supabase.rpc(fn,args);if(error)throw error;const row=Array.isArray(data)?data[0]:data;version=Number(row.version);state=normalizeSharedState(row.state,map);render();return true}catch(e){console.error(e);if(String(e.message).includes('STALE_VERSION')){message('Jemand war schneller – aktueller Gruppenstand wird geladen.');try{await fetchRemoteState()}catch{}}else message(`Synchronisation fehlgeschlagen: ${e.message||e}`);return false}}
 
 async function init(){
-  const [ms,cs,ss]=await Promise.all([loadJSON('./data/maps.json'),loadJSON('./data/ciphers.json'),loadJSON('./data/scenarios.json')]);scenario=ss.scenarios[0];map=ms.maps.find(m=>m.id===scenario.map);cipher=cs.ciphers.find(c=>c.id===scenario.cipher);if(!map||!cipher)throw new Error('Szenario unvollständig.');validateMap();state=initialSharedState(map);activeLevel=nodeById(map,map.start)?.z??0;
+  const [ms,cs,ss,exp]=await Promise.all([loadJSON('./data/maps.json'),loadJSON('./data/ciphers.json'),loadJSON('./data/scenarios.json'),loadJSON('./data/selem-expansion.json')]);
+  scenario=ss.scenarios[0];const base=ms.maps.find(m=>m.id===scenario.map);map=applyExpansion(base,exp);cipher=cs.ciphers.find(c=>c.id===scenario.cipher);if(!map||!cipher)throw new Error('Szenario unvollständig.');validateMap();state=initialSharedState(map);activeLevel=nodeById(map,map.start)?.z??0;
   $('#scenarioTitle').textContent=scenario.name;$('#scenarioSubtitle').textContent=map.subtitle||map.name;$('#mapName').textContent=map.name;$('#bandTitle').textContent=scenario.bandTitle||'Der Weg, den die Erinnerung nicht bewahren kann';renderLevels();renderBand();setupControls();render();await setupRealtime();
 }
-
 init().catch(e=>{console.error(e);document.body.innerHTML=`<pre style="color:white;padding:20px;white-space:pre-wrap">${e.stack}</pre>`});
