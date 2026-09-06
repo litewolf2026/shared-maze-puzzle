@@ -79,6 +79,8 @@ jobs:
         run: node tests/selem-core-actors.mjs
       - name: Validate persistent Selem finale state
         run: node tests/selem-finale-state.mjs
+      - name: Guard against in-app handouts
+        run: node tests/no-inapp-handouts.mjs
       - name: Report scene content coverage
         run: node tests/content-coverage.mjs
       - name: Validate authored Selem scene coverage
