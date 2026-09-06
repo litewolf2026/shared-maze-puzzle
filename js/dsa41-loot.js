@@ -14,13 +14,16 @@ export function lootProfileFor(assignment,definition={},rules={}){
   if(!assignment||assignment.type!=='loot')return null;
   const profileId=profileIdFor(assignment,definition,rules);if(!profileId)return null;
   const profile=rules.profiles?.[profileId];if(!profile)return null;
-  const valueTier=Number(profile.valueTier),value=rules.valueScale?.[String(valueTier)]||null,portability=rules.portability?.[profile.portability]||null;
+  const mechanics=mechanicsFor(assignment,definition),rawValueTier=mechanics?.valueTier??profile.valueTier,valueTier=Number(rawValueTier),value=rules.valueScale?.[String(valueTier)]||null,portability=rules.portability?.[profile.portability]||null;
   return {
     id:profileId,
     ...clone(profile),
     valueTier:Number.isFinite(valueTier)?valueTier:null,
     value:value?clone(value):null,
     portabilityInfo:portability?clone(portability):null,
+    source:mechanics?.source||null,
+    priceReference:mechanics?.priceReference||null,
+    qualityRoll:mechanics?.qualityRoll||null,
     projectConvention:Boolean(rules.projectPolicy?.valueScaleIsProjectConvention)
   };
 }
@@ -44,6 +47,9 @@ export function lootGuidanceRows(assignment,definition,rules){
   if(g.market)rows.push(['Verwertung',g.market]);
   if(g.preservation)rows.push(['Erhaltung',g.preservation]);
   if(g.caution)rows.push(['Achtung',g.caution]);
+  if(g.qualityRoll)rows.push(['Qualität',g.qualityRoll]);
+  if(g.priceReference)rows.push(['Preisreferenz',g.priceReference]);
+  if(g.source)rows.push(['Quelle',g.source]);
   rows.push(['Einordnung','Projektbewertung ohne automatischen Marktpreis; konkrete Dukaten-/Silberwerte nur im jeweiligen Käufer-, Orts- und Zeitkontext festlegen.']);
   return rows;
 }
