@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Leere grüne Fassung</title><desc id="desc">Untersuchungsskizze einer leeren runden Fassung mit drei frischen Entnahmespuren und einer ungewöhnlichen Wasserlaufspur.</desc>
+  <rect width="1200" height="800" fill="#efe4c7"/>
+  <rect x="45" y="45" width="1110" height="710" rx="20" fill="none" stroke="#3b3327" stroke-width="5"/>
+  <text x="85" y="110" font-family="serif" font-size="42" fill="#2d281f">Befundskizze · leere Fassung</text>
+  <text x="86" y="150" font-family="serif" font-size="24" fill="#5a4f3c">Draufsicht · Maße nur angenähert</text>
+  <g transform="translate(505 400)">
+    <circle r="205" fill="#d8d0b8" stroke="#393329" stroke-width="10"/>
+    <circle r="142" fill="#7c8e78" fill-opacity=".28" stroke="#495a48" stroke-width="8"/>
+    <circle r="88" fill="#e9dfc4" stroke="#4b4638" stroke-width="6" stroke-dasharray="12 10"/>
+    <path d="M-72 -118 l-28 -46 m86 20 l-4 -53 m92 82 l39 -33" stroke="#8a3e32" stroke-width="12" stroke-linecap="round"/>
+    <path d="M-84 -113 l-24 -10 m91 -18 l-19 -15 m99 112 l18 -22" stroke="#8a3e32" stroke-width="5"/>
+    <path d="M-36 118 C-2 145 34 139 64 167 C89 192 121 213 161 211" fill="none" stroke="#526b78" stroke-width="12" stroke-linecap="round"/>
+    <path d="M150 198 l34 15 -31 20" fill="none" stroke="#526b78" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g font-family="sans-serif" font-size="25" fill="#2d281f">
+    <line x1="315" y1="250" x2="405" y2="305" stroke="#2d281f" stroke-width="3"/><text x="115" y="238">drei helle Werkzeugspuren</text><text x="115" y="270">an sonst gealterter Kante</text>
+    <line x1="810" y1="570" x2="690" y2="520" stroke="#2d281f" stroke-width="3"/><text x="820" y="568">Wasserfilm lief kurz</text><text x="820" y="600">gegen das Gefälle</text>
+    <line x1="760" y1="250" x2="650" y2="322" stroke="#2d281f" stroke-width="3"/><text x="770" y="238">zentrale Aufnahme leer</text><text x="770" y="270">kein Bruchschaden</text>
+  </g>
+  <text x="86" y="716" font-family="serif" font-size="26" fill="#4b4233">Randnotiz: Erst beschreiben, dann deuten.</text>
+</svg>
