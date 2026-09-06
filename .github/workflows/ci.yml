@@ -29,6 +29,7 @@ jobs:
           node --check js/direction-ui.js
           node --check js/map-readability.js
           node --check js/gm-route.js
+          node --check js/gm-route-v2.js
       - name: Validate maps and cipher references
         run: node tests/validate.mjs
       - name: Validate direction geometry and cipher semantics
@@ -47,3 +48,5 @@ jobs:
         run: node tests/expanded-map.mjs
       - name: Validate danger and content semantics
         run: node tests/content-model.mjs
+      - name: Validate discoverable room features
+        run: node tests/room-features.mjs
