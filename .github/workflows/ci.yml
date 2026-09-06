@@ -36,6 +36,7 @@ jobs:
           node --check js/secret-connections.js
           node --check js/content-controller.js
           node --check js/inventory-controller.js
+          node --check js/scene-loot-interaction.js
           node --check js/selem-scenes.js
           node --check js/selem-scene-controller.js
           node --check js/crawler-view.js
@@ -79,6 +80,8 @@ jobs:
         run: node tests/gm-ui-tools.mjs
       - name: Validate shared group inventory lifecycle
         run: node tests/inventory.mjs
+      - name: Validate direct scene loot pickup
+        run: node tests/scene-loot-interaction.mjs
       - name: Validate grid decision and transit semantics
         run: node tests/navigation-model.mjs
       - name: Validate authored room terrain
