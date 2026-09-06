@@ -25,7 +25,7 @@
     "A12":{"maxProfileAssignmentsPerRoom":1,"slots":[{"id":"story-submerged-ledger","type":"discovery","fixed":"selem_submerged_ledger","placement":["desk","shelf","water"]}]},
     "A23":{"maxProfileAssignmentsPerRoom":1,"slots":[{"id":"secret-pilgrim-room","type":"secret_connection","fixed":"secret_connection_pilgrim_reliquary","placement":["secret_connection_slot","wall","shrine"],"hidden":true}]},
     "A25":{"maxProfileAssignmentsPerRoom":0,"slots":[{"id":"secret-false-back","type":"secret","fixed":"secret_false_back","placement":["wall","wall_niche","shelf"],"hidden":true,"reveals":["loot-false-back"]},{"id":"loot-false-back","type":"loot","fixed":"loot_pilgrim_coins","placement":["wall_niche","shelf"],"hidden":true,"lockedBy":"secret-false-back"}]},
-    "A27":{"maxProfileAssignmentsPerRoom":1,"slots":[{"id":"loot-alchemy","type":"loot","fixed":"loot_alchemy_vial","placement":["rubble","shelf"]}]},
+    "A27":{"maxProfileAssignmentsPerRoom":1,"slots":[{"id":"loot-alchemy","type":"loot","fixed":"selem_alchemy_rosenquarz","placement":["rubble","shelf"]}]},
     "A31":{"maxProfileAssignmentsPerRoom":0,"slots":[{"id":"loot-hidden-pilgrim","type":"loot","fixed":"loot_hidden_coin_cache","placement":["wall_niche","altar","shelf"],"hidden":true},{"id":"discovery-old-marker","type":"discovery","fixed":"discovery_old_route_marker","placement":["wall","pillar","threshold"]}]},
 
     "B07":{"maxProfileAssignmentsPerRoom":1,"slots":[{"id":"story-shrine-reuse","type":"discovery","fixed":"selem_shrine_reuse","placement":["shrine","altar","wall"]}]},
