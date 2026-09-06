@@ -28,7 +28,7 @@ assert.match(inventoryJs,/assignment\.type!=='loot'\|\|assignment\.state!=='take
 assert.match(inventoryJs,/maze-state/,'Inventory must rerender from shared state updates.');
 assert.match(inventoryCss,/\.inventory-bar/,'Inventory bar styling is missing.');
 assert.match(migration,/v_old_state='discovered'\s+and v_new_state='taken'\s+and v_type='loot'/s,'Backend must authorize only discovered loot pickup for players.');
-assert.match(index,/inventory\.css\?v=20260906-inv1/,'Inventory stylesheet must be loaded.');
+assert.match(index,/inventory\.css\?v=20260906-inv2/,'Inventory stylesheet must be loaded.');
 assert.match(index,/inventory-controller\.js\?v=20260906-inv1/,'Inventory controller must be loaded.');
 
 console.log('inventory: OK (player discovered-loot pickup, derived persistent group inventory, backend authority guard)');
