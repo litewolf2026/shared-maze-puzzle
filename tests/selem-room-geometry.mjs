@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {applyExpansions} from '../js/map-expansion.js';
+import {validateRoomTerrain,terrainCounts,terrainWalkable,roomStartPosition} from '../js/room-terrain.js';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 const base=read('../data/maps.json').maps[0];
@@ -22,6 +23,7 @@ for(const id of sceneIds){
   assert.ok(Number.isFinite(Number(node.geometry?.ceilingM))&&Number(node.geometry.ceilingM)>=2.5,`${id} needs a plausible authored ceiling height.`);
   const widthM=grid.w*map.gridSizeMeters,depthM=grid.h*map.gridSizeMeters;
   assert.ok(widthM>=9&&depthM>=9,`${id} is below the agreed scene-space minimum.`);
+  const terrainResult=validateRoomTerrain(node);assert.equal(terrainResult.ok,true,`${id}: ${terrainResult.error||'invalid terrain'}`);
 }
 
 const geometryNodes=map.nodes.filter(n=>n.geometry);
@@ -41,6 +43,16 @@ assert.equal(byId.get('D14').geometry.shape,'vast_flooded_cavern');
 assert.equal(byId.get('D14').geometry.ceilingM,22);
 assert.equal(byId.get('B31').geometry.shape,'large_hall');
 assert.equal(byId.get('C11').geometry.ceilingM,2.5,'The low cult sleeping chamber should remain noticeably cramped.');
+
+for(const id of ['C15','D06','D14']){
+  const n=byId.get(id),start=roomStartPosition(n),counts=terrainCounts(n),cells=n.exploreGrid.w*n.exploreGrid.h;
+  assert.ok(n.terrain?.rows,`${id} should carry explicit terrain for the graphics pass.`);
+  assert.equal(terrainWalkable(n,start.x,start.y),true,`${id} must start on walkable terrain.`);
+  assert.equal(Object.values(counts).reduce((a,b)=>a+b,0),cells,`${id} terrain must cover the whole room.`);
+}
+assert.ok((terrainCounts(byId.get('D06')).deep_water||0)/(14*11)>0.5,'D06 should be mostly flooded.');
+assert.ok((terrainCounts(byId.get('D14')).deep_water||0)/(20*16)>0.5,'D14 should be predominantly deep water.');
+assert.ok((terrainCounts(byId.get('C15')).deep_water||0)>20,'C15 should have substantial water channels without becoming a water room.');
 
 const summary=Object.fromEntries(['A','B','C','D'].map(zone=>{
   const rows=sceneIds.filter(id=>id.startsWith(zone)).map(id=>{const n=byId.get(id);return n.exploreGrid.w*n.exploreGrid.h*9});
