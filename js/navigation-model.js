@@ -48,9 +48,7 @@ export function visibleAdj(map,input,{traversableOnly=false}={}){
 
 function solutionSourceNodes(map){
   if(SOLUTION_SOURCES.has(map))return SOLUTION_SOURCES.get(map);
-  if(Array.isArray(map.bandDecisionNodes)&&map.bandDecisionNodes.length){
-    const set=new Set(map.bandDecisionNodes);SOLUTION_SOURCES.set(map,set);return set;
-  }
+  if(Array.isArray(map.bandDecisionNodes)&&map.bandDecisionNodes.length){const set=new Set(map.bandDecisionNodes);SOLUTION_SOURCES.set(map,set);return set}
   const set=new Set(),adj=buildAdj(map);let node=map.start;
   for(const dir of map.solution||[]){set.add(node);const edge=adj.get(node)?.[dir];if(!edge)break;node=edge.to}
   SOLUTION_SOURCES.set(map,set);return set;
@@ -68,12 +66,13 @@ export function isDecisionNode(map,nodeId,input=null){
 export function initialSharedState(map){return {node:map.start,bandStep:0,step:0,decisionHistory:[],pathHistory:[],history:[],transit:null,visited:[map.start],discovered:[],roomState:{},partyFacing:HORIZONTAL_DIRS.includes(map.solution?.[0])?map.solution[0]:'N',updated_at:null}}
 
 export function normalizeSharedState(input,map){
-  const base=initialSharedState(map),state={...base,...clone(input||{})};
-  if(!Array.isArray(state.decisionHistory))state.decisionHistory=Array.isArray(state.history)?clone(state.history):[];
-  if(!Array.isArray(state.pathHistory))state.pathHistory=Array.isArray(state.history)?clone(state.history):[];
+  const base=initialSharedState(map),raw=clone(input||{}),state={...base,...raw};
+  // Read legacy fields from the raw payload before V2 defaults can mask their absence.
+  state.decisionHistory=Array.isArray(raw.decisionHistory)?clone(raw.decisionHistory):Array.isArray(raw.history)?clone(raw.history):[];
+  state.pathHistory=Array.isArray(raw.pathHistory)?clone(raw.pathHistory):Array.isArray(raw.history)?clone(raw.history):[];
+  state.bandStep=Number.isInteger(raw.bandStep)?raw.bandStep:Number.isInteger(raw.step)?raw.step:state.decisionHistory.length;
   if(!Array.isArray(state.visited))state.visited=[map.start];if(!Array.isArray(state.discovered))state.discovered=[];
   if(!state.roomState||typeof state.roomState!=='object'||Array.isArray(state.roomState))state.roomState={};
-  if(!Number.isInteger(state.bandStep))state.bandStep=Number.isInteger(state.step)?state.step:state.decisionHistory.length;
   state.step=state.bandStep;state.history=clone(state.decisionHistory);
   if(!nodeById(map,state.node))state.node=map.start;if(!HORIZONTAL_DIRS.includes(state.partyFacing))state.partyFacing='N';
   if(state.transit&&typeof state.transit==='object'){
@@ -100,9 +99,7 @@ export function beginMove(map,input,dir){
   let state=normalizeSharedState(input,map);if(state.transit)return advanceTransit(map,state,dir);const edge=buildAdj(map).get(state.node)?.[dir];if(!edge)return {ok:false,state,error:'NO_EXIT'};
   if(!edgeIsTraversable(map,state,edge))return {ok:false,state,error:'LOCKED_EXIT'};
   const lastPath=state.pathHistory.at(-1),rewinding=Boolean(lastPath&&lastPath.to===state.node&&lastPath.from===edge.to&&OPP[lastPath.dir]===dir);let decisionAdded=false;
-  if(!rewinding&&isDecisionNode(map,state.node,state)&&state.bandStep<map.solution.length){
-    state.decisionHistory.push({from:edge.from,dir:edge.dir,to:edge.to,stepBefore:state.bandStep});state.bandStep+=1;decisionAdded=true;
-  }
+  if(!rewinding&&isDecisionNode(map,state.node,state)&&state.bandStep<map.solution.length){state.decisionHistory.push({from:edge.from,dir:edge.dir,to:edge.to,stepBefore:state.bandStep});state.bandStep+=1;decisionAdded=true}
   state.transit={from:edge.from,to:edge.to,dir:edge.dir,cells:edge.cells,progress:0,rewind:rewinding,decisionAdded};state=advanceTransit(map,state,dir).state;
   return {ok:true,state,event:rewinding?'REWIND_STARTED':decisionAdded?'DECISION_TAKEN':state.bandStep>=map.solution.length&&isDecisionNode(map,edge.from,state)?'POST_BAND_DECISION':'TRANSIT_STARTED'};
 }
