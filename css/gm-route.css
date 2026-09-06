@@ -40,6 +40,25 @@
   font-weight:700;
   text-anchor:middle;
 }
+.gm-solution-transit-dot{
+  fill:#10211f;
+  stroke:#9be2da;
+  stroke-width:.2;
+  opacity:.92;
+}
+.gm-solution-goal-bg{
+  fill:#2a2316;
+  stroke:#e2c17e;
+  stroke-width:.22;
+  opacity:.98;
+}
+.gm-solution-goal-text{
+  fill:#fff0bd;
+  font-family:Arial,sans-serif;
+  font-size:1.05px;
+  font-weight:800;
+  text-anchor:middle;
+}
 .gm-solution-vertical-ring{
   fill:#10211f;
   stroke:#9be2da;
