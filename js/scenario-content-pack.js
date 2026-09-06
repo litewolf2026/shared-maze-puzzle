@@ -1,6 +1,6 @@
 const SELEM_STORY_PACK={
   id:'selem-core-actors-v1',
-  version:2,
+  version:3,
   items:{
     selem_nottel_witness:{
       id:'selem_nottel_witness',scope:'selem-01',type:'encounter',label:'Nottel',rarity:'unique',unique:true,
@@ -36,6 +36,18 @@ const SELEM_STORY_PACK={
       ]},
       description:'Der Nachzehrer greift konkrete autobiographische Inhalte an: Namen, Bindungen und erlebte Szenen. Er löscht nicht pauschal Persönlichkeit oder sämtliche Erinnerung und ist nicht identisch mit dem Zeichen des verlorenen Weges.'
     },
+    selem_sahira_rewrite_ritual:{
+      id:'selem_sahira_rewrite_ritual',scope:'selem-01',type:'event',label:'Sahiras Umschreibungsritual',rarity:'unique',unique:true,
+      requires:{kinds:['goal']},placement:{features:['altar','glyph','floor','room']},
+      mechanics:{ritualId:'sahira-rewrite',effectTags:['ritual','time','memory'],outcomes:[
+        {id:'destabilized',label:'Ritual destabilisiert',from:['triggered'],next:'triggered',terminal:false},
+        {id:'control_recovered',label:'Sahira gewinnt Teilkontrolle zurück',from:['triggered'],next:'triggered',terminal:false},
+        {id:'broken',label:'Ritual gebrochen',from:['triggered'],next:'resolved',terminal:true},
+        {id:'aborted',label:'Ritual abgebrochen',from:['triggered'],next:'resolved',terminal:true},
+        {id:'partial_rewrite',label:'Teilbehauptung setzt sich vorläufig durch',from:['triggered'],next:'resolved',terminal:true}
+      ]},
+      description:'Das Ritual versucht nicht, die gesamte Vergangenheit neu zu schreiben. Es soll einen engen historischen Knoten widerspruchsfrei machen: Maruban habe das Auge nie aus der Fassung genommen. Linien, Fokus, Komponenten, Sahiras Konzentration und belastbare Gegenanker sind reale Angriffspunkte.'
+    },
 
     selem_handout_a06:{id:'selem_handout_a06',scope:'selem-01',type:'discovery',label:'Handout: Leere grüne Fassung',rarity:'unique',unique:true,hidden:true,requires:{kinds:['lens']},placement:{features:['lens','floor','room']},mechanics:{handoutId:'a06-empty-lens'},description:'Spielerhandout zur leeren Fassung und den materiellen Entnahmespuren.'},
     selem_handout_b12:{id:'selem_handout_b12',scope:'selem-01',type:'discovery',label:'Handout: Schwarzes Tor',rarity:'unique',unique:true,hidden:true,requires:{kinds:['gate']},placement:{features:['door','gate','wall']},mechanics:{handoutId:'b12-black-gate'},description:'Spielerhandout zu alten und jüngeren Nutzungsschichten am Schwarzen Tor.'},
@@ -43,7 +55,10 @@ const SELEM_STORY_PACK={
     selem_handout_c10:{id:'selem_handout_c10',scope:'selem-01',type:'discovery',label:'Handout: Nottels Notizen',rarity:'unique',unique:true,hidden:true,requires:{kinds:['prison']},placement:{features:['bed','wall','floor']},mechanics:{handoutId:'c10-nottel-notes'},description:'Nottels nummerierte Richtungs- und Geräuschlisten mit ausdrücklich unsicheren Erinnerungen.'},
     selem_handout_c12:{id:'selem_handout_c12',scope:'selem-01',type:'discovery',label:'Handout: Zeichen des verlorenen Weges',rarity:'unique',unique:true,hidden:true,requires:{kinds:['glyph']},placement:{features:['glyph','threshold','wall']},mechanics:{handoutId:'c12-lost-way-glyph'},description:'Abzeichnung des Zeichens des verlorenen Weges an der Schwelle.'},
     selem_handout_c14:{id:'selem_handout_c14',scope:'selem-01',type:'discovery',label:'Handout: Sahiras Richtungsprotokoll',rarity:'unique',unique:true,hidden:true,requires:{kinds:['room']},placement:{features:['table','shelf','floor']},mechanics:{handoutId:'c14-sahira-protocol'},description:'Sahiras Arbeitsprotokoll mit absoluten Richtungen, gestrichenen Erinnerungsaussagen und enger Zielbehauptung.'},
-    selem_handout_c15:{id:'selem_handout_c15',scope:'selem-01',type:'discovery',label:'Handout: Netz der Zeitanker',rarity:'unique',unique:true,hidden:true,requires:{kinds:['goal']},placement:{features:['altar','floor','room']},mechanics:{handoutId:'c15-time-anchor-network'},description:'Arbeitsblatt zum Ordnen unabhängiger Zeitanker im Finale.'}
+    selem_handout_c15:{id:'selem_handout_c15',scope:'selem-01',type:'discovery',label:'Handout: Netz der Zeitanker',rarity:'unique',unique:true,hidden:true,requires:{kinds:['goal']},placement:{features:['altar','floor','room']},mechanics:{handoutId:'c15-time-anchor-network',outcomes:[
+      {id:'own_anchor_created',label:'Eigenen unabhängigen Anker markieren',from:['discovered'],next:'discovered',terminal:false},
+      {id:'own_anchor_lost',label:'Eigenen Anker als verloren / unbrauchbar markieren',from:['discovered'],next:'discovered',terminal:false}
+    ]},description:'Arbeitsblatt zum Ordnen unabhängiger Zeitanker im Finale.'}
   },
   rooms:{
     A06:{slots:[{id:'handout-a06',type:'discovery',fixed:'selem_handout_a06',placement:['lens','floor'],additiveOnUpgrade:true}]},
@@ -58,6 +73,7 @@ const SELEM_STORY_PACK={
     C15:{slots:[
       {id:'actor-sahira',type:'encounter',fixed:'selem_sahira_antagonist',placement:['altar','glyph','floor'],additiveOnUpgrade:true},
       {id:'actor-nachzehrer',type:'encounter',fixed:'selem_nachzehrer',placement:['glyph','altar','room'],additiveOnUpgrade:true},
+      {id:'ritual-sahira-rewrite',type:'event',fixed:'selem_sahira_rewrite_ritual',placement:['altar','glyph','floor'],additiveOnUpgrade:true},
       {id:'handout-c15',type:'discovery',fixed:'selem_handout_c15',placement:['altar','floor','room'],additiveOnUpgrade:true}
     ]}
   }
