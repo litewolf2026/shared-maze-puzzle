@@ -1,11 +1,12 @@
 import {checksForAssignment,formatCheck} from './dsa41-exploration.js';
 import {reusableDefinition} from './reusable-content-pack.js';
+import {outcomeOptions,outcomeLabel} from './content-outcomes.js';
 const LABELS={loot:'Beute',hazard:'Gefahr',encounter:'Begegnung',discovery:'Entdeckung',secret:'Geheimnis',secret_connection:'Geheimweg',event:'Ereignis'};
 const TERMINAL=new Set(['taken','resolved','disabled']);
 let last=null,catalog={},rules=null;
 Promise.all([fetch('./data/content/catalog.json',{cache:'no-store'}).then(r=>r.json()),fetch('./data/rules/dsa41-exploration.json',{cache:'no-store'}).then(r=>r.json())]).then(([data,r])=>{catalog=data.items||{};rules=r;render()}).catch(console.error);
 
-function ensureStyles(){if(document.querySelector('#gmContentStyle'))return;const s=document.createElement('style');s.id='gmContentStyle';s.textContent='.gm-content{margin-top:12px;padding-top:10px;border-top:1px solid #4b3d2d;max-height:430px;overflow:auto}.gm-content h4{margin:0 0 8px;font-size:13px}.gm-content>small{color:#9f9079}.gm-content-item{padding:7px;margin-top:6px;border:1px solid #493b2c;border-radius:8px;background:#120f0c}.gm-content-head{display:flex;gap:7px;align-items:baseline}.gm-content-head span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#b29567}.gm-content-head b{font-size:11px}.gm-content-item>small{display:block;margin-top:4px;color:#8f816d;font-size:9px}.gm-content-desc{margin:6px 0 0;color:#c9baa1;font-size:10px;line-height:1.35}.gm-content-checks,.gm-content-mechanics{display:grid;gap:3px;margin-top:6px;padding:5px 6px;border-left:2px solid #7b684a;background:#17120d}.gm-content-checks small,.gm-content-mechanics small{font-size:9px;line-height:1.3;color:#c9b894}.gm-content-checks b,.gm-content-mechanics b{color:#dfc796}.gm-content-mechanics{border-left-color:#6d5842}.gm-content-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.gm-content-actions button{padding:4px 7px!important;font-size:9px!important;min-height:0!important}.gm-content-item.state-opened{border-color:#7b6a46;background:#19150f}.gm-content-item.state-resolved,.gm-content-item.state-taken,.gm-content-item.state-disabled{opacity:.5}';document.head.append(s)}
+function ensureStyles(){if(document.querySelector('#gmContentStyle'))return;const s=document.createElement('style');s.id='gmContentStyle';s.textContent='.gm-content{margin-top:12px;padding-top:10px;border-top:1px solid #4b3d2d;max-height:430px;overflow:auto}.gm-content h4{margin:0 0 8px;font-size:13px}.gm-content>small{color:#9f9079}.gm-content-item{padding:7px;margin-top:6px;border:1px solid #493b2c;border-radius:8px;background:#120f0c}.gm-content-head{display:flex;gap:7px;align-items:baseline}.gm-content-head span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#b29567}.gm-content-head b{font-size:11px}.gm-content-item>small{display:block;margin-top:4px;color:#8f816d;font-size:9px}.gm-content-desc{margin:6px 0 0;color:#c9baa1;font-size:10px;line-height:1.35}.gm-content-checks,.gm-content-mechanics,.gm-content-outcome{display:grid;gap:3px;margin-top:6px;padding:5px 6px;border-left:2px solid #7b684a;background:#17120d}.gm-content-checks small,.gm-content-mechanics small,.gm-content-outcome small{font-size:9px;line-height:1.3;color:#c9b894}.gm-content-checks b,.gm-content-mechanics b,.gm-content-outcome b{color:#dfc796}.gm-content-mechanics{border-left-color:#6d5842}.gm-content-outcome{border-left-color:#86704e}.gm-content-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.gm-content-actions button{padding:4px 7px!important;font-size:9px!important;min-height:0!important}.gm-content-outcomes button{border-color:#6f5d43!important;background:#20180f!important}.gm-content-item.state-opened{border-color:#7b6a46;background:#19150f}.gm-content-item.state-resolved,.gm-content-item.state-taken,.gm-content-item.state-disabled{opacity:.58}';document.head.append(s)}
 function ensurePanel(){ensureStyles();const gm=document.querySelector('.gm-panel');if(!gm)return null;let box=document.querySelector('#gmContent');if(!box){box=document.createElement('section');box.id='gmContent';box.className='gm-content';gm.append(box)}return box}
 function actionButton(label,node,slot,action){const b=document.createElement('button');b.textContent=label;b.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('maze-content-action',{detail:{node,slot,action}})));return b}
 function anchorLabel(a){if(!a)return 'abstrakt';if(a.kind==='feature')return `Anker ${a.anchorId}`;return `Feld ${a.x+1}/${a.y+1}`}
@@ -34,6 +35,10 @@ function appendMechanics(item,a,definition){
   if(!rows.length)return;
   const box=document.createElement('div');box.className='gm-content-mechanics';for(const [label,text] of rows){const row=document.createElement('small');row.innerHTML=`<b>${label}:</b> ${text}`;box.append(row)}item.append(box);
 }
+function appendOutcomeHistory(item,a){
+  const label=outcomeLabel(a),history=a.runtime?.outcomes;if(!label&&!Array.isArray(history))return;
+  const box=document.createElement('div');box.className='gm-content-outcome';const row=document.createElement('small');row.innerHTML=`<b>Letztes Ergebnis:</b> ${label||'—'}${Array.isArray(history)?` · ${history.length} Eintrag${history.length===1?'':'e'}`:''}`;box.append(row);item.append(box);
+}
 function discoverButtonLabel(a,definition){
   if(!rules)return a.hidden?'Aufdecken':'Als entdeckt';
   const check=checksForAssignment(a,definition,rules).discovery;
@@ -41,6 +46,7 @@ function discoverButtonLabel(a,definition){
   const mod=check.modifier>0?` +${check.modifier}`:check.modifier<0?` ${check.modifier}`:'';
   return `Probe gelungen → entdeckt${mod}`;
 }
+function appendOutcomeButtons(actions,a,nodeId){const options=outcomeOptions(a);if(!options.length)return false;actions.classList.add('gm-content-outcomes');for(const option of options)actions.append(actionButton(option.label,nodeId,a.slotId,`outcome:${option.id}`));return true}
 function render(){
   const box=ensurePanel();if(!box)return;
   if(!last?.isGm){box.hidden=true;return}box.hidden=false;box.innerHTML='';
@@ -54,15 +60,16 @@ function render(){
     const head=document.createElement('div');head.className='gm-content-head';const type=document.createElement('span');type.textContent=LABELS[a.type]||a.type;const name=document.createElement('b');name.textContent=a.label;head.append(type,name);item.append(head);
     const meta=document.createElement('small');meta.textContent=`${a.hidden?'verborgen · ':''}${a.source==='fixed'?'authored':`Pool ${a.source}`} · ${a.state} · ${anchorLabel(a.anchor)}`;item.append(meta);
     const description=definition.description||a.description;if(description){const desc=document.createElement('p');desc.className='gm-content-desc';desc.textContent=description;item.append(desc)}
-    appendChecks(item,a,definition);appendMechanics(item,a,definition);
+    appendChecks(item,a,definition);appendMechanics(item,a,definition);appendOutcomeHistory(item,a);
     if(!TERMINAL.has(a.state)){
       const actions=document.createElement('div');actions.className='gm-content-actions';
       if(a.state==='unresolved')actions.append(actionButton(discoverButtonLabel(a,definition),nodeId,a.slotId,'discover'));
       if(a.type==='secret_connection'&&a.state==='discovered')actions.append(actionButton('Feinmechanik gelungen → öffnen',nodeId,a.slotId,'open'));
       if(['hazard','encounter','event'].includes(a.type)&&['unresolved','discovered'].includes(a.state))actions.append(actionButton('Auslösen',nodeId,a.slotId,'trigger'));
       if(a.type==='loot'&&a.state==='discovered')actions.append(actionButton('Genommen',nodeId,a.slotId,'take'));
+      const structured=appendOutcomeButtons(actions,a,nodeId);
       if(a.state==='opened')actions.append(actionButton('Offen lassen / erledigt',nodeId,a.slotId,'resolve'));
-      else if(a.type!=='secret_connection')actions.append(actionButton('Erledigt',nodeId,a.slotId,'resolve'),actionButton('Deaktivieren',nodeId,a.slotId,'disable'));
+      else if(a.type!=='secret_connection'&&!structured)actions.append(actionButton('Erledigt',nodeId,a.slotId,'resolve'),actionButton('Deaktivieren',nodeId,a.slotId,'disable'));
       item.append(actions);
     }
     box.append(item);
