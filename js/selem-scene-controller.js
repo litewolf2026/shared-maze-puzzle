@@ -51,14 +51,24 @@ function renderGm(scene,setpiece,nodeId,node){
   const box=ensureGmGuide();if(!box)return;
   if(!last?.isGm||!scene||last?.state?.transit){box.hidden=true;box.innerHTML='';return}
   box.hidden=false;box.innerHTML='';
-  const title=document.createElement('h4');title.textContent=`Szenenführung · ${nodeId}`;box.append(title);
-  if(scene.signature){const badge=document.createElement('span');badge.className='scene-signature';badge.textContent=scene.critical?'SCHLÜSSELSZENE':'SIGNATURE';box.append(badge)}
-  addRow(box,'Raum',geometryText(node));
-  addRow(box,'Funktion',scene.gmPurpose);
-  addRow(box,'Ausspielen',(scene.beats||[]).map((x,i)=>`${i+1}. ${x}`).join(' → '));
-  addRow(box,'Hinweise',(scene.clues||[]).join(' · '));
-  addRow(box,'Heldenhaken',(scene.heroHooks||[]).join(', '));
-  addRow(box,'Pool',randomPolicyLabel(scene.randomPolicy));
+  const header=document.createElement('div');header.className='gm-scene-header';
+  const title=document.createElement('h4');title.textContent=`Szenenführung · ${nodeId}`;header.append(title);
+  if(scene.signature){const badge=document.createElement('span');badge.className='scene-signature';badge.textContent=scene.critical?'SCHLÜSSELSZENE':'SIGNATURE';header.append(badge)}
+  box.append(header);
+
+  const focus=document.createElement('div');focus.className='gm-scene-focus';
+  addRow(focus,'Funktion',scene.gmPurpose);
+  addList(focus,'Hinweise',scene.clues);
+  box.append(focus);
+
+  const more=document.createElement('details');more.className='gm-scene-more';
+  const summary=document.createElement('summary');summary.textContent='Ablauf & SL-Details';more.append(summary);
+  const body=document.createElement('div');body.className='gm-scene-more-body';more.append(body);
+  addRow(body,'Raum',geometryText(node));
+  addRow(body,'Ausspielen',(scene.beats||[]).map((x,i)=>`${i+1}. ${x}`).join(' → '));
+  addRow(body,'Heldenhaken',(scene.heroHooks||[]).join(', '));
+  addRow(body,'Pool',randomPolicyLabel(scene.randomPolicy));
+  box.append(more);
   appendSetpiece(box,setpiece);
 }
 
