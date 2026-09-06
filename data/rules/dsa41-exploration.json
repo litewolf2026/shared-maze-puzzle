@@ -1,0 +1,22 @@
+{
+  "version":1,
+  "system":"DSA4.1",
+  "difficultyScale":{
+    "0":{"requiresCheck":false,"modifier":0,"label":"offensichtlich"},
+    "1":{"requiresCheck":true,"modifier":0,"label":"Routine"},
+    "2":{"requiresCheck":true,"modifier":3,"label":"Fummelarbeit"},
+    "3":{"requiresCheck":true,"modifier":7,"label":"anspruchsvoll"},
+    "4":{"requiresCheck":true,"modifier":12,"label":"schwierig"}
+  },
+  "checks":{
+    "senses":{"id":"senses","kind":"talent","name":"Sinnenschärfe","attributes":["KL","IN","IN"],"hiddenRoll":true,"purpose":"Wahrnehmen und aktives Suchen","alternate":{"id":"senses_touch","label":"Tasten","attributes":["KL","IN","FF"]}},
+    "danger_instinct":{"id":"danger_instinct","kind":"gift","name":"Gefahreninstinkt","attributes":["KL","IN","IN"],"hiddenRoll":true,"passive":true,"requiresPossession":true,"warningOnly":true,"purpose":"Warnung vor unmittelbar drohender Gefahr"},
+    "fine_mechanics":{"id":"fine_mechanics","kind":"talent","name":"Feinmechanik","attributes":["KL","FF","FF"],"hiddenRoll":false,"purpose":"Feine oder komplexe mechanische Vorrichtungen untersuchen oder bedienen"}
+  },
+  "projectPolicy":{
+    "difficultyMappingIsProjectConvention":true,
+    "playerRollsHiddenSearchChecks":false,
+    "dangerInstinctRevealsExactSource":false,
+    "automaticHeroRollsRequireCharacterData":true
+  }
+}
