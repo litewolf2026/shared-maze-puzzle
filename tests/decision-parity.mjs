@@ -7,7 +7,8 @@ const base=JSON.parse(fs.readFileSync(new URL('../data/maps.json',import.meta.ur
 const expansion=JSON.parse(fs.readFileSync(new URL('../data/selem-expansion.json',import.meta.url),'utf8'));
 const map=applyExpansion(base,expansion);
 const sql=fs.readFileSync(new URL('../supabase/migrations/20260906_authoritative_decision_nodes.sql',import.meta.url),'utf8');
-const forced=new Set([...sql.matchAll(/\('selem-01','([^']+)'\)/g)].map(m=>m[1]));
+const insertBlock=sql.match(/insert into public\.maze_forced_decision_nodes\(scenario_id,node_id\) values([\s\S]*?)on conflict do nothing;/i)?.[1]||'';
+const forced=new Set([...insertBlock.matchAll(/\('selem-01','([^']+)'\)/g)].map(m=>m[1]));
 const adj=buildAdj(map);
 let decisions=0;
 for(const node of map.nodes){
