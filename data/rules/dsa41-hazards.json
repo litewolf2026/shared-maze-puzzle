@@ -1,0 +1,73 @@
+{
+  "version":1,
+  "system":"DSA4.1",
+  "sources":{
+    "difficulty":"WdS S. 13: typische Talentproben-Modifikationen; Projektstufen 1–4 verwenden 0/+3/+7/+12.",
+    "bodyControl":"WdS S. 20: Körperbeherrschung MU/IN/GE, effektive BE = BE×2; u.a. Ausrutschen, Stürze, einstürzende Brücken.",
+    "swimming":"WdS S. 21, 139–141: Schwimmen GE/KO/KK, effektive BE = BE×2; schwieriges Wasser kann Zuschläge bis +8 erzeugen.",
+    "fall":"WdS S. 144: 1W6−1 SP Fallschaden pro gefallenen Schritt, RS schützt nicht; Körperbeherrschung +1 pro Schritt, max. +10; jeder TaP* entfernt einen W6.",
+    "drowning":"WdS S. 140–141: nach Ende der Schwimm-Ausdauer jede KR steigende Schwimmen-Probe; bei AU 0 Bewusstlosigkeit und anschließend 1W6 SP/KR.",
+    "suffocation":"WdS S. 146–147: Luft anhalten etwa AU KR bzw. AU/2 bei Aktivität/Überraschung; danach steigende KO-Proben und AU-Verlust, ab AU 0 1W6 LeP/KR.",
+    "waterCombat":"WdS S. 198: Kampfmodifikatoren für knie-, hüft-, schultertiefes Wasser und Unterwasserkampf."
+  },
+  "projectPolicy":{
+    "difficultyMappingIsProjectConvention":true,
+    "impactDamageScaleIsProjectConvention":true,
+    "supernaturalResolutionIsProjectConvention":true,
+    "doNotRollAutomatically":true,
+    "gmChoosesActualHeightAndContext":true
+  },
+  "checks":{
+    "body_control":{"kind":"talent","name":"Körperbeherrschung","attributes":["MU","IN","GE"],"effectiveEncumbrance":"BE×2"},
+    "swimming":{"kind":"talent","name":"Schwimmen","attributes":["GE","KO","KK"],"effectiveEncumbrance":"BE×2"},
+    "self_control":{"kind":"talent","name":"Selbstbeherrschung","attributes":["MU","KO","KK"]},
+    "constitution":{"kind":"attribute","name":"KO","attributes":["KO"]},
+    "fine_mechanics":{"kind":"talent","name":"Feinmechanik","attributes":["KL","FF","FF"]}
+  },
+  "projectImpactDamage":{
+    "1":{"damage":"1W3 TP","armorApplies":true,"label":"leicht"},
+    "2":{"damage":"1W6+2 TP","armorApplies":true,"label":"merklich"},
+    "3":{"damage":"2W6 TP","armorApplies":true,"label":"schwer"},
+    "4":{"damage":"2W6+4 TP","armorApplies":true,"label":"sehr schwer"}
+  },
+  "officialRules":{
+    "fall":{"damage":"1W6−1 SP pro gefallenen Schritt","armorApplies":false,"mitigation":{"check":"body_control","modifier":"+1 pro Schritt, max. +10","effect":"Jeder TaP* entfernt einen W6 aus dem Schadenswurf; bei langem Fall ist alternativ Akrobatik möglich."}},
+    "drowning":{"check":"swimming","afterEndurance":"jede KR; erste Probe +0, dann pro KR +1","success":"1 AuP Verlust","failure":"1W6 AuP Verlust","atZeroEndurance":"bewusstlos und sinkend; danach 1W6 SP pro KR"},
+    "suffocation":{"holdBreath":"AU KR in Ruhe/vorbereitet; AU/2 KR bei Aktivität oder Überraschung","preparation":"TaP*/2 einer Selbstbeherrschungs-Probe als zusätzliche KR","afterHold":"KO-Probe jede KR, erste +0, dann pro KR +1","success":"1 AuP Verlust","failure":"1W6 AuP Verlust","atZeroEndurance":"bewusstlos; danach 1W6 LeP pro KR"},
+    "waterCombat":{"kneeDeep":{"AT":0,"PA":2},"hipDeep":{"AT":2,"PA":4},"shoulderDeep":{"AT":4,"PA":6},"underwater":{"AT":6,"PA":6}}
+  },
+  "profiles":{
+    "mechanical_alarm":{"label":"Mechanischer Alarm","check":"fine_mechanics","difficultyLevel":2,"failure":"Alarm/Signal wird ausgelöst; kein pauschaler Schaden.","projectConvention":false},
+    "mechanical_trap":{"label":"Mechanische Falle","check":"fine_mechanics","difficultyLevel":2,"failure":"Mechanismus löst aus; falls er direkt trifft, Projekt-Schadensstufe 2 als Standard, sofern der konkrete Eintrag nichts anderes vorgibt.","impactTier":2,"projectConvention":true},
+    "collapsing_structure":{"label":"Einstürzende Struktur","check":"body_control","difficultyLevel":2,"failure":"Ausweichen misslingt; Projekt-Schadensstufe 2 für herabfallenden Schutt. Entsteht ein echter Sturz, gelten stattdessen die offiziellen Sturzregeln.","impactTier":2,"officialFallback":"fall","projectConvention":true},
+    "unstable_floor":{"label":"Einbrechender Boden","check":"body_control","difficultyLevel":2,"failure":"Der Boden gibt nach. Tatsächliche Fallhöhe bestimmen und offizielle Sturzregeln anwenden.","officialFallback":"fall","projectConvention":false},
+    "unstable_crossing":{"label":"Unsichere Querung / glatter Stand","check":"body_control","difficultyLevel":2,"failure":"Sturz, Ausrutschen oder Verlust der Position; bei Absturz offizielle Sturzregeln, bei tiefem Wasser Schwimmen/Ertrinken verwenden.","officialFallback":"fall","projectConvention":false},
+    "rough_ground":{"label":"Gefährlicher Schuttboden","check":"body_control","difficultyLevel":1,"failure":"Sturz oder schmerzhafter Fehltritt; Schaden nur bei konkreter Gefahrenquelle, nicht automatisch.","projectConvention":false},
+    "deep_water":{"label":"Tiefes oder tückisches Wasser","check":"swimming","difficultyLevel":2,"failure":"Schwimmfortschritt scheitert oder Lage verschlechtert sich; bei erschöpfter AU gelten die offiziellen Ertrinkensregeln.","officialFallback":"drowning","projectConvention":false},
+    "water_surge":{"label":"Wasserschwall","check":"body_control","difficultyLevel":3,"failure":"Der Held wird mitgerissen/versetzt; gelangt er in tiefes Wasser, anschließend Schwimmen. Kollisionen können Projekt-Schadensstufe 2 verursachen.","impactTier":2,"officialFallback":"drowning","projectConvention":true},
+    "stale_air":{"label":"Schlechte Luft","check":"constitution","difficultyLevel":1,"failure":"Bei bloß schlechter Luft keine pauschale Schadenszahl; bei tatsächlich nicht mehr atembarer Luft auf das offizielle Ersticken-Profil wechseln.","officialFallback":"suffocation","projectConvention":false},
+    "irritant_air":{"label":"Reizende Sporen / Staub","check":"constitution","difficultyLevel":2,"failure":"Projektkonvention: 1W6 AuP Verlust und Husten/kurze Beeinträchtigung; keine automatische Vergiftung.","projectConvention":true},
+    "arcane_resonance":{"label":"Magische / Erinnerungsresonanz","check":"self_control","difficultyLevel":2,"failure":"Projektkonvention: kurze Desorientierung oder Erinnerungseffekt nach Szenenbeschreibung; kein pauschaler LeP-Schaden.","projectConvention":true},
+    "supernatural_contact":{"label":"Dämonisch veränderte Zone / Markierung","check":"self_control","difficultyLevel":3,"failure":"Projektkonvention: unmittelbare Furcht, Abbruch der Handlung oder passender Szeneneffekt; keine universelle Schadenszahl.","projectConvention":true}
+  },
+  "bindings":{
+    "hazard_tripwire_alarm":"mechanical_alarm",
+    "hazard_pressure_plate":"mechanical_trap",
+    "hazard_falling_masonry":"collapsing_structure",
+    "hazard_water_surge":"water_surge",
+    "hazard_rotten_bridge":"unstable_crossing",
+    "hazard_mold_spores":"irritant_air",
+    "hazard_memory_feedback":"arcane_resonance",
+    "hazard_demonic_mark":"supernatural_contact",
+    "hazard_unstable_ceiling":"collapsing_structure",
+    "hazard_collapsing_floor":"unstable_floor",
+    "hazard_slippery_ledge":"unstable_crossing",
+    "hazard_black_water":"deep_water",
+    "hazard_water_parasites":"deep_water",
+    "hazard_sharp_rubble":"rough_ground",
+    "hazard_stale_air":"stale_air",
+    "hazard_bad_air_pocket":"stale_air",
+    "hazard_demonic_cold":"supernatural_contact",
+    "hazard_magic_resonance":"arcane_resonance"
+  }
+}
