@@ -13,10 +13,11 @@ const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed});
 const pack=scenarioContentPack('selem-01');
 
-assert.equal(pack.version,3,'Finale state extension should raise the Selem story pack to v3.');
+assert.equal(pack.version,4,'Handout removal should leave the finale story pack at v4.');
 const ritualDef=pack.items.selem_sahira_rewrite_ritual;assert.ok(ritualDef);assert.equal(ritualDef.type,'event');assert.equal(ritualDef.unique,true);assert.equal(ritualDef.mechanics.ritualId,'sahira-rewrite');
 const ritualPlan=plan.rooms.C15.assignments.find(a=>a.slotId==='ritual-sahira-rewrite');assert.ok(ritualPlan);assert.equal(ritualPlan.contentId,'selem_sahira_rewrite_ritual');assert.equal(ritualPlan.source,'fixed');assert.equal(ritualPlan.additiveOnUpgrade,true);assert.equal(ritualPlan.state,'unresolved');
 assert.equal(plan.rooms.C15.assignments.filter(a=>a.mechanics?.ritualId==='sahira-rewrite').length,1,'Ritual must exist exactly once.');
+assert.equal(Object.values(pack.items).some(x=>x.mechanics?.handoutId),false,'Scenario pack must not contain in-app handouts.');
 
 let state={roomState:{}};
 for(const node of ['A06','C10','C14','C15'])state=materializeRoomState(state,plan,node).state;
@@ -29,15 +30,12 @@ r=applyContentAction(state,'C15','ritual-sahira-rewrite','outcome:destabilized',
 r=applyContentAction(state,'C15','ritual-sahira-rewrite','outcome:control_recovered',{isGm:true});assert.equal(r.ok,true);state=r.state;assert.equal(ritualStatus(state).id,'control_recovered');
 r=applyContentAction(state,'C15','ritual-sahira-rewrite','outcome:broken',{isGm:true});assert.equal(r.ok,true);state=r.state;assert.equal(ritualStatus(state).id,'broken');assert.equal(ritualStatus(state).terminal,true);assert.equal(finaleSignals(state).ritualStopped,true);
 
-// The three authored proof anchors count only after GM reveal.
-for(const [node,slot] of [['A06','handout-a06'],['C10','handout-c10'],['C14','handout-c14']]){r=applyContentAction(state,node,slot,'discover',{isGm:true});assert.equal(r.ok,true);state=r.state}
-model=finaleSignals(state);assert.equal(model.anchorCount,3);assert.equal(model.historicalChain,true,'A06 + Nottel notes should form the minimum documented sequence chain.');
-
-// Merely revealing the finale worksheet is not itself a new historical anchor.
-r=applyContentAction(state,'C15','handout-c15','discover',{isGm:true});assert.equal(r.ok,true);state=r.state;assert.equal(finaleSignals(state).anchorCount,3);
-let playerMark=applyContentAction(state,'C15','handout-c15','outcome:own_anchor_created',{isGm:false});assert.equal(playerMark.ok,false);assert.equal(playerMark.error,'CONTENT_OUTCOME_REQUIRES_GM');
-r=applyContentAction(state,'C15','handout-c15','outcome:own_anchor_created',{isGm:true});assert.equal(r.ok,true);state=r.state;assert.equal(finaleSignals(state).anchorCount,4);assert.equal(finaleAnchorRows(state).find(a=>a.id==='hero').secured,true);
-r=applyContentAction(state,'C15','handout-c15','outcome:own_anchor_lost',{isGm:true});assert.equal(r.ok,true);state=r.state;assert.equal(finaleSignals(state).anchorCount,3);assert.equal(finaleAnchorRows(state).find(a=>a.id==='hero').secured,false);
+// Counter-anchors now use existing story evidence / actor state, not handout objects.
+r=applyContentAction(state,'A06','story-green-lens','discover',{isGm:true});assert.equal(r.ok,true);state=r.state;
+r=applyContentAction(state,'C10','actor-nottel','trigger',{isGm:true});assert.equal(r.ok,true);state=r.state;
+r=applyContentAction(state,'C14','story-sahira-notes','discover',{isGm:true});assert.equal(r.ok,true);state=r.state;
+model=finaleSignals(state);assert.equal(model.anchorCount,3);assert.equal(model.anchors.length,3);assert.equal(model.historicalChain,true,'A06 evidence + active Nottel testimony should form the minimum documented sequence chain.');
+assert.equal(finaleAnchorRows(state).every(a=>a.secured),true);
 
 // Nachzehrer remains an independent axis of the finale; binding it flips only its own success signal.
 r=applyContentAction(state,'C15','actor-nachzehrer','trigger',{isGm:true});assert.equal(r.ok,true);state=r.state;assert.equal(finaleSignals(state).nachzehrerControlled,false);
@@ -50,7 +48,7 @@ let partial=materializeRoomState({roomState:{}},plan,'C15').state;partial=applyC
 const old=structuredClone(plan.rooms.C15);old.planVersion=5;old.assignments=old.assignments.filter(a=>a.slotId!=='ritual-sahira-rewrite');const sahira=old.assignments.find(a=>a.slotId==='actor-sahira');sahira.state='triggered';sahira.runtime={actorStatus:'negotiating',lastOutcome:'negotiating'};
 const upgraded=materializeRoomState({roomState:{C15:{content:old}}},plan,'C15');assert.equal(upgraded.changed,true);const upgradedAssignments=upgraded.state.roomState.C15.content.assignments;assert.equal(upgradedAssignments.find(a=>a.slotId==='ritual-sahira-rewrite').state,'unresolved');assert.equal(upgradedAssignments.find(a=>a.slotId==='actor-sahira').runtime.actorStatus,'negotiating');
 
-const controller=fs.readFileSync(new URL('../js/finale-status-controller.js',import.meta.url),'utf8');assert.match(controller,/kein Siegwert/);assert.match(controller,/partial_rewrite/);assert.match(controller,/c15-time-anchor-network/);
-const index=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.match(index,/finale-status\.css/);assert.match(index,/finale-status-controller\.js/);
+const controller=fs.readFileSync(new URL('../js/finale-status-controller.js',import.meta.url),'utf8');assert.match(controller,/kein Siegwert/);assert.match(controller,/partial_rewrite/);assert.doesNotMatch(controller,/handoutId|Handout|Zeitanker-Netz noch nicht/);
+const index=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.match(index,/finale-status\.css/);assert.match(index,/finale-status-controller\.js/);assert.doesNotMatch(index,/handouts\.css|selem-handout-controller/);
 
-console.log('selem-finale-state: OK (persistent ritual, 4 evidence signals, independent Nachzehrer axis, no automatic victory/total-retcon)');
+console.log('selem-finale-state: OK (persistent ritual, story-evidence anchors, independent Nachzehrer axis, no in-app handouts or automatic victory/total-retcon)');
