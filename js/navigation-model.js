@@ -48,6 +48,9 @@ export function visibleAdj(map,input,{traversableOnly=false}={}){
 
 function solutionSourceNodes(map){
   if(SOLUTION_SOURCES.has(map))return SOLUTION_SOURCES.get(map);
+  if(Array.isArray(map.bandDecisionNodes)&&map.bandDecisionNodes.length){
+    const set=new Set(map.bandDecisionNodes);SOLUTION_SOURCES.set(map,set);return set;
+  }
   const set=new Set(),adj=buildAdj(map);let node=map.start;
   for(const dir of map.solution||[]){set.add(node);const edge=adj.get(node)?.[dir];if(!edge)break;node=edge.to}
   SOLUTION_SOURCES.set(map,set);return set;
