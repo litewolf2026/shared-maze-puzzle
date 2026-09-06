@@ -64,4 +64,7 @@ assert.match(sql,/\('selem-01','D13','E','D12'\)/);
 assert.match(sql,/secret-connection-authored/);
 assert.match(sql,/maze_edge_is_available/);
 assert.match(sql,/required_states/);
-console.log('secret-connections: OK (hidden -> discovered -> opened -> traversable, no route leak)');
+assert.match(sql,/maze_player_unlock_states_unchanged/,'Player-state transition guard is missing.');
+assert.match(sql,/SECRET_STATE_REQUIRES_GM/,'Player RPC must reject forged secret unlock transitions.');
+assert.match(sql,/v_new<>\'unresolved\'/,'First player materialization may only create unresolved secret state.');
+console.log('secret-connections: OK (hidden -> discovered -> opened -> traversable; player forgery guarded)');
