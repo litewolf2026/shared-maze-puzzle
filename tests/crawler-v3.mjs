@@ -32,7 +32,7 @@ for(const hook of ['v3Stone','v3FloorSlabs','v3RockFace','v3Torch','v3Vignette',
 assert.equal(renderer.includes('feTurbulence'),false,'Crawler V3 must not use full-scene turbulence/noise as material texture.');
 assert.equal(/<image\b/i.test(renderer),false,'Crawler V3 must remain procedural SVG without embedded images.');
 assert.match(index,/crawler-v3\.css\?v=20260906-v3/,'Crawler V3 stylesheet must be cache-busted.');
-assert.match(index,/exploration-controller-v3\.js\?v=20260906-v3/,'Crawler V3 controller must be active.');
+assert.match(index,/exploration-controller-v3\.js\?v=20260906-inv1/,'Inventory-enabled Crawler V3 controller must be active.');
 assert.match(controller,/crawler-view-v3\.js\?v=20260906-v3/,'Crawler V3 controller must load the V3 renderer directly.');
 assert.match(css,/body\.view-crawler \.main\{grid-template-columns:minmax\(0,1fr\) 252px/,'Crawler V3 must give more width to the scene on desktop.');
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/,'Crawler V3 atmosphere must respect reduced-motion preference.');
