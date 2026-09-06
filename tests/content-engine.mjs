@@ -33,6 +33,8 @@ const expandedSlots=expandSlotConfig({map,slotConfig:slots,profiles:baseProfiles
 assert.ok(expandedSlots.rooms.D06?.slots.some(x=>x.id==='hazard-wet'),'Water profile should create wet hazard slot in D06.');
 assert.ok(expandedSlots.rooms.D06?.slots.some(x=>x.id==='loot-deep'),'Deep profile should create deep loot slot in D06.');
 assert.ok(expandedSlots.rooms.D06?.slots.some(x=>x.id==='reusable-hazard'),'Reusable core should layer a context hazard slot into D06.');
+assert.ok(expandedSlots.rooms.D06?.slots.some(x=>x.id==='encounter-morfu'&&x._origin==='scenario'),'Scenario pack must attach the Morfu only to D06.');
+assert.ok(expandedSlots.rooms.B31?.slots.some(x=>x.id==='encounter-sumpfranzen'&&x._origin==='scenario'),'Scenario pack must attach the Sumpfranzen to B31.');
 assert.ok(expandedSlots.rooms.A08?.slots.some(x=>x.id==='loot-grave'),'Original-map grave room should receive the reusable grave profile.');
 assert.ok(expandedSlots.rooms.C17?.slots.some(x=>x.id==='encounter-memory'&&x.fixed==='encounter_lost_waiter'),'Authored room slot must override profile slot by id.');
 assert.ok(expandedSlots.rooms.C10?.slots.some(x=>x.id==='actor-nottel'&&x._origin==='scenario'),'Scenario pack must attach Nottel to C10.');
@@ -43,8 +45,8 @@ const seed=slots.generation.seed;
 const planA=generateContentPlan({map,slotConfig:slots,catalog:baseCatalog,pools:basePools,profiles:baseProfiles,derivedByNode,seed});
 const planB=generateContentPlan({map,slotConfig:slots,catalog:baseCatalog,pools:basePools,profiles:baseProfiles,derivedByNode,seed});
 assert.deepEqual(planA,planB,'Same seed must produce the same complete content plan.');
-assert.equal(planA.version,5);
-assert.deepEqual(planA.contentPacks,['core-dungeon-exploration-v1','selem-core-actors-v1']);
+assert.equal(planA.version,6);
+assert.deepEqual(planA.contentPacks,['core-dungeon-exploration-v1','selem-authored-content-v2']);
 
 const allAssignments=Object.values(planA.rooms).flatMap(r=>r.assignments);
 const ids=allAssignments.map(x=>x.contentId);
@@ -69,7 +71,9 @@ assert.equal(planA.rooms.C03.assignments.find(x=>x.slotId==='story-memory-niche'
 assert.equal(planA.rooms.C10.assignments.find(x=>x.slotId==='actor-nottel').contentId,'selem_nottel_witness');
 assert.equal(planA.rooms.C15.assignments.find(x=>x.slotId==='actor-sahira').contentId,'selem_sahira_antagonist');
 assert.equal(planA.rooms.C15.assignments.find(x=>x.slotId==='actor-nachzehrer').contentId,'selem_nachzehrer');
-for(const id of ['selem_nottel_witness','selem_sahira_antagonist','selem_nachzehrer'])assert.equal(ids.filter(x=>x===id).length,1,`${id} must exist exactly once.`);
+assert.equal(planA.rooms.B31.assignments.find(x=>x.slotId==='encounter-sumpfranzen').contentId,'selem_sumpfranzen');
+assert.equal(planA.rooms.D06.assignments.find(x=>x.slotId==='encounter-morfu').contentId,'selem_morfu');
+for(const id of ['selem_nottel_witness','selem_sahira_antagonist','selem_nachzehrer','selem_sumpfranzen','selem_morfu'])assert.equal(ids.filter(x=>x===id).length,1,`${id} must exist exactly once.`);
 
 const storyIds=[
   'selem_vorhalle_pilgrim_traces','selem_memory_niche_echo','selem_green_lens_clue','selem_submerged_ledger','selem_sacrifice_layer','selem_shrine_reuse','selem_pump_sequence','selem_whisper_memory','selem_band_experiments','selem_nottel_cell_marks','selem_cult_roster','selem_black_gate_residue','selem_pale_threshold_echo','selem_sahira_notes','selem_sahira_personal_cache','selem_cult_ritual_traces','selem_blind_lens_memory'
@@ -88,6 +92,7 @@ const waterCtx={nodeId:'D06',kind:waterNode.kind,level:waterNode.z,tags:waterNod
 assert.equal(itemMatches(catalog.items.hazard_black_water,waterCtx,{type:'hazard',placement:['water']}),true);
 assert.equal(itemMatches(catalog.items.hazard_unstable_ceiling,waterCtx,{type:'hazard',placement:['water']}),false);
 assert.equal(itemMatches(catalog.items.hazard_water_surge,waterCtx,{type:'hazard',placement:['water']}),false,'Water surge also needs machinery/structural/unstable context.');
+assert.equal(itemMatches(catalog.items.selem_morfu,waterCtx,{type:'encounter',placement:['water']}),true);
 
 let state={roomState:{}};
 let m=materializeRoomState(state,planA,'D08');state=m.state;
@@ -102,10 +107,12 @@ const upgraded=materializeRoomState(legacyState,planA,reusableAssignment.nodeId)
 const upgradedAssignment=upgraded.state.roomState[reusableAssignment.nodeId].content.assignments[0];
 assert.equal(upgradedAssignment.state,'discovered');assert.ok(upgradedAssignment.description);assert.ok(upgradedAssignment.mechanics);
 
-// Additive scenario actors can enter a previously materialized key room without rerolling existing content.
+// Additive scenario content can enter previously materialized rooms without rerolling existing content.
 const oldC10=structuredClone(planA.rooms.C10);oldC10.planVersion=4;oldC10.assignments=oldC10.assignments.filter(x=>x.slotId!=='actor-nottel');oldC10.assignments[0].state='discovered';
 const actorUpgrade=materializeRoomState({roomState:{C10:{content:oldC10}}},planA,'C10');
 assert.equal(actorUpgrade.changed,true);assert.equal(actorUpgrade.state.roomState.C10.content.assignments.find(x=>x.slotId==='actor-nottel').state,'unresolved');assert.equal(actorUpgrade.state.roomState.C10.content.assignments.find(x=>x.slotId===oldC10.assignments[0].slotId).state,'discovered');
+const oldD06=structuredClone(planA.rooms.D06);oldD06.planVersion=5;oldD06.assignments=oldD06.assignments.filter(x=>x.slotId!=='encounter-morfu');
+const faunaUpgrade=materializeRoomState({roomState:{D06:{content:oldD06}}},planA,'D06');assert.equal(faunaUpgrade.changed,true);assert.equal(faunaUpgrade.state.roomState.D06.content.assignments.find(x=>x.slotId==='encounter-morfu').state,'unresolved');
 
 // The generator must actually be seedable, not just deterministic. Disable both reusable and scenario-specific packs for this isolated test.
 const syntheticMap={nodes:Array.from({length:12},(_,i)=>({id:`R${String(i).padStart(2,'0')}`,kind:'room',z:0,tags:['test']}))};
@@ -117,4 +124,4 @@ const signatures=new Set();for(let i=0;i<12;i++){const p=generateContentPlan({ma
 assert.ok(signatures.size>1,'Different seeds must be able to produce different plans.');
 assert.equal(scenarioContentPack(undefined),null);
 
-console.log(`content-engine: OK (${allAssignments.length} assignments across ${Object.keys(planA.rooms).length} rooms; reusable core + Selem actor pack active; ${storyIds.length} authored story beats)`);
+console.log(`content-engine: OK (${allAssignments.length} assignments across ${Object.keys(planA.rooms).length} rooms; reusable core + Selem authored content pack active; ${storyIds.length} authored story beats)`);

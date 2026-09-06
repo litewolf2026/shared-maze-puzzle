@@ -14,7 +14,7 @@ const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed});
 const pack=scenarioContentPack('selem-01');
 
-assert.equal(pack.id,'selem-core-actors-v1');
+assert.equal(pack.id,'selem-authored-content-v2');
 assert.deepEqual(new Set(scenarioActorIds('selem-01')),new Set(['nottel','sahira','nachzehrer']));
 for(const id of Object.keys(pack.items))assert.equal(REUSABLE_CONTENT_PACK.items[id],undefined,`${id} leaked into reusable core content.`);
 for(const pool of Object.values(REUSABLE_CONTENT_PACK.pools))for(const id of Object.keys(pack.items))assert.equal(pool.entries.includes(id),false,`${id} leaked into reusable pool.`);
@@ -44,4 +44,4 @@ r=applyContentAction(state,'C15','actor-nachzehrer','outcome:bound',{isGm:true})
 
 const playerOutcome=applyContentAction(materializeRoomState({roomState:{}},plan,'C15').state,'C15','actor-sahira','outcome:defeated',{isGm:false});assert.equal(playerOutcome.ok,false);assert.equal(playerOutcome.error,'CONTENT_OUTCOME_REQUIRES_GM');
 
-console.log('selem-core-actors: OK (Nottel, Sahira and Nachzehrer are unique persistent scenario actors with GM-authoritative outcomes)');
+console.log('selem-core-actors: OK (legacy actor layer remains isolated inside the generalized Selem scenario pack)');

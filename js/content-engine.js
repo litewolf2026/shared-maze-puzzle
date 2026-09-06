@@ -1,5 +1,5 @@
 import {mergeReusableCatalog,mergeReusablePools,mergeReusableProfiles,reusableRules} from './reusable-content-pack.js';
-import {mergeScenarioCatalog,scenarioContentPack,scenarioRoomConfig} from './scenario-content-pack.js';
+import {mergeScenarioCatalog,mergeScenarioPools,scenarioContentPack,scenarioRoomConfig} from './scenario-content-pack.js';
 import {applyContentOutcome} from './content-outcomes.js';
 
 const RARITY_WEIGHT={common:100,uncommon:55,rare:22,very_rare:8,unique:2};
@@ -51,11 +51,11 @@ function validatePayloadLinks(assignments,nodeId){const bySlot=new Map(assignmen
 }
 
 export function generateContentPlan({map,slotConfig,catalog,pools,profiles={profiles:{}},roomFeatures={},derivedByNode={},seed='default'}){
-  catalog=mergeScenarioCatalog(mergeReusableCatalog(catalog),slotConfig.scenario);pools=mergeReusablePools(pools);
+  catalog=mergeScenarioCatalog(mergeReusableCatalog(catalog),slotConfig.scenario);pools=mergeScenarioPools(mergeReusablePools(pools),slotConfig.scenario);
   const expanded=expandSlotConfig({map,slotConfig,profiles,derivedByNode}),rooms={},claimedUnique=reserveAuthoredUniques(expanded,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id)),globalBudget=slotConfig.generation?.maxProfileAssignmentsPerRoom;
   for(const node of nodes){const config=expanded.rooms?.[node.id];if(!config)continue;const context=contentContext(map,node,derivedByNode[node.id]||{}),assignments=[];for(const instanceSlot of selectedInstances(config,seed,node.id,globalBudget)){const resolved=resolveSlot({slot:instanceSlot,node,context,catalog,pools,seed,claimedUnique});if(!resolved)continue;const item=catalog.items[resolved.contentId];if(item?.unique||item.rarity==='unique')claimedUnique.add(item.id);resolved.anchor=assignContentAnchor(resolved,node,roomFeatures,seed);assignments.push(resolved)}validatePayloadLinks(assignments,node.id);if(assignments.length)rooms[node.id]={generated:true,seed:String(seed),assignments}}
   const packs=slotConfig.generation?.useReusableCore===false?[]:['core-dungeon-exploration-v1'];const scenarioPack=scenarioContentPack(slotConfig.scenario);if(scenarioPack)packs.push(scenarioPack.id);
-  return {version:5,seed:String(seed),rooms,uniqueContent:[...claimedUnique].sort(),contentPacks:packs};
+  return {version:6,seed:String(seed),rooms,uniqueContent:[...claimedUnique].sort(),contentPacks:packs};
 }
 export function roomContentFromPlan(plan,nodeId){const content=structuredClone(plan.rooms?.[nodeId]||{generated:true,seed:String(plan.seed),assignments:[]});content.planVersion=Number(plan.version||1);return content}
 export function materializeRoomState(state,plan,nodeId){
