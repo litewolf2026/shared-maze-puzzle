@@ -40,7 +40,7 @@ function drawFrontCutout(parent,endWall){
 function drawTurnMouth(parent,side){
   const left=side==='left',outer=left?0:800,inner=left?168:632,near=left?238:562;
   const g=append(parent,'g',{class:`v31-turn-mouth ${side}`,'data-geometry-fix':`turn-${side}`});
-  const pts=left?[[outer,146],[inner,184],[inner,346],[outer,405]]:[[outer,146],[inner,184],[inner,346],[outer,405]];
+  const pts=[[outer,146],[inner,184],[inner,346],[outer,405]];
   polygon(g,pts,'v31-turn-dark');
   path(g,left?`M0 146Q84 132 168 184L168 346Q84 370 0 405`:`M800 146Q716 132 632 184L632 346Q716 370 800 405`,'v31-turn-frame');
   polygon(g,left?[[0,405],[168,346],[near,450],[0,450]]:[[800,405],[632,346],[near,450],[800,450]],'v31-turn-floor');
@@ -76,4 +76,5 @@ function scheduleOverlay(detail){queueMicrotask(()=>renderGeometryOverlay(detail
 
 if(typeof window!=='undefined'&&typeof document!=='undefined'){
   window.addEventListener('maze-state',event=>scheduleOverlay(event.detail||{}));
+  if(window.MAZE_APP?.map&&window.MAZE_APP?.state)scheduleOverlay({map:window.MAZE_APP.map,state:window.MAZE_APP.state});
 }
