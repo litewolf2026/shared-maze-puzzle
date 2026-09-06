@@ -57,10 +57,14 @@ lifecycle({nodeId:'A23',slotId:'secret-pilgrim-room',dir:'E',target:'A31',bandSt
 lifecycle({nodeId:'B33',slotId:'secret-maintenance-room',dir:'S',target:'B35',bandStep:12,expectedBandAfterMove:13});
 lifecycle({nodeId:'D12',slotId:'secret-connection-authored',dir:'W',target:'D13',bandStep:25,expectedBandAfterMove:25});
 
-// Prepared secret rooms must not alter the protected 25-step route.
+// Prepared secret rooms must not shorten or duplicate the protected canonical physical route.
 const adj=buildAdj(map),queue=[[map.start,0]],dist=new Map([[map.start,0]]),ways=new Map([[map.start,1]]);
 for(let qi=0;qi<queue.length;qi++){const [id,d]=queue[qi];for(const edge of Object.values(adj.get(id)||{})){const nd=d+1;if(!dist.has(edge.to)){dist.set(edge.to,nd);ways.set(edge.to,ways.get(id));queue.push([edge.to,nd])}else if(dist.get(edge.to)===nd)ways.set(edge.to,ways.get(edge.to)+ways.get(id))}}
-assert.equal(dist.get(map.goal),25);assert.equal(ways.get(map.goal),1);
+const canonicalPhysicalEdges=(map.canonicalPath?.length||1)-1;
+assert.equal(canonicalPhysicalEdges,28,'Canonical story route length changed unexpectedly.');
+assert.equal(dist.get(map.goal),canonicalPhysicalEdges,'A hidden-room detour shortened the canonical physical route.');
+assert.equal(ways.get(map.goal),1,'Hidden-room topology created a second equally short physical route.');
+assert.equal(map.solution.length,25,'Black-band decision count must remain independent from physical route length.');
 
 const sql=fs.readFileSync(new URL('../supabase/migrations/20260906_hidden_connections.sql',import.meta.url),'utf8');
 const moreSql=fs.readFileSync(new URL('../supabase/migrations/20260906_additional_hidden_rooms.sql',import.meta.url),'utf8');
@@ -80,4 +84,4 @@ assert.match(app,/openSecretConnection/,'GM open action is not wired to the auth
 const exploration=fs.readFileSync(new URL('../js/exploration-controller.js',import.meta.url),'utf8');
 assert.match(exploration,/sharedState:shared/,'Crawler is not receiving shared unlock state.');
 
-console.log('secret-connections: OK (three hidden rooms; locked -> discovered -> opened -> traversable; band semantics + player forgery guarded)');
+console.log(`secret-connections: OK (three hidden rooms; canonical physical route remains unique at ${canonicalPhysicalEdges} edges / ${map.solution.length} band decisions)`);
