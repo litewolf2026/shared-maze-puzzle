@@ -11,6 +11,7 @@ const fixSql=fs.readFileSync(new URL('../supabase/migrations/20260906_direction_
 const expansionSql=fs.readFileSync(new URL('../supabase/migrations/20260906_selem_expansion_edges.sql',import.meta.url),'utf8');
 const safetySql=fs.readFileSync(new URL('../supabase/migrations/20260906_expansion_route_safety_fix.sql',import.meta.url),'utf8');
 const hiddenSql=fs.readFileSync(new URL('../supabase/migrations/20260906_hidden_connections.sql',import.meta.url),'utf8');
+const moreHiddenSql=fs.readFileSync(new URL('../supabase/migrations/20260906_additional_hidden_rooms.sql',import.meta.url),'utf8');
 const OPP={N:'S',NE:'SW',E:'W',SE:'NW',S:'N',SW:'NE',W:'E',NW:'SE',UP:'DOWN',DOWN:'UP'};
 
 function edgeArray(sql,label){const match=sql.match(/\$edges\$(\[[\s\S]*?\])\$edges\$::jsonb/);assert.ok(match,`Could not find edge JSON in ${label}.`);return JSON.parse(match[1])}
@@ -25,11 +26,10 @@ edgeArray(baseSql,'authoritative migration').forEach(putWithReverse);
 applyDeleteSql(fixSql);applyValuesSql(fixSql);
 edgeArray(expansionSql,'expansion migration').forEach(([a,d,b])=>{put(a,d,b);const r=OPP[d];if(r)put(b,r,a)});
 applyDeleteSql(safetySql);applyValuesSql(safetySql);
-applyValuesSql(hiddenSql);
+applyValuesSql(hiddenSql);applyValuesSql(moreHiddenSql);
 
 const frontend=new Map();
 for(const [a,d,b] of map.edges){frontend.set(`${a}|${d}`,b);const r=OPP[d];if(r&&!frontend.has(`${b}|${r}`))frontend.set(`${b}|${r}`,a)}
 assert.deepEqual([...backend.entries()].sort(),[...frontend.entries()].sort(),'Supabase maze_edges migrations drift from fully expanded frontend graph');
-assert.equal(frontend.get('D12|W'),'D13');
-assert.equal(frontend.get('D13|E'),'D12');
-console.log(`backend-edge-parity: OK (${frontend.size} directed edges, secret overlay included)`);
+for(const [key,target] of [['A23|E','A31'],['A31|W','A23'],['B33|S','B35'],['B35|N','B33'],['D12|W','D13'],['D13|E','D12']])assert.equal(frontend.get(key),target,`Missing hidden edge ${key}`);
+console.log(`backend-edge-parity: OK (${frontend.size} directed edges, three hidden rooms included)`);
