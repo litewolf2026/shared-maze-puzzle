@@ -1,10 +1,10 @@
-import {HORIZONTAL_DIRS,OPP,buildAdj,initialSharedState,normalizeSharedState,availableDirections,beginMove,gmUndoDecision,locationLabel,nodeById} from './navigation-model.js';
+import {OPP,buildAdj,initialSharedState,normalizeSharedState,availableDirections,beginMove,gmUndoDecision,locationLabel,nodeById} from './navigation-model.js';
 import {applyExpansion} from './map-expansion.js';
 
 const DIR_LABEL={N:'N',NE:'NO',E:'O',SE:'SO',S:'S',SW:'SW',W:'W',NW:'NW',UP:'AUF',DOWN:'AB'};
 const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
 const NS='http://www.w3.org/2000/svg';
-let map,cipher,scenario,state,supabase=null,channel=null,roomCode='',accessToken='',playerToken='',channelSecret='',version=0,isGm=false,gmPanelOpen=false,activeLevel=0;
+let map,cipher,scenario,state,featureCatalog={},supabase=null,channel=null,roomCode='',accessToken='',playerToken='',channelSecret='',version=0,isGm=false,gmPanelOpen=false,activeLevel=0;
 
 async function loadJSON(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(path);return r.json()}
 function credentialsFromHash(){const p=new URLSearchParams(location.hash.replace(/^#/,''));return {room:(p.get('room')||'').toUpperCase(),token:p.get('token')||'',play:p.get('play')||''}}
@@ -20,37 +20,20 @@ function validateMap(){
   if(node!==map.goal)throw new Error(`Bandroute endet in ${node}, nicht ${map.goal}.`);
 }
 
-function renderBand(){
-  const band=$('#band');band.innerHTML='';
-  map.solution.forEach((d,i)=>{const cell=document.createElement('div');cell.className='symbol';cell.dataset.step=i+1;cell.title=`Bandentscheidung ${i+1}`;const bits=cipher.symbols?.[d]||[];for(const bit of bits){const dot=document.createElement('span');dot.className='dot'+(bit?' on':'');cell.append(dot)}band.append(cell)});
-}
-
-function renderLevels(){
-  const box=$('#levelButtons');if(!box)return;box.innerHTML='';
-  map.levels.forEach(l=>{const b=document.createElement('button');b.className='level-btn';b.dataset.z=l.z;b.textContent=l.name;b.onclick=()=>{activeLevel=Number(l.z);renderMap()};box.append(b)});
-}
-
+function renderBand(){const band=$('#band');band.innerHTML='';map.solution.forEach((d,i)=>{const cell=document.createElement('div');cell.className='symbol';cell.dataset.step=i+1;cell.title=`Bandentscheidung ${i+1}`;const bits=cipher.symbols?.[d]||[];for(const bit of bits){const dot=document.createElement('span');dot.className='dot'+(bit?' on':'');cell.append(dot)}band.append(cell)})}
+function renderLevels(){const box=$('#levelButtons');if(!box)return;box.innerHTML='';map.levels.forEach(l=>{const b=document.createElement('button');b.className='level-btn';b.dataset.z=l.z;b.textContent=l.name;b.onclick=()=>{activeLevel=Number(l.z);renderMap()};box.append(b)})}
 function currentDisplayNode(){return nodeById(map,state.transit?.from||state.node)}
 
 function renderDirections(){
   const dirs=new Set(availableDirections(map,state));
   $$('.dir,.vertical button[data-d]').forEach(b=>{const d=b.dataset.d,ok=dirs.has(d);b.disabled=!ok;b.classList.toggle('available',ok);b.classList.toggle('unavailable',!ok);b.title=ok?(state.transit?`Im Gang ${DIR_LABEL[d]||d} weiter.`:`Ausgang ${DIR_LABEL[d]||d}`):'Hier ist keine Gruppenbewegung möglich.'});
   const title=$('#movementTitle');if(title)title.textContent=state.transit?'Gruppenbewegung · Gang':'Gruppenausgänge';
-  const note=$('#movementNote');if(note)note.textContent=state.transit?'Transit verbraucht kein weiteres Bandzeichen. Rückwärts führt zum letzten Ort.':'Das Band nennt die absolute Himmelsrichtung des nächsten relevanten Ausgangs.';
+  const note=$('#movementNote');if(note)note.textContent=state.transit?'Transit verbraucht kein weiteres Bandzeichen. Ihr könnt feldweise gehen oder bis zum nächsten Ort durchlaufen.':'Das Band nennt die absolute Himmelsrichtung des nächsten relevanten Ausgangs.';
+  const fast=$('#continueTransit');if(fast){fast.hidden=!state.transit;fast.disabled=!state.transit}
 }
 
-function renderHistory(){
-  const ol=$('#history');if(!ol)return;ol.innerHTML='';
-  if(!state.decisionHistory.length){const li=document.createElement('li');li.className='empty-history';li.textContent='Noch keine Bandentscheidung.';ol.append(li);return}
-  [...state.decisionHistory].reverse().forEach(h=>{const li=document.createElement('li');li.innerHTML=`<b>${DIR_LABEL[h.dir]||h.dir}</b> · ${labelFor(nodeById(map,h.from),isGm)} → ${labelFor(nodeById(map,h.to),isGm)}`;ol.append(li)});
-}
-
-function renderLocation(){
-  const n=currentDisplayNode(),level=map.levels.find(l=>Number(l.z)===Number(n?.z)),loc=$('#loc');
-  if(state.transit)loc.innerHTML=`${locationLabel(map,state)}<small>${level?.name||''} · Band ${state.bandStep}/${map.solution.length}</small>`;
-  else loc.innerHTML=`${labelFor(n,isGm)}<small>${level?.name||''} · Band ${state.bandStep}/${map.solution.length}</small>`;
-  $('#stepPill').textContent=`${state.bandStep} / ${map.solution.length}`;$('#roomPill').textContent=roomCode?`Raum ${roomCode}`:'Lokaler Probelauf';$('#gmToggle').style.display=isGm?'':'none';
-}
+function renderHistory(){const ol=$('#history');if(!ol)return;ol.innerHTML='';if(!state.decisionHistory.length){const li=document.createElement('li');li.className='empty-history';li.textContent='Noch keine Bandentscheidung.';ol.append(li);return}[...state.decisionHistory].reverse().forEach(h=>{const li=document.createElement('li');li.innerHTML=`<b>${DIR_LABEL[h.dir]||h.dir}</b> · ${labelFor(nodeById(map,h.from),isGm)} → ${labelFor(nodeById(map,h.to),isGm)}`;ol.append(li)})}
+function renderLocation(){const n=currentDisplayNode(),level=map.levels.find(l=>Number(l.z)===Number(n?.z)),loc=$('#loc');if(state.transit)loc.innerHTML=`${locationLabel(map,state)}<small>${level?.name||''} · Band ${state.bandStep}/${map.solution.length}</small>`;else loc.innerHTML=`${labelFor(n,isGm)}<small>${level?.name||''} · Band ${state.bandStep}/${map.solution.length}</small>`;$('#stepPill').textContent=`${state.bandStep} / ${map.solution.length}`;$('#roomPill').textContent=roomCode?`Raum ${roomCode}`:'Lokaler Probelauf';$('#gmToggle').style.display=isGm?'':'none'}
 
 function svgEl(name,attrs={}){const e=document.createElementNS(NS,name);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));return e}
 function fitMapView(svg){const nodes=map.nodes.filter(n=>n.z===activeLevel);if(!nodes.length)return;const xs=nodes.map(n=>n.x),ys=nodes.map(n=>n.y),pad=6;const minX=Math.min(...xs)-pad,maxX=Math.max(...xs)+pad,minY=Math.min(...ys)-pad,maxY=Math.max(...ys)+pad;svg.setAttribute('viewBox',`${minX} ${minY} ${Math.max(24,maxX-minX)} ${Math.max(20,maxY-minY)}`)}
@@ -69,19 +52,39 @@ function renderMap(){
 function announce(){window.MAZE_APP={map,state:structuredClone(state),isGm};window.dispatchEvent(new CustomEvent('maze-state',{detail:{map,state:structuredClone(state),isGm}}))}
 function render(){state=normalizeSharedState(state,map);$$('.symbol').forEach((x,i)=>{x.classList.toggle('used',i<state.bandStep);x.classList.toggle('current',i===state.bandStep&&state.bandStep<map.solution.length)});const n=currentDisplayNode();if(n&&activeLevel!==n.z)activeLevel=n.z;renderLocation();renderDirections();renderHistory();renderMap();announce()}
 async function commit(next,gmOnly=false,success=''){const previous=structuredClone(state);state=normalizeSharedState(next,map);render();if(await syncState(gmOnly)){if(success)message(success);return true}state=previous;render();return false}
+
 async function move(dir){const result=beginMove(map,state,dir);if(!result.ok){message(result.error==='NO_EXIT'?'Dort ist kein begehbarer Weg.':result.error==='BAND_EXHAUSTED'?'Das schwarze Band ist zu Ende.':'Diese Bewegung ist hier nicht möglich.');return}const before=state.bandStep,after=result.state.bandStep,text=result.state.node===map.goal&&!result.state.transit?'Ihr habt die geheime Kultstätte erreicht.':after>before?'Ihr wählt diesen Ausgang. Das nächste Bandzeichen wird aktiv.':'Ihr bewegt euch weiter durch den Gang.';await commit(result.state,false,text)}
+async function finishTransit(){
+  if(!state.transit)return;
+  let next=structuredClone(state),guard=0;
+  while(next.transit&&guard++<128){const dir=next.transit.dir,result=beginMove(map,next,dir);if(!result.ok)break;next=result.state}
+  if(guard>=128){message('Der automatische Ganglauf wurde aus Sicherheitsgründen abgebrochen.');return}
+  await commit(next,false,'Ihr geht bis zum nächsten Ort weiter.');
+}
 async function undo(){if(!isGm){message('Nur die Spielleitung kann Undo benutzen.');return}const result=gmUndoDecision(map,state);if(!result.ok){message('Keine Entscheidung zum Zurücknehmen.');return}await commit(result.state,true,'Letzte Bandentscheidung zurückgenommen.')}
 async function backtrack(){if(state.transit){const r=beginMove(map,state,OPP[state.transit.dir]);if(r.ok)await commit(r.state,false,'Ihr geht zurück.');return}const last=state.pathHistory.at(-1);if(!last){message('Kein Rückweg vorhanden.');return}const r=beginMove(map,state,OPP[last.dir]);if(r.ok)await commit(r.state,false,'Ihr kehrt auf demselben Weg zurück.')}
+async function discover(detail){
+  if(state.transit||detail?.node!==state.node)return;
+  const feature=(featureCatalog[detail.node]||[]).find(f=>f.id===detail.feature);if(!feature)return;
+  const key=`${detail.node}:${detail.feature}`;if(state.discovered.includes(key))return;
+  const next=structuredClone(state);next.discovered.push(key);await commit(next,false,`${feature.label} wurde entdeckt und mit der Gruppe geteilt.`);
+}
 async function reset(){if(!isGm){message('Nur die Spielleitung kann zurücksetzen.');return}if(!confirm('Rätsel wirklich vollständig zurücksetzen?'))return;await commit(initialSharedState(map),true,'Der gemeinsame Spielstand wurde zurückgesetzt.')}
-function setupControls(){$$('.dir,.vertical button[data-d]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.d)));$('#backtrack').addEventListener('click',backtrack);$('#undo').addEventListener('click',undo);$('#reset').addEventListener('click',reset);$('#gmToggle').addEventListener('click',()=>{if(!isGm)return;gmPanelOpen=!gmPanelOpen;$('.gm-panel').classList.toggle('on',gmPanelOpen);$('#gmToggle').textContent=gmPanelOpen?'SL schließen':'SL'});$('#reveal').addEventListener('click',()=>{if(!isGm)return;document.body.classList.toggle('reveal-all');renderMap()});$('#copyPlayer').addEventListener('click',()=>playerToken?copyText(inviteUrl(playerToken),'Spielerlink'):message('Dieser SL-Link enthält keinen Spieler-Token.'));$('#copyCurrent').addEventListener('click',()=>copyText(location.href,'Aktueller Link'));$('#zoomIn').onclick=$('#zoomOut').onclick=$('#zoomReset').onclick=()=>message('Die V2-Automap passt sich automatisch an die aktuelle Ebene an.')}
+function setupControls(){
+  $$('.dir,.vertical button[data-d]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.d)));
+  $('#continueTransit').addEventListener('click',finishTransit);$('#backtrack').addEventListener('click',backtrack);$('#undo').addEventListener('click',undo);$('#reset').addEventListener('click',reset);
+  window.addEventListener('maze-discover',e=>discover(e.detail));
+  $('#gmToggle').addEventListener('click',()=>{if(!isGm)return;gmPanelOpen=!gmPanelOpen;$('.gm-panel').classList.toggle('on',gmPanelOpen);$('#gmToggle').textContent=gmPanelOpen?'SL schließen':'SL'});
+  $('#reveal').addEventListener('click',()=>{if(!isGm)return;document.body.classList.toggle('reveal-all');renderMap()});$('#copyPlayer').addEventListener('click',()=>playerToken?copyText(inviteUrl(playerToken),'Spielerlink'):message('Dieser SL-Link enthält keinen Spieler-Token.'));$('#copyCurrent').addEventListener('click',()=>copyText(location.href,'Aktueller Link'));$('#zoomIn').onclick=$('#zoomOut').onclick=$('#zoomReset').onclick=()=>message('Die V2-Automap passt sich automatisch an die aktuelle Ebene an.');
+}
 
 async function fetchRemoteState(){const {data,error}=await supabase.rpc('get_maze_room',{p_room_code:roomCode,p_token:accessToken});if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row)throw new Error('Raum oder Zugangslink ungültig.');state=normalizeSharedState(row.state,map);version=Number(row.version);channelSecret=row.channel_secret;isGm=Boolean(row.is_gm);render();return row}
 async function setupRealtime(){const cfg=window.MAZE_CONFIG||{},cred=credentialsFromHash();roomCode=cred.room;accessToken=cred.token;playerToken=cred.play;if(!cfg.supabaseUrl||!cfg.supabaseKey||!roomCode||!accessToken){$('#syncState').textContent='lokal';message('Lokaler Probelauf.');return}try{const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');supabase=createClient(cfg.supabaseUrl,cfg.supabaseKey);await fetchRemoteState();if(channel)await supabase.removeChannel(channel);channel=supabase.channel(`maze:${roomCode}:${channelSecret}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:'state'},p=>{const incoming=p?.payload||{};if(Number(incoming.version)<=version)return;version=Number(incoming.version);state=normalizeSharedState(incoming.state,map);render();message('Die Gruppe wurde auf einem anderen Gerät bewegt.')}).subscribe(s=>{$('#syncState').textContent=s==='SUBSCRIBED'?'live':s==='CHANNEL_ERROR'?'offline':'verbinden…'})}catch(e){console.error(e);$('#syncState').textContent='offline';message(e.message||'Live-Sync nicht erreichbar.')}}
 async function syncState(gmOnly=false){if(!supabase)return true;try{const fn=gmOnly?'gm_update_maze_room':'update_maze_room',args=gmOnly?{p_room_code:roomCode,p_gm_token:accessToken,p_expected_version:version,p_state:state}:{p_room_code:roomCode,p_token:accessToken,p_expected_version:version,p_state:state};const {data,error}=await supabase.rpc(fn,args);if(error)throw error;const row=Array.isArray(data)?data[0]:data;version=Number(row.version);state=normalizeSharedState(row.state,map);render();return true}catch(e){console.error(e);if(String(e.message).includes('STALE_VERSION')){message('Jemand war schneller – aktueller Gruppenstand wird geladen.');try{await fetchRemoteState()}catch{}}else message(`Synchronisation fehlgeschlagen: ${e.message||e}`);return false}}
 
 async function init(){
-  const [ms,cs,ss,exp]=await Promise.all([loadJSON('./data/maps.json'),loadJSON('./data/ciphers.json'),loadJSON('./data/scenarios.json'),loadJSON('./data/selem-expansion.json')]);
-  scenario=ss.scenarios[0];const base=ms.maps.find(m=>m.id===scenario.map);map=applyExpansion(base,exp);cipher=cs.ciphers.find(c=>c.id===scenario.cipher);if(!map||!cipher)throw new Error('Szenario unvollständig.');validateMap();state=initialSharedState(map);activeLevel=nodeById(map,map.start)?.z??0;
+  const [ms,cs,ss,exp,features]=await Promise.all([loadJSON('./data/maps.json'),loadJSON('./data/ciphers.json'),loadJSON('./data/scenarios.json'),loadJSON('./data/selem-expansion.json'),loadJSON('./data/room-features.json')]);
+  scenario=ss.scenarios[0];const base=ms.maps.find(m=>m.id===scenario.map);map=applyExpansion(base,exp);featureCatalog=features.features||{};cipher=cs.ciphers.find(c=>c.id===scenario.cipher);if(!map||!cipher)throw new Error('Szenario unvollständig.');validateMap();state=initialSharedState(map);activeLevel=nodeById(map,map.start)?.z??0;
   $('#scenarioTitle').textContent=scenario.name;$('#scenarioSubtitle').textContent=map.subtitle||map.name;$('#mapName').textContent=map.name;$('#bandTitle').textContent=scenario.bandTitle||'Der Weg, den die Erinnerung nicht bewahren kann';renderLevels();renderBand();setupControls();render();await setupRealtime();
 }
 init().catch(e=>{console.error(e);document.body.innerHTML=`<pre style="color:white;padding:20px;white-space:pre-wrap">${e.stack}</pre>`});
