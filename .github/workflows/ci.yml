@@ -58,5 +58,7 @@ jobs:
         run: node tests/content-engine.mjs
       - name: Guard content density
         run: node tests/content-density.mjs
+      - name: Validate spatial content lifecycle
+        run: node tests/spatial-content.mjs
       - name: Validate discoverable room features
         run: node tests/room-features.mjs

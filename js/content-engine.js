@@ -1,181 +1,44 @@
 const RARITY_WEIGHT={common:100,uncommon:55,rare:22,very_rare:8,unique:2};
+const EXPLORE_KINDS=new Set(['room','lens','prison','goal']);
+const PLAYER_DISCOVER_TYPES=new Set(['loot','discovery']);
+const TRIGGER_TYPES=new Set(['hazard','encounter','event']);
+const TERMINAL_STATES=new Set(['taken','resolved','disabled']);
 
-function hash32(text){
-  let h=2166136261>>>0;
-  for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}
-  h+=h<<13;h^=h>>>7;h+=h<<3;h^=h>>>17;h+=h<<5;
-  return h>>>0;
-}
+function hash32(text){let h=2166136261>>>0;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}h+=h<<13;h^=h>>>7;h+=h<<3;h^=h>>>17;h+=h<<5;return h>>>0}
 function rngFor(seed){let a=hash32(String(seed));return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function arr(v){return Array.isArray(v)?v:[]}
 function intersects(a,b){const set=new Set(arr(a));return arr(b).some(x=>set.has(x))}
 function includesAll(haystack,needles){const set=new Set(arr(haystack));return arr(needles).every(x=>set.has(x))}
 
-export function contentContext(map,node,derived={}){
-  return {
-    nodeId:node.id,
-    kind:node.kind,
-    level:Number(node.z),
-    tags:arr(node.tags),
-    dangerTier:Number(derived.dangerTier??node.dangerFloor??0),
-    lootTier:Number.isInteger(derived.lootTier)?derived.lootTier:Number(node.lootTier??0),
-    distanceFromSolution:Number(derived.distanceFromSolution??0)
-  };
-}
+export function contentContext(map,node,derived={}){return {nodeId:node.id,kind:node.kind,level:Number(node.z),tags:arr(node.tags),dangerTier:Number(derived.dangerTier??node.dangerFloor??0),lootTier:Number.isInteger(derived.lootTier)?derived.lootTier:Number(node.lootTier??0),distanceFromSolution:Number(derived.distanceFromSolution??0)}}
+function conditionMatches(req,context){if(req.tagsAny?.length&&!intersects(req.tagsAny,context.tags))return false;if(req.tagsAll?.length&&!includesAll(context.tags,req.tagsAll))return false;if(req.kinds?.length&&!req.kinds.includes(context.kind))return false;if(req.levels?.length&&!req.levels.includes(context.level))return false;if(Number.isFinite(req.minDanger)&&context.dangerTier<req.minDanger)return false;if(Number.isFinite(req.maxDanger)&&context.dangerTier>req.maxDanger)return false;if(Number.isFinite(req.minDistance)&&context.distanceFromSolution<req.minDistance)return false;if(Number.isFinite(req.maxDistance)&&context.distanceFromSolution>req.maxDistance)return false;return true}
+export function itemMatches(item,context,slot={}){if(slot.type&&item.type!==slot.type)return false;if(!conditionMatches(item.requires||{},context))return false;if(slot.placement?.length&&item.placement?.features?.length&&!intersects(slot.placement,item.placement.features))return false;return true}
 
-function conditionMatches(req,context){
-  if(req.tagsAny?.length&&!intersects(req.tagsAny,context.tags))return false;
-  if(req.tagsAll?.length&&!includesAll(context.tags,req.tagsAll))return false;
-  if(req.kinds?.length&&!req.kinds.includes(context.kind))return false;
-  if(req.levels?.length&&!req.levels.includes(context.level))return false;
-  if(Number.isFinite(req.minDanger)&&context.dangerTier<req.minDanger)return false;
-  if(Number.isFinite(req.maxDanger)&&context.dangerTier>req.maxDanger)return false;
-  if(Number.isFinite(req.minDistance)&&context.distanceFromSolution<req.minDistance)return false;
-  if(Number.isFinite(req.maxDistance)&&context.distanceFromSolution>req.maxDistance)return false;
-  return true;
-}
+function mergeSlots(target,source,{replace=false,origin='profile'}={}){for(const raw of arr(source)){const slot={...structuredClone(raw),_origin:origin};const index=target.findIndex(x=>x.id===slot.id);if(index>=0)target[index]=replace?slot:{...target[index],...slot};else target.push(slot)}}
+export function expandSlotConfig({map,slotConfig,profiles={profiles:{}},derivedByNode={}}){const rooms={};for(const node of map.nodes){const context=contentContext(map,node,derivedByNode[node.id]||{}),slots=[];for(const rule of arr(slotConfig.rules)){if(!conditionMatches(rule.when||{},context))continue;for(const profileId of arr(rule.profiles||[rule.profile]).filter(Boolean)){const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots,{origin:'profile'})}}const authored=slotConfig.rooms?.[node.id];if(authored){for(const profileId of arr(authored.profiles||[authored.profile]).filter(Boolean)){const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots,{origin:'authored_profile'})}mergeSlots(slots,authored.slots,{replace:true,origin:'authored'})}if(slots.length)rooms[node.id]={slots,maxProfileAssignmentsPerRoom:authored?.maxProfileAssignmentsPerRoom}}return {...slotConfig,rooms}}
 
-export function itemMatches(item,context,slot={}){
-  if(slot.type&&item.type!==slot.type)return false;
-  if(!conditionMatches(item.requires||{},context))return false;
-  if(slot.placement?.length&&item.placement?.features?.length&&!intersects(slot.placement,item.placement.features))return false;
-  return true;
-}
-
-function mergeSlots(target,source,{replace=false,origin='profile'}={}){
-  for(const raw of arr(source)){
-    const slot={...structuredClone(raw),_origin:origin};
-    const index=target.findIndex(x=>x.id===slot.id);
-    if(index>=0)target[index]=replace?slot:{...target[index],...slot};else target.push(slot);
-  }
-}
-
-export function expandSlotConfig({map,slotConfig,profiles={profiles:{}},derivedByNode={}}){
-  const rooms={};
-  for(const node of map.nodes){
-    const context=contentContext(map,node,derivedByNode[node.id]||{}),slots=[];
-    for(const rule of arr(slotConfig.rules)){
-      if(!conditionMatches(rule.when||{},context))continue;
-      for(const profileId of arr(rule.profiles||[rule.profile]).filter(Boolean)){
-        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots,{origin:'profile'});
-      }
-    }
-    const authored=slotConfig.rooms?.[node.id];
-    if(authored){
-      for(const profileId of arr(authored.profiles||[authored.profile]).filter(Boolean)){
-        const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots,{origin:'authored_profile'});
-      }
-      mergeSlots(slots,authored.slots,{replace:true,origin:'authored'});
-    }
-    if(slots.length)rooms[node.id]={slots,maxProfileAssignmentsPerRoom:authored?.maxProfileAssignmentsPerRoom};
-  }
-  return {...slotConfig,rooms};
-}
-
-function weightedPick(candidates,seed){
-  if(!candidates.length)return null;
-  const random=rngFor(seed),weighted=candidates.map(x=>({item:x,weight:Number(x.weight??RARITY_WEIGHT[x.rarity]??25)}));
-  const total=weighted.reduce((s,x)=>s+Math.max(0,x.weight),0);if(total<=0)return weighted[0].item;
-  let roll=random()*total;
-  for(const row of weighted){roll-=Math.max(0,row.weight);if(roll<=0)return row.item}
-  return weighted.at(-1).item;
-}
-
+function weightedPick(candidates,seed){if(!candidates.length)return null;const random=rngFor(seed),weighted=candidates.map(x=>({item:x,weight:Number(x.weight??RARITY_WEIGHT[x.rarity]??25)})),total=weighted.reduce((s,x)=>s+Math.max(0,x.weight),0);if(total<=0)return weighted[0].item;let roll=random()*total;for(const row of weighted){roll-=Math.max(0,row.weight);if(roll<=0)return row.item}return weighted.at(-1).item}
 function slotSelected(slot,seed,nodeId){const chance=slot.chance==null?1:Math.max(0,Math.min(1,Number(slot.chance)));return chance>=1||rngFor(`${seed}|${nodeId}|${slot.id}|chance`)()<chance}
 function budgetRank(seed,nodeId,slotId){return hash32(`${seed}|${nodeId}|${slotId}|budget`)}
+export function resolveSlot({slot,node,context,catalog,pools,seed,claimedUnique=new Set()}){const items=catalog.items||{};if(slot.fixed){const item=items[slot.fixed];if(!item)throw new Error(`Unknown fixed content ${slot.fixed}`);if(!itemMatches(item,context,slot))throw new Error(`Fixed content ${slot.fixed} is incompatible with ${node.id}/${slot.id}`);return materialize(item,slot,node,'fixed')}const pool=pools.pools?.[slot.pool];if(!pool)throw new Error(`Unknown content pool ${slot.pool}`);const allowedTypes=arr(pool.types),candidates=[];for(const id of arr(pool.entries)){const item=items[id];if(!item)throw new Error(`Pool ${slot.pool} references unknown content ${id}`);if(allowedTypes.length&&!allowedTypes.includes(item.type))continue;if((item.unique||item.rarity==='unique')&&claimedUnique.has(item.id))continue;if(itemMatches(item,context,slot))candidates.push(item)}const picked=weightedPick(candidates,`${seed}|${node.id}|${slot.id}`);return picked?materialize(picked,slot,node,slot.pool):null}
+function materialize(item,slot,node,source){return {slotId:slot.id,contentId:item.id,type:item.type,label:item.label,source,origin:slot._origin||'authored',placement:slot.placement||item.placement?.features||[],hidden:Boolean(slot.hidden??item.hidden),discoverDifficulty:Number(slot.discoverDifficulty??item.discover?.difficulty??0),state:'unresolved',nodeId:node.id}}
+function reserveAuthoredUniques(slotConfig,catalog){const reserved=new Set(),seen=new Map();for(const [nodeId,room] of Object.entries(slotConfig.rooms||{}))for(const slot of arr(room.slots)){if(!slot.fixed)continue;const item=catalog.items?.[slot.fixed];if(!item)throw new Error(`Unknown fixed content ${slot.fixed}`);if(!(item.unique||item.rarity==='unique'))continue;if(seen.has(item.id))throw new Error(`Unique fixed content ${item.id} assigned twice: ${seen.get(item.id)} and ${nodeId}/${slot.id}`);seen.set(item.id,`${nodeId}/${slot.id}`);reserved.add(item.id)}return reserved}
+function selectedInstances(config,seed,nodeId,globalBudget){const instances=[];for(const slot of [...arr(config.slots)].sort((a,b)=>a.id.localeCompare(b.id))){if(!slotSelected(slot,seed,nodeId))continue;const count=Math.max(1,Number(slot.count||1));for(let i=0;i<count;i++)instances.push(count===1?slot:{...slot,id:`${slot.id}-${i+1}`})}const profile=instances.filter(x=>x._origin==='profile'),budgetRaw=config.maxProfileAssignmentsPerRoom??globalBudget,budget=Number.isFinite(Number(budgetRaw))?Math.max(0,Math.floor(Number(budgetRaw))):Infinity;if(profile.length<=budget)return instances;const allowed=new Set([...profile].sort((a,b)=>budgetRank(seed,nodeId,a.id)-budgetRank(seed,nodeId,b.id)||a.id.localeCompare(b.id)).slice(0,budget).map(x=>x.id));return instances.filter(x=>x._origin!=='profile'||allowed.has(x.id))}
 
-export function resolveSlot({slot,node,context,catalog,pools,seed,claimedUnique=new Set()}){
-  const items=catalog.items||{};
-  if(slot.fixed){const item=items[slot.fixed];if(!item)throw new Error(`Unknown fixed content ${slot.fixed}`);if(!itemMatches(item,context,slot))throw new Error(`Fixed content ${slot.fixed} is incompatible with ${node.id}/${slot.id}`);return materialize(item,slot,node,'fixed')}
-  const pool=pools.pools?.[slot.pool];if(!pool)throw new Error(`Unknown content pool ${slot.pool}`);
-  const allowedTypes=arr(pool.types),poolEntries=arr(pool.entries),candidates=[];
-  for(const id of poolEntries){
-    const item=items[id];if(!item)throw new Error(`Pool ${slot.pool} references unknown content ${id}`);
-    if(allowedTypes.length&&!allowedTypes.includes(item.type))continue;
-    if((item.unique||item.rarity==='unique')&&claimedUnique.has(item.id))continue;
-    if(itemMatches(item,context,slot))candidates.push(item);
-  }
-  const picked=weightedPick(candidates,`${seed}|${node.id}|${slot.id}`);
-  if(!picked)return null;
-  return materialize(picked,slot,node,slot.pool);
-}
+function gridForNode(node){if(!node||!EXPLORE_KINDS.has(node.kind))return null;if(node.exploreGrid?.w&&node.exploreGrid?.h)return node.exploreGrid;if(node.kind==='goal')return {w:7,h:7};if(node.kind==='prison')return {w:4,h:4};return {w:5,h:5}}
+function featureTags(feature){return [...new Set([feature.id,...String(feature.id||'').split(/[_-]+/),...arr(feature.tags)])].filter(Boolean)}
+function explicitAnchor(nodeId,placement,features,seed,slotId){const candidates=arr(features[nodeId]).filter(f=>Number.isInteger(f.x)&&Number.isInteger(f.y)&&intersects(placement,featureTags(f))).sort((a,b)=>String(a.id).localeCompare(String(b.id)));if(!candidates.length)return null;const index=hash32(`${seed}|${nodeId}|${slotId}|anchor`)%candidates.length,f=candidates[index];return {kind:'feature',anchorId:f.id,x:f.x,y:f.y,tags:featureTags(f)}}
+function virtualAnchor(node,placement,seed,slotId){const grid=gridForNode(node);if(!grid)return null;const marginX=grid.w>=3?1:0,marginY=grid.h>=3?1:0,usableW=Math.max(1,grid.w-marginX*2),usableH=Math.max(1,grid.h-marginY*2),x=marginX+(hash32(`${seed}|${node.id}|${slotId}|x`)%usableW),y=marginY+(hash32(`${seed}|${node.id}|${slotId}|y`)%usableH);return {kind:'virtual',x,y,tags:placement.length?[placement[0]]:['room']}}
+export function assignContentAnchor(assignment,node,roomFeatures={},seed='default'){const placement=arr(assignment.placement);return explicitAnchor(node.id,placement,roomFeatures,seed,assignment.slotId)||virtualAnchor(node,placement,seed,assignment.slotId)}
 
-function materialize(item,slot,node,source){
-  return {
-    slotId:slot.id,
-    contentId:item.id,
-    type:item.type,
-    label:item.label,
-    source,
-    origin:slot._origin||'authored',
-    placement:slot.placement||item.placement?.features||[],
-    hidden:Boolean(slot.hidden??item.hidden),
-    discoverDifficulty:Number(slot.discoverDifficulty??item.discover?.difficulty??0),
-    state:'unresolved',
-    nodeId:node.id
-  };
-}
-
-function reserveAuthoredUniques(slotConfig,catalog){
-  const reserved=new Set(),seen=new Map();
-  for(const [nodeId,room] of Object.entries(slotConfig.rooms||{})){
-    for(const slot of arr(room.slots)){
-      if(!slot.fixed)continue;
-      const item=catalog.items?.[slot.fixed];if(!item)throw new Error(`Unknown fixed content ${slot.fixed}`);
-      if(!(item.unique||item.rarity==='unique'))continue;
-      if(seen.has(item.id))throw new Error(`Unique fixed content ${item.id} assigned twice: ${seen.get(item.id)} and ${nodeId}/${slot.id}`);
-      seen.set(item.id,`${nodeId}/${slot.id}`);reserved.add(item.id);
-    }
-  }
-  return reserved;
-}
-
-function selectedInstances(config,seed,nodeId,globalBudget){
-  const instances=[];
-  for(const slot of [...arr(config.slots)].sort((a,b)=>a.id.localeCompare(b.id))){
-    if(!slotSelected(slot,seed,nodeId))continue;
-    const count=Math.max(1,Number(slot.count||1));
-    for(let i=0;i<count;i++)instances.push(count===1?slot:{...slot,id:`${slot.id}-${i+1}`});
-  }
-  const profile=instances.filter(x=>x._origin==='profile');
-  const budgetRaw=config.maxProfileAssignmentsPerRoom??globalBudget;
-  const budget=Number.isFinite(Number(budgetRaw))?Math.max(0,Math.floor(Number(budgetRaw))):Infinity;
-  if(profile.length<=budget)return instances;
-  const allowed=new Set([...profile].sort((a,b)=>budgetRank(seed,nodeId,a.id)-budgetRank(seed,nodeId,b.id)||a.id.localeCompare(b.id)).slice(0,budget).map(x=>x.id));
-  return instances.filter(x=>x._origin!=='profile'||allowed.has(x.id));
-}
-
-export function generateContentPlan({map,slotConfig,catalog,pools,profiles={profiles:{}},derivedByNode={},seed='default'}){
-  const expanded=expandSlotConfig({map,slotConfig,profiles,derivedByNode});
-  const rooms={},claimedUnique=reserveAuthoredUniques(expanded,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id));
-  const globalBudget=slotConfig.generation?.maxProfileAssignmentsPerRoom;
-  for(const node of nodes){
-    const config=expanded.rooms?.[node.id];if(!config)continue;
-    const context=contentContext(map,node,derivedByNode[node.id]||{}),assignments=[];
-    for(const instanceSlot of selectedInstances(config,seed,node.id,globalBudget)){
-      const resolved=resolveSlot({slot:instanceSlot,node,context,catalog,pools,seed,claimedUnique});
-      if(!resolved)continue;
-      const item=catalog.items[resolved.contentId];if(item?.unique||item?.rarity==='unique')claimedUnique.add(item.id);
-      assignments.push(resolved);
-    }
-    if(assignments.length)rooms[node.id]={generated:true,seed:String(seed),assignments};
-  }
-  return {version:1,seed:String(seed),rooms,uniqueContent:[...claimedUnique].sort()};
-}
-
-export function roomContentFromPlan(plan,nodeId){return structuredClone(plan.rooms?.[nodeId]||{generated:true,seed:String(plan.seed),assignments:[]})}
-
+export function generateContentPlan({map,slotConfig,catalog,pools,profiles={profiles:{}},roomFeatures={},derivedByNode={},seed='default'}){const expanded=expandSlotConfig({map,slotConfig,profiles,derivedByNode}),rooms={},claimedUnique=reserveAuthoredUniques(expanded,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id)),globalBudget=slotConfig.generation?.maxProfileAssignmentsPerRoom;for(const node of nodes){const config=expanded.rooms?.[node.id];if(!config)continue;const context=contentContext(map,node,derivedByNode[node.id]||{}),assignments=[];for(const instanceSlot of selectedInstances(config,seed,node.id,globalBudget)){const resolved=resolveSlot({slot:instanceSlot,node,context,catalog,pools,seed,claimedUnique});if(!resolved)continue;const item=catalog.items[resolved.contentId];if(item?.unique||item.rarity==='unique')claimedUnique.add(item.id);resolved.anchor=assignContentAnchor(resolved,node,roomFeatures,seed);assignments.push(resolved)}if(assignments.length)rooms[node.id]={generated:true,seed:String(seed),assignments}}return {version:2,seed:String(seed),rooms,uniqueContent:[...claimedUnique].sort()}}
+export function roomContentFromPlan(plan,nodeId){const content=structuredClone(plan.rooms?.[nodeId]||{generated:true,seed:String(plan.seed),assignments:[]});content.planVersion=Number(plan.version||1);return content}
 export function materializeRoomState(state,plan,nodeId){
-  const next=structuredClone(state),current=next.roomState?.[nodeId];
-  if(current?.content?.generated)return {state:next,changed:false};
-  next.roomState=next.roomState&&typeof next.roomState==='object'?next.roomState:{};
-  next.roomState[nodeId]={...(current||{}),content:roomContentFromPlan(plan,nodeId)};
-  return {state:next,changed:true};
+  const next=structuredClone(state);next.roomState=next.roomState&&typeof next.roomState==='object'?next.roomState:{};const current=next.roomState[nodeId],planned=roomContentFromPlan(plan,nodeId);
+  if(current?.content?.generated){let changed=false;const bySlot=new Map((planned.assignments||[]).map(a=>[a.slotId,a]));for(const a of current.content.assignments||[]){const p=bySlot.get(a.slotId);if(!a.anchor&&p?.anchor){a.anchor=structuredClone(p.anchor);changed=true}if(!a.origin&&p?.origin){a.origin=p.origin;changed=true}}if(Number(current.content.planVersion||0)<Number(planned.planVersion||0)){current.content.planVersion=planned.planVersion;changed=true}return {state:next,changed}}
+  next.roomState[nodeId]={...(current||{}),content:planned};return {state:next,changed:true};
 }
+export function updateContentState(state,nodeId,slotId,patch={}){const next=structuredClone(state),assignments=next.roomState?.[nodeId]?.content?.assignments;if(!Array.isArray(assignments))return {state:next,changed:false};const index=assignments.findIndex(x=>x.slotId===slotId);if(index<0)return {state:next,changed:false};assignments[index]={...assignments[index],...patch};return {state:next,changed:true}}
 
-export function updateContentState(state,nodeId,slotId,patch={}){
-  const next=structuredClone(state),assignments=next.roomState?.[nodeId]?.content?.assignments;
-  if(!Array.isArray(assignments))return {state:next,changed:false};
-  const index=assignments.findIndex(x=>x.slotId===slotId);if(index<0)return {state:next,changed:false};
-  assignments[index]={...assignments[index],...patch};return {state:next,changed:true};
-}
+export function contentVisibleToPlayer(assignment){if(!assignment||TERMINAL_STATES.has(assignment.state))return false;if(assignment.hidden&&assignment.state==='unresolved')return false;if((TRIGGER_TYPES.has(assignment.type)||assignment.type==='secret'||assignment.type==='secret_connection')&&assignment.state==='unresolved')return false;return true}
+export function applyContentAction(state,nodeId,slotId,action,{isGm=false}={}){const next=structuredClone(state),assignments=next.roomState?.[nodeId]?.content?.assignments;if(!Array.isArray(assignments))return {ok:false,state:next,error:'CONTENT_NOT_MATERIALIZED'};const index=assignments.findIndex(x=>x.slotId===slotId);if(index<0)return {ok:false,state:next,error:'CONTENT_NOT_FOUND'};const a=assignments[index];if(TERMINAL_STATES.has(a.state))return {ok:false,state:next,error:'CONTENT_ALREADY_CLOSED'};let target=null;if(action==='discover'){if(!isGm&&(a.hidden||!PLAYER_DISCOVER_TYPES.has(a.type)||a.state!=='unresolved'))return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};if(a.state==='unresolved')target='discovered';else return {ok:false,state:next,error:'CONTENT_ALREADY_DISCOVERED'}}else if(action==='trigger'){if(!isGm||!TRIGGER_TYPES.has(a.type)||!['unresolved','discovered'].includes(a.state))return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='triggered'}else if(action==='take'){if(!isGm||a.type!=='loot'||!['discovered','triggered'].includes(a.state))return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='taken'}else if(action==='resolve'){if(!isGm)return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='resolved'}else if(action==='disable'){if(!isGm)return {ok:false,state:next,error:'CONTENT_ACTION_FORBIDDEN'};target='disabled'}else return {ok:false,state:next,error:'CONTENT_ACTION_UNKNOWN'};assignments[index]={...a,state:target};return {ok:true,state:next,assignment:assignments[index]}}
