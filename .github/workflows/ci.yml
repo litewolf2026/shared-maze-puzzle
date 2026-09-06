@@ -24,6 +24,7 @@ jobs:
           node --check js/map-expansion.js
           node --check js/content-model.js
           node --check js/reusable-content-pack.js
+          node --check js/content-outcomes.js
           node --check js/content-engine.js
           node --check js/dsa41-exploration.js
           node --check js/secret-connections.js
@@ -61,6 +62,8 @@ jobs:
         run: node tests/reusable-content-pack.mjs
       - name: Validate seeded reusable content engine
         run: node tests/content-engine.mjs
+      - name: Validate structured content outcomes
+        run: node tests/content-outcomes.mjs
       - name: Guard content density
         run: node tests/content-density.mjs
       - name: Validate spatial content lifecycle
