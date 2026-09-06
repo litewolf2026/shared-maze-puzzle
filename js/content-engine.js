@@ -42,7 +42,7 @@ export function itemMatches(item,context,slot={}){
   return true;
 }
 
-function mergeSlots(target,source){for(const slot of arr(source)){const index=target.findIndex(x=>x.id===slot.id);if(index>=0)target[index]={...target[index],...structuredClone(slot)};else target.push(structuredClone(slot))}}
+function mergeSlots(target,source,{replace=false}={}){for(const slot of arr(source)){const index=target.findIndex(x=>x.id===slot.id);if(index>=0)target[index]=replace?structuredClone(slot):{...target[index],...structuredClone(slot)};else target.push(structuredClone(slot))}}
 
 export function expandSlotConfig({map,slotConfig,profiles={profiles:{}},derivedByNode={}}){
   const rooms={};
@@ -59,7 +59,7 @@ export function expandSlotConfig({map,slotConfig,profiles={profiles:{}},derivedB
       for(const profileId of arr(authored.profiles||[authored.profile]).filter(Boolean)){
         const profile=profiles.profiles?.[profileId];if(!profile)throw new Error(`Unknown content profile ${profileId}`);mergeSlots(slots,profile.slots);
       }
-      mergeSlots(slots,authored.slots);
+      mergeSlots(slots,authored.slots,{replace:true});
     }
     if(slots.length)rooms[node.id]={slots};
   }
