@@ -4,12 +4,13 @@ import {applyExpansions} from '../js/map-expansion.js';
 import {enrichMapContent} from '../js/content-model.js';
 import {generateContentPlan} from '../js/content-engine.js';
 import {mergeReusableCatalog,reusableDefinition} from '../js/reusable-content-pack.js';
+import {mergeScenarioCatalog} from '../js/scenario-content-pack.js';
 import {lootProfileFor,lootGuidanceRows,lootValueTier} from '../js/dsa41-loot.js';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 const rules=read('../data/rules/dsa41-loot.json');
 const baseCatalog=read('../data/content/catalog.json');
-const catalog=mergeReusableCatalog(baseCatalog);
+const catalog=mergeScenarioCatalog(mergeReusableCatalog(baseCatalog),'selem-01');
 
 assert.equal(rules.system,'DSA4.1');
 assert.equal(rules.projectPolicy.valueScaleIsProjectConvention,true);
@@ -39,6 +40,7 @@ assert.equal(lootValueTier({type:'loot',contentId:'loot_old_elem_component'},cat
 assert.equal(lootProfileFor({type:'loot',contentId:'loot_old_keyring'},reusableDefinition('loot_old_keyring'),rules).id,'key');
 assert.equal(lootProfileFor({type:'loot',contentId:'loot_alchemy_vial'},catalog.items.loot_alchemy_vial,rules).identification.level,'specialist');
 assert.ok(lootProfileFor({type:'loot',contentId:'selem_sahira_personal_cache'},catalog.items.selem_sahira_personal_cache,rules).relevance.includes('information'));
+assert.equal(lootValueTier({type:'loot',contentId:'selem_alchemy_brabaker_vitriol',mechanics:catalog.items.selem_alchemy_brabaker_vitriol.mechanics},catalog.items.selem_alchemy_brabaker_vitriol,rules),2,'Scenario item valueTier override must be respected.');
 
 const map=applyExpansions(read('../data/maps.json').maps[0],read('../data/selem-expansion.json'),read('../data/selem-secrets.json'));
 const slots=read('../data/content/selem-slots.json'),pools=read('../data/content/pools.json'),profiles=read('../data/content/profiles.json'),features=read('../data/room-features.json').features;
@@ -51,7 +53,8 @@ for(const assignment of assignments){
   assert.ok(definition,`Missing definition for generated loot ${assignment.contentId}`);
   const guidance=lootGuidanceRows(assignment,definition,rules);
   assert.ok(guidance.length>=6,`Generated loot lacks guidance: ${assignment.nodeId}/${assignment.slotId}/${assignment.contentId}`);
-  assert.ok(!guidance.some(([,text])=>/\b\d+\s*(D|Dukaten|Silber|Heller|Kreuzer)\b/i.test(String(text))),`Generated loot guidance leaked a fixed currency price: ${assignment.contentId}`);
+  const currencyRows=guidance.filter(([,text])=>/\b\d+\s*(D|Dukaten|S|Silber|Heller|Kreuzer)\b/i.test(String(text)));
+  for(const [label] of currencyRows)assert.equal(label,'Preisreferenz',`Fixed currency may only appear as an explicitly sourced price reference: ${assignment.contentId}/${label}`);
 }
 
-console.log(`dsa41-loot: OK (${lootDefinitions.length} loot definitions; ${assignments.length} generated loot assignments; no automatic currency prices)`);
+console.log(`dsa41-loot: OK (${lootDefinitions.length} loot definitions; ${assignments.length} generated loot assignments; sourced price references allowed, no automatic market pricing)`);
