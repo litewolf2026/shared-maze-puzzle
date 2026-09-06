@@ -38,8 +38,10 @@ jobs:
           node --check js/selem-scenes.js
           node --check js/selem-scene-controller.js
           node --check js/crawler-view.js
+          node --check js/crawler-view-v3.js
           node --check js/crawler-controller.js
           node --check js/exploration-controller.js
+          node --check js/exploration-controller-v3.js
           node --check js/direction-ui.js
           node --check js/map-readability.js
           node --check js/gm-route.js
@@ -66,6 +68,8 @@ jobs:
         run: node tests/crawler-view.mjs
       - name: Validate final crawler environment renderer
         run: node tests/final-crawler-graphics.mjs
+      - name: Validate Crawler V3 visual architecture
+        run: node tests/crawler-v3.mjs
       - name: Validate grid decision and transit semantics
         run: node tests/navigation-model.mjs
       - name: Validate authored room terrain

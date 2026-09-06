@@ -30,11 +30,11 @@ assert.match(renderer,/http:\/\/www\.w3\.org\/2000\/svg/,'Renderer should still 
 for(const cls of ['crawler-terrain-floor','crawler-terrain-bridge','crawler-terrain-deep_water','crawler-cavern-mouth','crawler-ritual-dais','crawler-lens-ring'])assert.ok(css.includes(`.${cls}`),`Missing final crawler style .${cls}.`);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/,'Atmospheric animation must respect reduced-motion preference.');
 
-assert.match(index,/crawler\.css\?v=20260906-final1/,'Final crawler stylesheet is not cache-busted.');
-assert.match(index,/exploration-controller\.js\?v=20260906-final1/,'Final exploration module is not cache-busted.');
-assert.match(exploration,/crawler-view\.js\?v=20260906-final1/,'Nested crawler module import is not cache-busted.');
-assert.match(exploration,/room-terrain\.js\?v=20260906-final1/,'Nested terrain module import is not cache-busted.');
+assert.match(index,/crawler\.css\?v=20260906-final1/,'Legacy final crawler stylesheet must remain cache-busted.');
+assert.ok(/exploration-controller(?:-v3)?\.js\?v=20260906-(?:final1|v3)/.test(index),'An active cache-busted exploration controller is required.');
+assert.match(exploration,/crawler-view\.js\?v=20260906-final1/,'Nested legacy crawler module import is not cache-busted.');
+assert.match(exploration,/room-terrain\.js\?v=20260906-final1/,'Nested legacy terrain module import is not cache-busted.');
 
 for(const forbidden of ['initiative','combat token','attack roll'])assert.equal(renderer.toLowerCase().includes(forbidden),false,`Crawler graphics must not grow combat-system behavior: ${forbidden}.`);
 
-console.log('final-crawler-graphics: OK (zone atmosphere, terrain projection, bespoke C15/D06/D14 landmarks, cache-busted procedural SVG)');
+console.log('final-crawler-graphics: OK (legacy final renderer preserved while active controller may move to V3)');
