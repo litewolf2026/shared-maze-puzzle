@@ -18,7 +18,24 @@ function message(t){const el=$('#message');if(!el)return;el.textContent=t;clearT
 
 function validateMap(){
   if((map.gridSizeMeters||3)!==3)throw new Error('Diese Version erwartet ein 3-m-Raster.');
-  const adj=buildAdj(map);let node=map.start;
+  const adj=buildAdj(map),canonical=map.canonicalPath,decisionNodes=map.bandDecisionNodes;
+  if(Array.isArray(canonical)&&canonical.length>=2&&Array.isArray(decisionNodes)&&decisionNodes.length){
+    if(canonical[0]!==map.start||canonical.at(-1)!==map.goal)throw new Error('Der kanonische physische Weg beginnt oder endet am falschen Ort.');
+    if(decisionNodes.length!==map.solution.length)throw new Error('Bandentscheidungen und Bandsymbole haben unterschiedliche Länge.');
+    const decisionSet=new Set(decisionNodes),seen=[];
+    for(let i=0;i<canonical.length-1;i++){
+      const from=canonical[i],to=canonical[i+1],edge=Object.values(adj.get(from)||{}).find(e=>e.to===to);
+      if(!edge)throw new Error(`Ungültiger kanonischer Weg: ${from} -> ${to}`);
+      if(decisionSet.has(from))seen.push({node:from,dir:edge.dir});
+    }
+    if(seen.length!==map.solution.length)throw new Error(`Kanonischer Weg enthält ${seen.length} Bandentscheidungen statt ${map.solution.length}.`);
+    for(let i=0;i<map.solution.length;i++){
+      if(seen[i].node!==decisionNodes[i])throw new Error(`Bandentscheidung ${i+1} liegt an ${seen[i].node} statt ${decisionNodes[i]}.`);
+      if(seen[i].dir!==map.solution[i])throw new Error(`Bandentscheidung ${i+1} an ${seen[i].node}: ${seen[i].dir} statt ${map.solution[i]}.`);
+    }
+    return;
+  }
+  let node=map.start;
   for(const dir of map.solution){const edge=adj.get(node)?.[dir];if(!edge)throw new Error(`Ungültige Bandroute: ${node} -> ${dir}`);node=edge.to}
   if(node!==map.goal)throw new Error(`Bandroute endet in ${node}, nicht ${map.goal}.`);
 }
