@@ -17,5 +17,5 @@ const a22=deriveNodeContent(map,map.nodes.find(n=>n.id==='A22'),distances);
 assert.ok(a22.tags.includes('pilgrim'));assert.ok(!a22.encounterPools.includes('pilgrim'),'Narrative-only tags must not become missing encounter pools.');
 const pathNode=deriveNodeContent(map,map.nodes.find(n=>n.id==='A03'),distances);
 assert.equal(pathNode.distanceFromSolution,0);assert.equal(pathNode.dangerTier,0);assert.equal(pathNode.lootCeiling,0);
-const all=enrichMapContent(map);assert.equal(all.length,103);assert.ok(all.every(x=>x.dangerTier>=0&&x.dangerTier<=4));assert.ok(all.every(x=>x.encounterPools.every(tag=>pools[tag])));
+const all=enrichMapContent(map);assert.equal(all.length,104);assert.ok(all.every(x=>x.dangerTier>=0&&x.dangerTier<=4));assert.ok(all.every(x=>x.encounterPools.every(tag=>pools[tag])));
 console.log('content-model: OK');
