@@ -82,6 +82,8 @@ jobs:
         run: node tests/content-coverage.mjs
       - name: Validate authored Selem scene coverage
         run: node tests/selem-scenes.mjs
+      - name: Validate authored Selem room geometry
+        run: node tests/selem-room-geometry.mjs
       - name: Validate GM-ready Selem key setpieces
         run: node tests/selem-setpieces.mjs
       - name: Guard content density
