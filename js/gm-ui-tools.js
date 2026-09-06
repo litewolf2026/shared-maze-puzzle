@@ -97,6 +97,18 @@ function setCollapsed(panel,collapsed){
   localStorage.setItem('maze-gm-collapsed',collapsed?'1':'0');
   const button=panel.querySelector('#gmCollapse');if(button){button.textContent=collapsed?'▸':'▾';button.title=collapsed?'SL-Fenster ausklappen':'SL-Fenster einklappen'}
 }
+function ensureToolbox(panel){
+  let toolbox=panel.querySelector('#gmToolbox');if(toolbox)return toolbox;
+  toolbox=document.createElement('details');toolbox.id='gmToolbox';toolbox.className='gm-toolbox';
+  const summary=document.createElement('summary');summary.textContent='Werkzeuge & Korrektur';toolbox.append(summary);
+  const body=document.createElement('div');body.className='gm-toolbox-body';toolbox.append(body);
+  const head=panel.querySelector('.gm-panel-head');head?.after(toolbox);
+  for(const child of [...panel.children]){
+    if(child===toolbox||child===head)continue;
+    if(child.classList?.contains('gm-help')||child.classList?.contains('gm-row'))body.append(child);
+  }
+  return toolbox;
+}
 function ensurePanelUi(isGm){
   const panel=document.querySelector('.gm-panel');if(!panel)return;
   if(!panel.querySelector('.gm-panel-head')){
@@ -106,6 +118,7 @@ function ensurePanelUi(isGm){
     collapse.addEventListener('click',()=>setCollapsed(panel,!panel.classList.contains('collapsed')));
     setCollapsed(panel,localStorage.getItem('maze-gm-collapsed')==='1');
   }
+  const toolbox=ensureToolbox(panel),toolBody=toolbox.querySelector('.gm-toolbox-body');
   let tools=panel.querySelector('#gmPreviewTools');
   if(!tools){
     tools=document.createElement('div');tools.id='gmPreviewTools';tools.className='gm-preview-tools';
@@ -115,9 +128,9 @@ function ensurePanelUi(isGm){
     for(const id of PREVIEW_TARGETS){const button=document.createElement('button');button.type='button';button.dataset.gmPreview=id;button.textContent=id;button.addEventListener('click',()=>beginPreview(id));buttons.append(button)}
     const live=document.createElement('button');live.type='button';live.dataset.gmPreview='LIVE';live.className='gm-preview-live';live.textContent='↩ Live-Ansicht';live.addEventListener('click',endPreview);buttons.append(live);tools.append(buttons);
     const status=document.createElement('small');status.id='gmPreviewStatus';status.className='gm-preview-status';status.textContent='Live-Ansicht der Gruppe';tools.append(status);
-    const rows=[...panel.querySelectorAll(':scope > .gm-row')];(rows.at(-1)||panel.querySelector('.gm-help')||panel.firstChild)?.after(tools);
+    toolBody?.append(tools);
   }
-  tools.hidden=!isGm;
+  toolbox.hidden=!isGm;tools.hidden=!isGm;
   if(!document.querySelector('#gmPreviewBadge')){const badge=document.createElement('div');badge.id='gmPreviewBadge';badge.className='gm-preview-badge';document.querySelector('.crawler-shell')?.append(badge)}
 }
 
