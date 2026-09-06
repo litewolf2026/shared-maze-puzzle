@@ -67,4 +67,13 @@ assert.match(sql,/required_states/);
 assert.match(sql,/maze_player_unlock_states_unchanged/,'Player-state transition guard is missing.');
 assert.match(sql,/SECRET_STATE_REQUIRES_GM/,'Player RPC must reject forged secret unlock transitions.');
 assert.match(sql,/v_new<>\'unresolved\'/,'First player materialization may only create unresolved secret state.');
-console.log('secret-connections: OK (hidden -> discovered -> opened -> traversable; player forgery guarded)');
+
+const app=fs.readFileSync(new URL('../js/app-v2.js',import.meta.url),'utf8');
+assert.match(app,/selem-secrets\.json/,'Runtime does not load the secret overlay.');
+assert.match(app,/applyExpansions\(base,exp,secrets\)/,'Runtime does not apply the secret overlay.');
+assert.match(app,/visibleAdj\(map,state\)/,'Automap is not filtering hidden topology.');
+assert.match(app,/openSecretConnection/,'GM open action is not wired to the authoritative app.');
+const exploration=fs.readFileSync(new URL('../js/exploration-controller.js',import.meta.url),'utf8');
+assert.match(exploration,/sharedState:shared/,'Crawler is not receiving shared unlock state.');
+
+console.log('secret-connections: OK (hidden -> discovered -> opened -> traversable; runtime + player forgery guarded)');
