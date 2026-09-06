@@ -97,6 +97,8 @@ jobs:
         run: node tests/reusable-content-pack.mjs
       - name: Validate seeded reusable content engine
         run: node tests/content-engine.mjs
+      - name: Validate Selem content diversity
+        run: node tests/selem-content-diversity.mjs
       - name: Validate structured content outcomes
         run: node tests/content-outcomes.mjs
       - name: Validate Selem table-managed core encounters
