@@ -4,8 +4,19 @@ import {applyExpansions} from '../js/map-expansion.js';
 import {buildAdj,initialSharedState,beginMove} from '../js/navigation-model.js';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
+const readText=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
 const map=applyExpansions(read('../data/maps.json').maps[0],read('../data/selem-expansion.json'),read('../data/selem-secrets.json'));
 const adj=buildAdj(map);
+const appSource=readText('../js/app-v2.js');
+const indexSource=readText('../index.html');
+
+// Client safety: every directional click remains exactly one 3-m model step, but writes are serialized.
+assert.match(appSource,/mutationQueue=Promise\.resolve\(\)/,'Client mutations must be serialized so rapid direction clicks cannot race the same room version.');
+assert.match(appSource,/enqueueMutation\(\(\)=>move\(b\.dataset\.d\)\)/,'Direction buttons must enter the serialized mutation queue.');
+assert.match(appSource,/if\(sync\.refreshed\)return false;/,'A stale-version refresh must not be overwritten by the pre-click local snapshot.');
+assert.doesNotMatch(appSource,/async function move\(dir\).*finishTransit/,'A normal direction click must not auto-run to the next logical location.');
+assert.equal(indexSource.includes('one-click-transit.js'),false,'The abandoned one-click transit helper must never be loaded.');
+assert.match(indexSource,/app-v2\.js\?v=20260906-sync1/,'The sync-safe client build must be cache-busted for the live game.');
 
 function edgeTo(from,to){
   const edge=Object.values(adj.get(from)||{}).find(candidate=>candidate.to===to);
@@ -82,4 +93,4 @@ assert.equal(state.decisionHistory.length,25);
 for(const id of ['A06','B12','C03','C10','C12','C14','C15'])assert.ok(state.visited.includes(id),`Dry run: mandatory scene ${id} was not visited.`);
 assert.ok(state.visited.includes('B14')&&state.visited.includes('D01'),'Dry run: relocated optional D entrance was not exercised.');
 
-console.log(`playability-dry-run: OK (${state.visited.length} locations visited; wrong turn recovered; B14 -> D14 -> B09 recovered; 25/25 band decisions; C15 reached)`);
+console.log(`playability-dry-run: OK (${state.visited.length} locations visited; stepwise client guarded; wrong turn recovered; B14 -> D14 -> B09 recovered; 25/25 band decisions; C15 reached)`);
