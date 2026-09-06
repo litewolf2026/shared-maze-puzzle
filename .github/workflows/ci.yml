@@ -99,6 +99,8 @@ jobs:
         run: node tests/content-engine.mjs
       - name: Validate Selem content diversity
         run: node tests/selem-content-diversity.mjs
+      - name: Validate Selem world plausibility
+        run: node tests/selem-world-plausibility.mjs
       - name: Validate structured content outcomes
         run: node tests/content-outcomes.mjs
       - name: Validate Selem table-managed core encounters
