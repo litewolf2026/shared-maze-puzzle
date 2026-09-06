@@ -135,5 +135,3 @@ jobs:
         run: node tests/secret-connections.mjs
       - name: Validate discoverable room features
         run: node tests/room-features.mjs
-      - name: Dump deterministic SL handout content
-        run: node tests/sl-handout-dump.mjs
