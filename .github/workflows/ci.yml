@@ -19,14 +19,38 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check js/app.js
+          node --check js/app-v2.js
+          node --check js/navigation-model.js
+          node --check js/map-expansion.js
+          node --check js/content-model.js
+          node --check js/crawler-view.js
+          node --check js/crawler-controller.js
+          node --check js/exploration-controller.js
           node --check js/direction-ui.js
           node --check js/map-readability.js
           node --check js/gm-route.js
+          node --check js/gm-route-v2.js
       - name: Validate maps and cipher references
         run: node tests/validate.mjs
       - name: Validate direction geometry and cipher semantics
         run: node tests/direction-semantics.mjs
+      - name: Validate frontend and backend graph parity
+        run: node tests/backend-edge-parity.mjs
+      - name: Validate decision-node parity
+        run: node tests/decision-parity.mjs
       - name: Validate unique shortest band route
         run: node tests/route-uniqueness.mjs
+      - name: Validate all solution-node pair detours
+        run: node tests/solution-pair-safety.mjs
       - name: Validate wrong-turn behavior
         run: node tests/deviations.mjs
+      - name: Validate crawler facing and sightline semantics
+        run: node tests/crawler-view.mjs
+      - name: Validate grid decision and transit semantics
+        run: node tests/navigation-model.mjs
+      - name: Validate expanded dungeon safety
+        run: node tests/expanded-map.mjs
+      - name: Validate danger and content semantics
+        run: node tests/content-model.mjs
+      - name: Validate discoverable room features
+        run: node tests/room-features.mjs

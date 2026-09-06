@@ -1,76 +1,51 @@
-# Shared Maze Puzzle
+# Shared Maze Puzzle – Selem
 
-Generische, gemeinsam gespielte Online-Wegsuche für Rollenspielrunden. Die erste feste Szenariofassung ist **Selem – Das schwarze Band**.
+Gemeinsames Browser-Dungeonrätsel für die DSA-Kampagne in Selem. Mehrere Spieler teilen denselben Gruppenstand über Supabase, können sich in der Crawleransicht aber unabhängig umsehen und große Räume lokal erkunden.
 
-## V1
+## Spielmodell V2
 
-- große handgebaute Untergrundkarte mit drei Ebenen und 55 Orten
-- Datenmodell aus Karte (`data/maps.json`), Chiffre (`data/ciphers.json`) und Szenario (`data/scenarios.json`)
-- schwarzes Band als Punktschrift-Codezeile
-- Uhr-/Kompasssteuerung für 8 Richtungen plus AUF/AB
-- falsche Wege sind echte Wege; ein Codeschritt wird nur bei einer tatsächlich möglichen Bewegung verbraucht
-- Fog of War, Weg-Historie, gemeinsamer Gruppenmarker
-- Live-Synchronisation für alle verbundenen Browser
-- persistenter Raumzustand auch nach Reload/Reconnect
-- optimistische Versionsprüfung gegen gleichzeitige widersprüchliche Klicks
-- SL-Zugang mit Undo, Reset und lokaler Kartenaufdeckung
+- **3-m-Raster:** Ein physischer Bewegungsabschnitt entspricht ungefähr 3×3 Metern.
+- **Logische Orte statt Rasterknoten:** Räume, Kreuzungen und besondere Orte bleiben Graphknoten. Die Verbindung dazwischen kann aus mehreren 3-m-Transitabschnitten bestehen.
+- **Schwarzes Band:** Die 25 Zeichen kodieren absolute Himmelsrichtungen. Ein Zeichen wird nur beim Verlassen eines echten Entscheidungspunktes verbraucht.
+- **Transit:** Schritte durch einen bereits gewählten Gang verbrauchen kein weiteres Bandzeichen.
+- **Rückweg:** Wird ein falscher Ast vollständig bis zum ursprünglichen Entscheidungspunkt zurückgegangen, wird genau das dort verbrauchte Zeichen wieder freigegeben.
+- **Persönlicher Blick:** N/NO/O/SO/S/SW/W/NW, lokal pro Gerät, in 45°-Schritten.
+- **Gemeinsame Bewegung:** Die Gruppe besitzt einen gemeinsamen Dungeonstandort und wählt Ausgänge über absolute Richtungen.
+- **Raumerkundung:** Große Räume besitzen ein lokales Erkundungsraster. Individuelle Heldenpositionen bleiben auf dem Gerät; gefundene Raumdetails werden gemeinsam synchronisiert.
 
-## Spielprinzip
+## Dungeon
 
-Die Codezeile gibt nur die nächste Richtungsentscheidung vor. Läuft die Gruppe vorher falsch, kann ein späteres Zeichen eine Richtung verlangen, die am aktuellen Ort gar nicht existiert. Dann wird kein Zeichen verbraucht: Die Gruppe muss herausfinden, an welcher früheren Weggabelung sie falsch lag.
+Die V2-Erweiterung enthält **103 logische Orte auf vier Ebenen**: Obere Ruinen, Tiefes Alt-Elem, Die vergessene Tiefe und Unter Alt-Elem. Der ursprüngliche 25-Entscheidungen-Sollweg von A01 bis C15 bleibt unverändert; Ebene D ist vollständig optional.
 
-## Architektur
+## Risiko und Inhalte
 
-```text
-GitHub Pages
-    │
-    ├── data/maps.json       Karten/Graphen
-    ├── data/ciphers.json    Chiffren
-    ├── data/scenarios.json  Kombinationen
-    │
-    └── Supabase
-          ├── Postgres: persistenter Raumzustand
-          ├── RPC: tokengeprüfte Zustandsänderungen
-          └── Realtime Broadcast: Live-Updates
-```
+Nebenräume tragen narrative Tags wie `water`, `memory`, `lost_people`, `old_elem`, `demonic`, `alchemy` oder `machinery`. `js/content-model.js` berechnet die kürzeste Graphdistanz zum Sollweg. Daraus entsteht eine Grundgefahr, die `dangerFloor` anheben kann. Loot bleibt mit `lootTier` bewusst authored. Begegnungspools liegen in `data/encounter-pools.json`, gemeinsam entdeckbare Details in `data/room-features.json`.
 
-Die Tabelle `maze_rooms` ist für `anon`/`authenticated` direkt gesperrt. Browser greifen ausschließlich über tokenprüfende `SECURITY DEFINER`-RPCs zu. Spieler- und SL-Token werden nur als SHA-256-Hash gespeichert. Der Realtime-Kanal verwendet zusätzlich ein zufälliges Channel-Secret.
+## Autoritative Daten und Supabase
 
-Der Browser enthält nur die Supabase-Projekt-URL und den **publishable key**. Niemals `service_role`- oder Secret-Keys ins Repository schreiben.
+`data/maps.json` bleibt die Basis des ursprünglichen Dungeons; `data/selem-expansion.json` wird deterministisch darübergelegt. Supabase validiert Graphkanten, Pfadkontinuität, Transit, Bandentscheidungen, Entscheidungsknoten, Bandlänge und Zielzustand. CI prüft zusätzlich Frontend-/Backend-Graphparität und Bandknoten-Parität.
 
-## Raumlinks
+## Wichtige Dateien
 
-Zugangsdaten liegen im URL-Fragment und werden dadurch beim normalen Seitenaufruf nicht an GitHub Pages gesendet:
+- `js/app-v2.js` – gemeinsame Spielsteuerung und Supabase-Synchronisation
+- `js/navigation-model.js` – 3-m-Transit, Entscheidungen, Rückwege
+- `js/crawler-view.js` – Pseudo-3D-Gang- und Raumrenderer
+- `js/exploration-controller.js` – persönlicher Blick und lokale Raumerkundung
+- `js/map-expansion.js` – deterministischer Merge der Erweiterung
+- `js/content-model.js` – Distanz/Risiko/Inhaltsmetadaten
+- `js/gm-route-v2.js` – SL-Pfad, Namen, IDs und Abweichungsanzeige
+- `data/selem-expansion.json` – zusätzliche 48 Orte und Ebene D
+- `data/room-features.json` – untersuchbare Raumdetails
+- `data/encounter-pools.json` – thematische Begegnungspools
 
-```text
-#room=XXXXXXXX&token=SPIELER_TOKEN
-```
+## Tests
 
-Ein SL-Link verwendet den SL-Token. Optional kann er zusätzlich `play=SPIELER_TOKEN` enthalten; dann kann die Spielleitung aus dem Panel direkt den Spielerlink kopieren.
+GitHub Actions validiert Syntax, Datenreferenzen, Richtungsgeometrie, Frontend-/Backend-Parität, eindeutigen 25er-Sollweg, alle 325 Sollort-Paare gegen neue gleich kurze/kürzere Umwege, Fehlabbiegungen, Crawler-Blickrichtungen, Transit/Rückweg, die 103-Orte-Erweiterung, Risiko-/Contentmodell und Raumerkundungsfeatures.
 
 ## Lokal testen
-
-Einen statischen Server starten, z. B.:
 
 ```bash
 python -m http.server 8080
 ```
 
-Dann `http://localhost:8080` öffnen. Ohne Raumfragment startet die Anwendung bewusst als lokaler Probelauf.
-
-## Supabase
-
-Das produktive V1-Backend läuft in einem eigenen Supabase-Projekt in `eu-central-1`. Die versionierte Datenbankdefinition liegt unter `supabase/migrations/`.
-
-## Tests
-
-```bash
-node tests/validate.mjs
-node tests/deviations.mjs
-```
-
-Die Tests prüfen unter anderem, dass der definierte Lösungsweg tatsächlich am Ziel endet und dass einzelne Fehlabbiegungen nicht versehentlich ebenfalls die Lösung ergeben.
-
-## Erweiterung
-
-Weitere Karten und Chiffren können später hinzugefügt und per `scenario` kombiniert bzw. zufällig ausgewählt werden. Geplante nächste Ausbaustufe: Raumerzeugung über eine geschützte SL-/Admin-Oberfläche, mehrere Karten, mehrere Chiffren und Seed-basierte Auswahl.
+Dann `http://localhost:8080` öffnen. Ohne Raumfragment startet die Anwendung als lokaler Probelauf. Private Raum-, Spieler- und SL-Tokens gehören niemals ins Repository.

@@ -1,0 +1,20 @@
+{
+  "pools": {
+    "structural":["frische Risse im Mauerwerk","abgesackter Boden","lockere Deckenplatte","enger Durchlass zwischen Trümmern"],
+    "unstable":["nachgebender Boden","kleiner Steinschlag","instabile Wandnische","gefährlich gespannte Mauerreste"],
+    "water":["plötzlich tieferes Schwarzwasser","glitschiger Untergrund","kalte Strömung aus einem Seitenschacht","überflutete Vertiefung"],
+    "stale_air":["schwere verbrauchte Luft","fauliger Gasgeruch","flackernde Flamme","stickige Kammer ohne Luftzug"],
+    "vermin":["große Höhlenratten","bleiche Krabbeltiere","Nest in altem Stoff","aufgescheuchte Fledermäuse"],
+    "lost_people":["erschöpfter Verirrter mit widersprüchlicher Zeitangabe","zurückgelassener Lagerplatz mit viel zu vielen Tagesresten","Leiche mit handgezeichneter Wegskizze","Verwirrter, der einen bereits geführten Dialog vergessen hat"],
+    "memory":["wiederkehrender Eindruck, hier schon gewesen zu sein","unleserlich gewordene eigene Markierung","kurze Erinnerungslücke","zwei einander widersprechende sichere Erinnerungen"],
+    "time_echo":["Person glaubt erst seit Stunden hier zu sein","frische Spuren neben offensichtlich uralten Resten","wiederholtes Geräusch ohne erkennbare Quelle","kurzer Eindruck einer vergangenen Raumszene"],
+    "old_elem":["unbekannte alte Bauzeichen","ungewöhnlich exakt gefügtes Mauerwerk","korrodierte technische Fassung","verdeckter alter Versorgungsschacht"],
+    "machinery":["festgefressener Mechanismus","Bronzerohre mit Restdruck","Gegengewicht hinter der Wand","alte Pump- oder Sperrvorrichtung"],
+    "alchemy":["mineralische Ablagerung","zerbrochenes alchemistisches Gefäß","haltbares seltenes Reagenz","unbekannte kristalline Rückstände"],
+    "cult":["zurückgelassenes Kultgerät","verdeckte Gebetszeichen","Spuren hastigen Aufbruchs","jüngere Opferreste"],
+    "demonic":["widernatürlich kalter Bereich","verzerrte Schatten","unpassende organische Spur im Stein","kurzer Eindruck beobachtet zu werden"],
+    "grave":["geöffnete Grabnische","zerfallenes Grabinventar","Knochen mit ungewöhnlicher Bestattungslage","versiegelte kleine Beigabenkammer"],
+    "writings":["fragmentarische Notiz","widersprüchliche Wegbeschreibung","altes Inventarverzeichnis","Randbemerkung zu einem verborgenen Bereich"],
+    "magic":["schwacher astraler Nachhall","reagierende alte Fassung","magisch konserviertes Fragment","nicht mehr vollständig funktionierender Fokus"]
+  }
+}
