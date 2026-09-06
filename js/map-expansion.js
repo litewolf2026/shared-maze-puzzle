@@ -17,6 +17,11 @@ export function applyExpansion(base,expansion){
   map.edges.push(...structuredClone(expansion.edges||[]));
   map.decor=[...(map.decor||[]),...structuredClone(expansion.decor||[])];
   map.edgeMeta={...(map.edgeMeta||{}),...(expansion.edgeMeta||{})};
-  map.expansionId=expansion.id||null;
+  const ids=Array.isArray(map.expansionIds)?map.expansionIds:[map.expansionId].filter(Boolean);
+  if(expansion.id)ids.push(expansion.id);
+  map.expansionIds=[...new Set(ids)];
+  map.expansionId=map.expansionIds.at(-1)||null;
   return map;
 }
+
+export function applyExpansions(base,...overlays){return overlays.filter(Boolean).reduce((map,overlay)=>applyExpansion(map,overlay),structuredClone(base))}

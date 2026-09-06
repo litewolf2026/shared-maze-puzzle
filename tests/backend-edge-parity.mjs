@@ -1,14 +1,16 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-import {applyExpansion} from '../js/map-expansion.js';
+import {applyExpansions} from '../js/map-expansion.js';
 
 const maps=JSON.parse(fs.readFileSync(new URL('../data/maps.json',import.meta.url),'utf8')).maps;
 const expansion=JSON.parse(fs.readFileSync(new URL('../data/selem-expansion.json',import.meta.url),'utf8'));
-const map=applyExpansion(maps[0],expansion);
+const secrets=JSON.parse(fs.readFileSync(new URL('../data/selem-secrets.json',import.meta.url),'utf8'));
+const map=applyExpansions(maps[0],expansion,secrets);
 const baseSql=fs.readFileSync(new URL('../supabase/migrations/20260905_authoritative_route_validation.sql',import.meta.url),'utf8');
 const fixSql=fs.readFileSync(new URL('../supabase/migrations/20260906_direction_semantics_fix.sql',import.meta.url),'utf8');
 const expansionSql=fs.readFileSync(new URL('../supabase/migrations/20260906_selem_expansion_edges.sql',import.meta.url),'utf8');
 const safetySql=fs.readFileSync(new URL('../supabase/migrations/20260906_expansion_route_safety_fix.sql',import.meta.url),'utf8');
+const hiddenSql=fs.readFileSync(new URL('../supabase/migrations/20260906_hidden_connections.sql',import.meta.url),'utf8');
 const OPP={N:'S',NE:'SW',E:'W',SE:'NW',S:'N',SW:'NE',W:'E',NW:'SE',UP:'DOWN',DOWN:'UP'};
 
 function edgeArray(sql,label){const match=sql.match(/\$edges\$(\[[\s\S]*?\])\$edges\$::jsonb/);assert.ok(match,`Could not find edge JSON in ${label}.`);return JSON.parse(match[1])}
@@ -23,8 +25,11 @@ edgeArray(baseSql,'authoritative migration').forEach(putWithReverse);
 applyDeleteSql(fixSql);applyValuesSql(fixSql);
 edgeArray(expansionSql,'expansion migration').forEach(([a,d,b])=>{put(a,d,b);const r=OPP[d];if(r)put(b,r,a)});
 applyDeleteSql(safetySql);applyValuesSql(safetySql);
+applyValuesSql(hiddenSql);
 
 const frontend=new Map();
 for(const [a,d,b] of map.edges){frontend.set(`${a}|${d}`,b);const r=OPP[d];if(r&&!frontend.has(`${b}|${r}`))frontend.set(`${b}|${r}`,a)}
-assert.deepEqual([...backend.entries()].sort(),[...frontend.entries()].sort(),'Supabase maze_edges migrations drift from expanded frontend graph');
-console.log(`backend-edge-parity: OK (${frontend.size} directed edges, expansion included)`);
+assert.deepEqual([...backend.entries()].sort(),[...frontend.entries()].sort(),'Supabase maze_edges migrations drift from fully expanded frontend graph');
+assert.equal(frontend.get('D12|W'),'D13');
+assert.equal(frontend.get('D13|E'),'D12');
+console.log(`backend-edge-parity: OK (${frontend.size} directed edges, secret overlay included)`);

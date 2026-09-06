@@ -25,6 +25,7 @@ jobs:
           node --check js/content-model.js
           node --check js/content-engine.js
           node --check js/dsa41-exploration.js
+          node --check js/secret-connections.js
           node --check js/content-controller.js
           node --check js/crawler-view.js
           node --check js/crawler-controller.js
@@ -63,5 +64,7 @@ jobs:
         run: node tests/spatial-content.mjs
       - name: Validate DSA 4.1 exploration checks
         run: node tests/dsa41-exploration.mjs
+      - name: Validate hidden connection lifecycle
+        run: node tests/secret-connections.mjs
       - name: Validate discoverable room features
         run: node tests/room-features.mjs
