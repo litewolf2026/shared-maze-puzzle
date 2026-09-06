@@ -18,8 +18,12 @@ const missingScenes=scenes.filter(n=>!assignmentCount(n.id)).sort((a,b)=>a.id.lo
 const coveredScenes=scenes.length-missingScenes.length;
 const transitKinds=new Set(['junction','stairs','corridor']);
 const intentionallySparse=map.nodes.filter(n=>transitKinds.has(n.kind)&&!assignmentCount(n.id));
-for(const id of ['A06','B12','C10','C14','C15','A31','B35','D13'])assert.ok(assignmentCount(id)>0,`Key scene ${id} has no content.`);
+for(const id of ['A02','A04','A06','A25','B12','C03','C10','C14','C15','A31','B35','D13'])assert.ok(assignmentCount(id)>0,`Key scene ${id} has no content.`);
 assert.equal(map.nodes.length,106);
+assert.equal(scenes.length,54,'Scene-location classification changed; review coverage policy intentionally.');
+assert.deepEqual(missingScenes.map(n=>n.id),[],'Every scene-like location must have authored or generated content.');
+assert.equal(coveredScenes,54);
+assert.ok(intentionallySparse.length>=35,'Transit appears overfilled; sparse movement space is intentional.');
 console.log(`content-coverage: ${coveredScenes}/${scenes.length} scene locations covered; ${Object.values(plan.rooms).reduce((n,r)=>n+r.assignments.length,0)} assignments total`);
 console.log('by-kind:',Object.entries(byKind).sort().map(([k,v])=>`${k} ${v.covered}/${v.total} (${v.assignments})`).join(' | '));
 console.log(`missing-scenes (${missingScenes.length}):`,missingScenes.map(n=>`${n.id}:${n.name}`).join(' | ')||'none');
