@@ -9,7 +9,7 @@ const map=applyExpansions(read('../data/maps.json').maps[0],read('../data/selem-
 const audit=canonicalRouteAudit(map);
 
 assert.equal(audit.ok,true,audit.errors.join(' '));
-assert.equal(map.nodes.length,107,'Final Selem graph must contain 107 locations.');
+assert.equal(map.nodes.length,108,'Final Selem graph must contain 108 locations including the collapsed A02 north branch.');
 assert.equal(audit.path.length,29,'Canonical physical route must contain 29 locations / 28 edges.');
 assert.equal(audit.physical.length,28,'Canonical physical route must contain 28 physical edges.');
 assert.equal(audit.decisions.length,25,'Black band must contain exactly 25 decisions.');
@@ -44,4 +44,4 @@ assert.equal(state.node,map.goal);assert.equal(state.bandStep,25);assert.equal(r
 const broken=structuredClone(state);broken.decisionHistory[3]={...broken.decisionHistory[3],to:'A07'};
 assert.equal(routeProgressStatus(map,broken).kind,'decision-divergence','GM route validator must detect the old A05 -> A07 shortcut model as wrong.');
 
-console.log('final-route-integrity: OK (107 locations; 25 band decisions; 28 physical canonical edges; direction geometry and GM route progress validated)');
+console.log('final-route-integrity: OK (108 locations; A02 crossroads restored; 25 band decisions; 28 physical canonical edges; direction geometry and GM route progress validated)');
