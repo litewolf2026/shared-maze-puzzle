@@ -18,6 +18,9 @@ assert.equal(sahira.anchor.kind,'feature');
 assert.ok(['desk','chest'].includes(sahira.anchor.anchorId),`Unexpected Sahira anchor ${sahira.anchor.anchorId}`);
 const cache=a.rooms.C14.assignments.find(x=>x.contentId==='selem_sahira_personal_cache');
 assert.ok(cache.anchor&&cache.hidden,'Sahira cache must stay hidden and spatially anchored.');
+const secretPassage=a.rooms.D12.assignments.find(x=>x.type==='secret_connection');
+assert.equal(secretPassage?.anchor?.kind,'feature','D12 secret connection must use the authored wall feature.');
+assert.equal(secretPassage?.anchor?.anchorId,'sealed_wall','D12 secret connection drifted away from the sealed wall.');
 
 const syntheticNode={id:'R',kind:'room',z:0,tags:['test'],exploreGrid:{w:6,h:4}};
 const syntheticAssignment={slotId:'loot',placement:['floor']};
