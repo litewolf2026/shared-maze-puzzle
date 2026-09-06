@@ -1,0 +1,109 @@
+/* Readability pass for table use.
+   Preserve the dark Selem look, but make all information that matters during play
+   comfortably readable on a normal desktop display. Loaded last on purpose. */
+
+/* Global controls and headings */
+button{line-height:1.2}
+.map-toolbar button,.side button,.gm-panel button{font-size:14px;padding:8px 11px}
+.brand strong{font-size:20px}
+.brand span{font-size:12px;line-height:1.35}
+.band-title{font-size:13px;line-height:1.3}
+.status{font-size:14px}
+.status b{font-size:16px}
+.status .pill{font-size:13px}
+
+/* Crawler header and in-scene text */
+.crawler-title strong{font-size:20px;line-height:1.2}
+.crawler-title small{font-size:12px;line-height:1.35;opacity:.86}
+.crawler-compass small{font-size:11px}
+.scene-arrival{
+  width:min(70%,690px);
+  padding:9px 13px;
+  font-size:14px;
+  line-height:1.5;
+}
+.crawler-help{font-size:11px;line-height:1.35}
+
+/* Personal look / room exploration */
+.look-panel{min-width:205px;max-width:285px;padding:9px 10px;gap:8px}
+.look-panel>b,.room-explore>b{font-size:11px}
+.look-buttons button,.explore-buttons button{font-size:14px;min-height:36px;padding:6px 9px}
+.look-buttons small,.explore-buttons small{font-size:10px;line-height:1.2}
+.room-explore>#heroPosition{font-size:11px;line-height:1.35}
+.room-search{font-size:12px;line-height:1.3;min-height:34px}
+.feature-item{padding:8px}
+.feature-item b{font-size:13px;line-height:1.3}
+.feature-item small{font-size:12px;line-height:1.45}
+.feature-item .dsa-check-hint{font-size:11px;line-height:1.4}
+.feature-item button{font-size:12px;min-height:33px}
+.nothing-nearby{font-size:11px;line-height:1.4}
+
+/* Right-hand play information */
+.card{padding:11px 12px}
+.card h3{font-size:16px;line-height:1.2;margin-bottom:8px}
+.location{font-size:20px;line-height:1.22}
+.location small{font-size:13px;line-height:1.35;margin-top:6px}
+.progress-line{font-size:13px;line-height:1.3}
+.progress-line b{font-size:14px}
+.dir{font-size:14px!important}
+.center-mark{font-size:13px;line-height:1.15}
+.center-mark small{font-size:9px;line-height:1.2}
+.vertical button{font-size:14px}
+.backtrack{font-size:13px!important;line-height:1.3}
+.compass-note{font-size:12px;line-height:1.45;margin-top:8px}
+.history{font-size:14px}
+.history ol{font-size:14px;line-height:1.4;padding-left:24px;margin:8px 0}
+.history li{margin:6px 0;line-height:1.4}
+
+/* GM workspace: compact in footprint, not in eyesight. */
+.gm-panel{width:318px;padding:11px;line-height:1.35}
+.gm-panel h3{font-size:19px}
+.gm-help{font-size:13px;line-height:1.45}
+.gm-preview-tools strong{font-size:14px;line-height:1.3}
+.gm-preview-tools small{font-size:11px;line-height:1.45}
+.gm-preview-buttons button{font-size:12px!important;padding:6px 7px!important}
+.gm-preview-status{font-size:11px!important;line-height:1.4}
+.gm-preview-badge{font-size:11px}
+.gm-scene-guide h4{font-size:15px;line-height:1.3}
+.gm-scene-guide>small,.gm-setpiece-body>small,.gm-setpiece-phase>small{font-size:11px;line-height:1.45}
+.scene-signature{font-size:10px}
+.gm-setpiece summary{font-size:12px;line-height:1.35}
+.gm-setpiece-phase>b{font-size:12px}
+
+.footer{font-size:12px;line-height:1.3}
+
+/* Give the larger text room to breathe on normal desktop widths. */
+@media(min-width:1050px){
+  body.view-crawler .main{grid-template-columns:minmax(0,1fr) 294px;gap:9px}
+  body.view-crawler .topbar{grid-template-columns:235px minmax(360px,1fr) 175px;padding:8px 12px}
+  body.view-crawler .brand strong{font-size:20px}
+  body.view-crawler .brand span{font-size:12px}
+  body.view-crawler .side{gap:8px}
+  body.view-crawler .side .card{padding:11px 12px}
+  body.view-crawler .history{font-size:14px}
+  body.view-crawler .crawler-head{top:54px}
+  .gm-panel{right:306px}
+}
+
+@media(max-width:1040px){
+  .main{grid-template-columns:minmax(0,1fr) 286px}
+  .gm-panel{right:298px;width:300px}
+}
+
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .gm-panel{right:12px;width:min(318px,calc(100vw - 24px))}
+  .scene-arrival{width:min(80%,690px)}
+}
+
+@media(max-width:560px){
+  .brand strong{font-size:18px}
+  .band-title{font-size:11px}
+  .crawler-title strong{font-size:18px}
+  .crawler-title small{font-size:11px}
+  .scene-arrival{width:86%;font-size:12px;line-height:1.4;padding:7px 9px}
+  .look-panel{min-width:185px;max-width:235px;padding:8px}
+  .card h3{font-size:15px}
+  .location{font-size:18px}
+  .history ol{font-size:13px}
+}
