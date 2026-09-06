@@ -15,7 +15,7 @@ const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 const plan=generateContentPlan({map,slotConfig:slots,catalog,pools,profiles,roomFeatures,derivedByNode,seed:slots.generation.seed});
 const DIRS={N:{opp:'S'},NE:{opp:'SW'},E:{opp:'W'},SE:{opp:'NW'},S:{opp:'N'},SW:{opp:'NE'},W:{opp:'E'},NW:{opp:'SE'},UP:{opp:'DOWN'},DOWN:{opp:'UP'}};
 
-assert.equal(map.nodes.length,107,'Final overlay should add three prepared secret rooms plus the optional drowned cavern to the 103-location expansion.');
+assert.equal(map.nodes.length,108,'Final overlay should contain the 104-location expansion (including A32), three prepared secret rooms and the optional drowned cavern.');
 for(const [id,name] of [['A31','Verborgene Pilgerkammer'],['B35','Vergessener Wartungsraum'],['D13','Versiegeltes Werkmeisterarchiv']])assert.ok(map.nodes.some(n=>n.id===id&&n.name===name),`Missing secret room ${id}`);
 for(const [from,dir,to] of [['A23','E','A31'],['A31','W','A23'],['B33','S','B35'],['B35','N','B33'],['D12','W','D13'],['D13','E','D12']])assert.equal(buildAdj(map).get(from)[dir].to,to,`Missing secret topology ${from}/${dir}/${to}`);
 
@@ -84,4 +84,4 @@ assert.match(app,/openSecretConnection/,'GM open action is not wired to the auth
 const exploration=fs.readFileSync(new URL('../js/exploration-controller.js',import.meta.url),'utf8');
 assert.match(exploration,/sharedState:shared/,'Crawler is not receiving shared unlock state.');
 
-console.log(`secret-connections: OK (three hidden rooms + optional D14; canonical physical route remains unique at ${canonicalPhysicalEdges} edges / ${map.solution.length} band decisions)`);
+console.log(`secret-connections: OK (three hidden rooms + optional D14 + A32 collapsed branch; canonical physical route remains unique at ${canonicalPhysicalEdges} edges / ${map.solution.length} band decisions)`);
