@@ -49,6 +49,8 @@ jobs:
         run: node tests/backend-edge-parity.mjs
       - name: Validate decision-node parity
         run: node tests/decision-parity.mjs
+      - name: Validate canonical physical story route
+        run: node tests/canonical-story-route.mjs
       - name: Validate unique shortest band route
         run: node tests/route-uniqueness.mjs
       - name: Validate all solution-node pair detours

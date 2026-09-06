@@ -12,6 +12,7 @@ const expansionSql=fs.readFileSync(new URL('../supabase/migrations/20260906_sele
 const safetySql=fs.readFileSync(new URL('../supabase/migrations/20260906_expansion_route_safety_fix.sql',import.meta.url),'utf8');
 const hiddenSql=fs.readFileSync(new URL('../supabase/migrations/20260906_hidden_connections.sql',import.meta.url),'utf8');
 const moreHiddenSql=fs.readFileSync(new URL('../supabase/migrations/20260906_additional_hidden_rooms.sql',import.meta.url),'utf8');
+const routeSql=fs.readFileSync(new URL('../supabase/migrations/20260906_canonical_story_route.sql',import.meta.url),'utf8');
 const OPP={N:'S',NE:'SW',E:'W',SE:'NW',S:'N',SW:'NE',W:'E',NW:'SE',UP:'DOWN',DOWN:'UP'};
 
 function edgeArray(sql,label){const match=sql.match(/\$edges\$(\[[\s\S]*?\])\$edges\$::jsonb/);assert.ok(match,`Could not find edge JSON in ${label}.`);return JSON.parse(match[1])}
@@ -27,9 +28,11 @@ applyDeleteSql(fixSql);applyValuesSql(fixSql);
 edgeArray(expansionSql,'expansion migration').forEach(([a,d,b])=>{put(a,d,b);const r=OPP[d];if(r)put(b,r,a)});
 applyDeleteSql(safetySql);applyValuesSql(safetySql);
 applyValuesSql(hiddenSql);applyValuesSql(moreHiddenSql);
+applyDeleteSql(routeSql);applyValuesSql(routeSql);
 
 const frontend=new Map();
 for(const [a,d,b] of map.edges){frontend.set(`${a}|${d}`,b);const r=OPP[d];if(r&&!frontend.has(`${b}|${r}`))frontend.set(`${b}|${r}`,a)}
 assert.deepEqual([...backend.entries()].sort(),[...frontend.entries()].sort(),'Supabase maze_edges migrations drift from fully expanded frontend graph');
 for(const [key,target] of [['A23|E','A31'],['A31|W','A23'],['B33|S','B35'],['B35|N','B33'],['D12|W','D13'],['D13|E','D12']])assert.equal(frontend.get(key),target,`Missing hidden edge ${key}`);
-console.log(`backend-edge-parity: OK (${frontend.size} directed edges, three hidden rooms included)`);
+for(const [key,target] of [['A05|SW','A06'],['A06|SW','A07'],['C09|SE','C10'],['C10|SE','C12'],['C12|S','C14'],['C14|S','C15'],['C14|NE','C26']])assert.equal(frontend.get(key),target,`Missing canonical story-route edge ${key}`);
+console.log(`backend-edge-parity: OK (${frontend.size} directed edges, hidden rooms and canonical story route included)`);

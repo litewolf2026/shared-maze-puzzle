@@ -39,5 +39,13 @@ r=beginMove(map,s,'E');s=r.state;assert.equal(s.bandStep,2);while(s.transit){r=b
 assert.equal(s.node,'C');assert.equal(s.bandStep,2);r=beginMove(map,s,'W');s=r.state;while(s.transit){r=beginMove(map,s,'W');s=r.state}
 assert.equal(s.node,'B');assert.equal(s.bandStep,1,'Backtracking a dead end restores exactly the wrong decision.');
 
-const normalized=normalizeSharedState({...s,step:99,history:[]},map);assert.equal(normalized.step,normalized.bandStep,'Legacy step mirrors bandStep.');assert.deepEqual(normalized.history,normalized.decisionHistory,'Legacy history mirrors decision history.');
-console.log('navigation-model: OK');
+const normalized=normalizeSharedState({...s,step:99,history:[]},map);assert.equal(normalized.step,normalized.bandStep,'V2 state keeps bandStep authoritative over compatibility aliases.');assert.deepEqual(normalized.history,normalized.decisionHistory,'Legacy history mirrors decision history.');
+
+// A genuine V1 payload has only step/history, not the V2 fields. Defaults must not mask it.
+const legacyHistory=[{from:'A',dir:'E',to:'B',step:0}];
+const legacy=normalizeSharedState({node:'B',step:1,history:legacyHistory,visited:['A','B']},map);
+assert.equal(legacy.bandStep,1,'Legacy step must import as bandStep.');
+assert.deepEqual(legacy.decisionHistory,legacyHistory,'Legacy history must import as decisionHistory.');
+assert.deepEqual(legacy.pathHistory,legacyHistory,'Legacy history must import as pathHistory until a scenario migration expands it.');
+assert.equal(legacy.step,1);assert.deepEqual(legacy.history,legacyHistory);
+console.log('navigation-model: OK (including genuine V1 state import)');
