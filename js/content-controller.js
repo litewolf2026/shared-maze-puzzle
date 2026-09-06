@@ -22,7 +22,7 @@ function render(){
     if(definition.description){const desc=document.createElement('p');desc.className='gm-content-desc';desc.textContent=definition.description;item.append(desc)}
     if(!TERMINAL.has(a.state)){
       const actions=document.createElement('div');actions.className='gm-content-actions';
-      if(a.state==='unresolved')actions.append(actionButton(a.hidden?'Aufdecken':'Als entdeckt','discover',a.slotId,'discover'));
+      if(a.state==='unresolved')actions.append(actionButton(a.hidden?'Aufdecken':'Als entdeckt',nodeId,a.slotId,'discover'));
       if(['hazard','encounter','event'].includes(a.type)&&['unresolved','discovered'].includes(a.state))actions.append(actionButton('Auslösen',nodeId,a.slotId,'trigger'));
       if(a.type==='loot'&&a.state==='discovered')actions.append(actionButton('Genommen',nodeId,a.slotId,'take'));
       actions.append(actionButton('Erledigt',nodeId,a.slotId,'resolve'),actionButton('Deaktivieren',nodeId,a.slotId,'disable'));
