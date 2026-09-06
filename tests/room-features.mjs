@@ -19,5 +19,8 @@ for(const [nodeId,list] of Object.entries(features)){
     assert.ok(f.label&&f.description,`${key} lacks player-facing text.`);
   }
 }
-assert.ok(count>=15,'Expected a useful initial set of discoverable room features.');
-console.log(`room-features: OK (${count} discoverables)`);
+assert.ok(count>=35,`Expected broad spatial feature coverage, got ${count}.`);
+for(const nodeId of ['A06','A08','A12','B07','B14','B17','C07','C10','C11','C14','C15','D08','D12'])assert.ok(features[nodeId]?.length,`Authored key room ${nodeId} lacks spatial features.`);
+assert.ok(features.C14.some(f=>f.id==='desk')&&features.C14.some(f=>f.id==='chest'),'Sahiras room needs both desk and chest anchors.');
+assert.ok(features.D12.some(f=>f.id==='sealed_wall'),'D12 needs a spatial anchor for the prepared secret connection.');
+console.log(`room-features: OK (${count} spatial discoverables across ${Object.keys(features).length} rooms)`);
