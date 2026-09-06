@@ -49,4 +49,8 @@ for(const [nodeId,label] of expected){
   assert.ok(plan.rooms[nodeId]?.assignments.some(a=>a.type==='loot'&&a.label===label),`${nodeId} should contain concrete price-list loot: ${label}`);
 }
 
+const priceSummary=priceLoot
+  .map(a=>`${a.nodeId}:${a.label}${a.mechanics?.priceReference?` (${a.mechanics.priceReference})`:''}`)
+  .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
 console.log(`selem-content-diversity: OK (${priceLoot.length} distinct price-list finds; Nottel guarded; erased-name motif unique; generic tool loot absent)`);
+console.log(`price-list-finds: ${priceSummary.join(' | ')}`);
