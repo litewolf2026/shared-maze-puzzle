@@ -1,0 +1,144 @@
+{
+  "version":1,
+  "scenario":"selem-01",
+  "setpieces":{
+    "A06":{
+      "title":"Die leere Fassung",
+      "objective":"Den materiellen Ausgangspunkt des Konflikts sichern: Hier befand sich das Auge der vergangenen Stunde, und es wurde gezielt entnommen.",
+      "facts":[
+        "Die Fassung ist älter als die jüngsten Bearbeitungsspuren.",
+        "Die Entnahme ist kein natürlicher Verlust oder Einsturzschaden.",
+        "Der Ort zeigt eine schwache zeitliche Anomalie, beweist aber für sich allein weder Täter noch späteren Ablauf."
+      ],
+      "unknowns":[
+        "Wer Maruban unmittelbar nach der Entnahme angriff.",
+        "Wo sich das Auge jetzt befindet.",
+        "Ob die lokale Anomalie von der Fassung, dem entfernten Auge oder der älteren Anlage stammt."
+      ],
+      "phases":[
+        {"title":"Erster Blick","gm":"Die leere Fassung soll zuerst wie ein präziser materieller Befund wirken, nicht wie eine Vision. Frische Kanten, Abrieb und Werkzeugspuren sind belastbarer als Erinnerungen.","choices":["Spuren sichern","Fassung magisch/alchemistisch untersuchen","Umgebung und Wasser beobachten"],"consequences":["Gründliche Dokumentation wird später zu einem unabhängigen Zeitanker."]},
+        {"title":"Die kleine Unmöglichkeit","gm":"Lass den Wasserfilm kurz gegen die Neigung laufen oder eine Tropfspur einen Augenblick zu früh sichtbar sein. Nur ein reproduzierbares Detail, keine Informationsvision.","choices":["Versuch wiederholen","Zeugen getrennt beschreiben lassen","Phänomen ignorieren"],"consequences":["Getrennte Notizen stärken später die Beweislage gegen Sahiras Umschreibung."]}
+      ],
+      "handoff":"Die Helden haben einen belastbaren Ausgangspunkt: Auge vorhanden, gezielt entnommen, danach fehlt es. Alles Weitere muss aus Menschen, Spuren und späteren Zeitankern rekonstruiert werden.",
+      "handout":{"kind":"sketch","title":"Leere grüne Fassung","idea":"Draufsicht auf Sockel/Fassung mit drei markierten frischen Entnahmespuren und einer Wasserlaufspur; keine Täterinformation."}
+    },
+    "B12":{
+      "title":"Das Schwarze Tor",
+      "objective":"Den Übergang in den kontrollierten Kultbereich als bewusste Schwelle ausspielen, ohne ihn zu einem unüberwindbaren Plot-Tor zu machen.",
+      "facts":[
+        "Das Tor und sein Mauerwerk sind älter als die aktuelle Kultnutzung.",
+        "Jüngere Berührungs-, Wachs- und dunkle Rückstände zeigen regelmäßige Nutzung.",
+        "Der Kult hat einen vorhandenen Abschluss übernommen und umgedeutet."
+      ],
+      "unknowns":["Wie viele Kultangehörige sich jenseits aufhalten.","Welche Rückstände rein rituell und welche tatsächlich übernatürlich wirksam sind."],
+      "phases":[
+        {"title":"Annäherung","gm":"Lass die Gruppe zunächst Gebrauchsspuren lesen. Wer leise vorgeht, kann merken, dass das Tor keine seit Jahren versiegelte Schwelle ist.","choices":["lauschen und beobachten","Rückstände analysieren","direkt öffnen"],"consequences":["Sorgfalt kann die nächste Kultbegegnung vorbereiten, öffnet aber keinen geheimen Bonusweg."]},
+        {"title":"Schwelle","gm":"Das Öffnen ist eine Entscheidung über Vorgehen, keine Band-Sonderregel. Ein langsames Öffnen, Ablenken oder gewaltsames Vorgehen darf unterschiedliche Geräusch-/Alarmfolgen haben.","choices":["leise","Täuschung/Ablenkung","Gewalt"],"consequences":["Die SL kann Aufmerksamkeit im Kultbereich erhöhen oder senken; die Bandlogik bleibt unverändert."]}
+      ],
+      "handoff":"Hinter dem Tor wird aus alter Ruine eine aktuell genutzte Arbeits- und Kultstätte.",
+      "handout":{"kind":"detail","title":"Schwarzes Tor – Nutzungsschichten","idea":"Nahaufnahme/Skizze mit alten Fugen und jüngeren blanken Griffstellen; nützlich für Spieler, die Spuren vergleichen."}
+    },
+    "C03":{
+      "title":"Das Relief, das nicht gleich bleibt",
+      "objective":"Die Spieler selbst erfahren lassen, warum unabhängige Aufzeichnungen wichtiger werden als Gruppen-Erinnerung.",
+      "facts":[
+        "Mehrere Beobachter können sich nach kurzem Wegsehen an unterschiedliche Details erinnern.",
+        "Schriftliche oder gezeichnete Aufzeichnungen bleiben als Vergleichsmaterial erhalten.",
+        "Der Effekt liefert keine geheimen Informationen; er erzeugt Unsicherheit über ein bereits wahrgenommenes Detail."
+      ],
+      "unknowns":["Ob sich tatsächlich die Wahrnehmung, die Erinnerung oder eine kleine lokale Zustandsüberlagerung verändert."],
+      "phases":[
+        {"title":"Beobachten","gm":"Bitte Spieler bei Bedarf einzeln um eine kurze Beschreibung oder zeige dieselbe geometrische Figur minimal unterschiedlich. Noch keine Probe nötig, solange der Effekt als Szene funktioniert.","choices":["gemeinsam diskutieren","getrennt notieren","Relief markieren/abpausen"],"consequences":["Wer unabhängig dokumentiert, besitzt später einen stabileren Anker."]},
+        {"title":"Vergleichen","gm":"Die Widersprüche sollen klein und präzise sein: eine zusätzliche Linie, ein anderer Anschluss, keine komplett andere Wand.","choices":["materielle Kopie anfertigen","magische Analyse","weitergehen"],"consequences":["Die Gruppe lernt eine Methode, die C12 und C15 tatsächlich nützlich macht."]}
+      ],
+      "handoff":"Ab hier ist 'wir erinnern uns alle so' kein starker Beweis mehr.",
+      "handout":{"kind":"puzzle","title":"Drei Fassungen desselben Reliefs","idea":"Drei fast identische Liniengrafiken mit je einer kleinen Abweichung; die Spieler können ihre eigene Beobachtung dagegenhalten."}
+    },
+    "C10":{
+      "title":"Nottel lebt",
+      "objective":"Nottel als handelnde Zeugin retten und ihre belastbaren Aufzeichnungen von ihren beschädigten Erinnerungen trennen.",
+      "facts":[
+        "Nottel fand Marubans Leichnam und begann selbst nachzuforschen.",
+        "Sie bemerkte, dass Erinnerung und Wegfolge unzuverlässig wurden, und hielt deshalb Beobachtungen fest.",
+        "Sahira ließ sie festhalten, weil Nottels Zeugnis und Aufzeichnungen dem gewünschten Geschichtsbild widersprechen.",
+        "Nottel ist erschöpft, aber nicht als sterbende Stichwortgeberin angelegt."
+      ],
+      "unknowns":[
+        "Der aktuelle Aufenthaltsort des Auges.",
+        "Die vollständige technische Funktionsweise von Sahiras Ritual.",
+        "Welche Erinnerungslücken Nottels aus Nachzehrerwirkung, Wegzeichen oder normaler Belastung stammen."
+      ],
+      "phases":[
+        {"title":"Sichern","gm":"Nottel reagiert zuerst auf konkrete Sicherheit: Tür, Wasser, Fluchtweg, Waffen weg von ihr. Sie hat wenig Geduld für pathetische Befragung.","choices":["sofort befreien","erst Lage sichern","medizinisch versorgen"],"consequences":["Respektvolles Vorgehen macht sie kooperativ; Druck macht ihre Aussagen nicht genauer."]},
+        {"title":"Aussage gegen Notiz","gm":"Lass Nottel bei mindestens einem Detail offen sagen: 'Ich glaube X – aber dort habe ich Y aufgeschrieben.' Ihre Stärke ist nicht perfekte Erinnerung, sondern dass sie gelernt hat, ihr zu misstrauen.","choices":["Notizen gemeinsam ordnen","nur schnelle Kernfragen stellen","Nottel aus dem Dungeon schicken/begleiten"],"consequences":["Ihre Notizen können in C15 als unabhängiger Zeitanker dienen, wenn die Helden sie sichern."]},
+        {"title":"Entscheidung","gm":"Nottel kann weiterhelfen, muss aber nicht als sechstes Gruppenmitglied in jedes Gefecht gezogen werden. Gib der Gruppe eine reale Entscheidung zwischen Schutz, Begleitung und Rückzug.","choices":["mitnehmen","an sicherem Punkt zurücklassen","Rückweg organisieren"],"consequences":["Keine Wahl vernichtet die Lösung; sie verändert nur, wie unmittelbar Nottel im Finale verfügbar ist."]}
+      ],
+      "handoff":"Die Gruppe besitzt nun einen menschlichen Gegenanker: Nottels dokumentierte Folge nach Marubans Tod widerspricht einer Welt, in der Maruban das Auge nie entnahm.",
+      "handout":{"kind":"notes","title":"Nottels Richtungs- und Geräuschlisten","idea":"Kurze nummerierte Einträge mit absoluten Richtungen, wiederkehrenden Geräuschen und bewusst ausgestrichenen unsicheren Erinnerungen."}
+    },
+    "C12":{
+      "title":"Die Schwelle des verlorenen Weges",
+      "objective":"Das zweite Satinav-Echo und das Zeichen des verlorenen Weges so ausspielen, dass die Helden das Problem verstehen und echte Gegenmaßnahmen wählen können.",
+      "facts":[
+        "Das Zeichen greift räumliche Zuordnung und Wegfolge an, nicht jede Erinnerung einer Person.",
+        "Seine Wirkung ist an die Schwelle bzw. das Verlassen des relevanten Bereichs gebunden.",
+        "Der Ort ist untersuchbar und die Wirkung kann gestört, gebannt oder materiell beschädigt werden; es gibt keinen unzerstörbaren Plotmechanismus.",
+        "Satinavs Echo zeigt Reihenfolge und gebrochene Zeit, keine beliebigen Geheimnisse."
+      ],
+      "unknowns":["Welche Gegenmaßnahme für diese Gruppe die eleganteste ist.","Wie viel Erinnerung bereits bei früheren Durchgängen verloren ging."],
+      "phases":[
+        {"title":"Körper erinnert zuerst","gm":"Zeige alte Schrammen, Kreide oder eine vertraute Griffbewegung, bevor du das Echo einsetzt. Der materielle Befund soll sagen: Ihr wart oder etwas von euch war schon in dieser Beziehung zum Ort.","choices":["Spuren sichern","eigenes Gepäck prüfen","Schwelle umgehen suchen"],"consequences":["Die Gruppe kann einen eigenen Gegenanker herstellen, bevor sie das Risiko eingeht."]},
+        {"title":"Satinav-Echo","gm":"Kurze, fragmentierte Folge: dieselbe Schwelle, Handlungen in anderer Reihenfolge, ein Detail vor seiner Ursache. Keine Täter-Enthüllung und keine komplette Vergangenheitsszene.","choices":["beobachten","Aufzeichnungen vergleichen","magische Analyse"],"consequences":["Das Echo bestätigt: Reihenfolge ist beschädigt; es ersetzt keine Ermittlungsarbeit."]},
+        {"title":"Mit dem Zeichen umgehen","gm":"Gib mindestens drei reale Wege: Zeichen zerstören/beschädigen, magisch bannen/abschirmen oder bewusst passieren und externe Anker hinterlassen.","choices":["zerstören","bannen/abschirmen","markieren und passieren"],"consequences":["Erfolg reduziert oder verhindert spätere Wegvergessenheit; riskantes Passieren lässt die bestehende Band-/Navigationsmechanik ihre Arbeit tun."]}
+      ],
+      "handoff":"Die Helden verstehen jetzt, warum das schwarze Band und unabhängige Markierungen nötig sind – und können den Effekt aktiv bekämpfen.",
+      "handout":{"kind":"glyph","title":"Zeichen des verlorenen Weges","idea":"Eigenständige Linien-/Punktglyphe mit drei materiell angreifbaren Segmenten; eignet sich für Analyse oder Zerstörungsplan."}
+    },
+    "C14":{
+      "title":"Sahiras Arbeitszimmer",
+      "objective":"Sahira als methodische, selbst gefährdete Gegenspielerin zeigen und ihren engen Plan verständlich machen, ohne ihr geheime Allwissenheit zu geben.",
+      "facts":[
+        "Sahira protokolliert Erinnerungsausfälle und arbeitet deshalb mit absoluten Richtungen und physischen Notizen.",
+        "Auch ihre eigenen Aufzeichnungen enthalten Abbrüche und Korrekturen; sie ist nicht immun.",
+        "Ihr Ziel ist ein schmaler historischer Knoten: Es soll wahr sein, dass Maruban das Auge nie aus der Fassung nahm.",
+        "Der Abstieg nach Unter Alt-Elem ist optional und kein notwendiger Teil der Lösung."
+      ],
+      "unknowns":["Ob Sahira im Finale verhandeln wird oder bereits zu weit gebunden ist.","Wie stark einzelne ihrer Notizen selbst durch das Phänomen entwertet wurden."],
+      "phases":[
+        {"title":"Arbeitsweise lesen","gm":"Der Raum soll zuerst nach Forschung aussehen: Kartenstücke, absolute Richtungen, Zeitmarken, Varianten. Das macht Sahira gefährlicher, nicht sympathisch-unschuldig.","choices":["Notizen sichern","Arbeitsmethode rekonstruieren","persönliche Kassette suchen"],"consequences":["Die Helden können Sahiras Plan im Finale mit ihren eigenen Begriffen angreifen."]},
+        {"title":"Grenze der Theorie","gm":"Lass die Notizen klar zeigen, was Sahira versucht, aber nicht garantieren, dass es funktioniert. Ihre Hypothese ist eine riskante Arbeitshypothese.","choices":["Gegenbelege sammeln","Ritualkomponenten identifizieren","Unter Alt-Elem erkunden"],"consequences":["Mehr Gegenanker und Verständnis schaffen Optionen; Unter Alt-Elem bringt Tiefe/Belohnung, nicht Pflichtschlüssel."]}
+      ],
+      "handoff":"Vor C15 sollte die Gruppe wissen: Sahira will nicht 'die Zeit beherrschen', sondern einen konkreten Entnahmevorgang aus der belastbaren Geschichte drücken.",
+      "handout":{"kind":"research","title":"Sahiras Richtungsprotokoll","idea":"Arbeitsblatt mit absoluten Richtungen, gestrichenen Erinnerungsformulierungen und einem wiederkehrenden Satz: 'Nicht erinnern – belegen.'"}
+    },
+    "C15":{
+      "title":"Was von gestern bleibt",
+      "objective":"Sahiras Umschreibungsritual stoppen oder brechen, den Nachzehrer als aktive Bedrohung behandeln und die gesammelten unabhängigen Zeitanker spielentscheidend machen.",
+      "facts":[
+        "Sahiras Ziel ist die Behauptung: Maruban hat das Auge der vergangenen Stunde nie entnommen.",
+        "Der Nachzehrer zerstört konkrete autobiographische Inhalte und schwächt damit Zeugen/Anker; er ist nicht identisch mit dem Zeichen des verlorenen Weges.",
+        "Mehrere unabhängige materielle und menschliche Anker erschweren eine widerspruchsfreie Umschreibung.",
+        "Der finale Konflikt besitzt mehrere Angriffspunkte: Sahira, Ritualaufbau, Nachzehrer und Ankerbeziehungen."
+      ],
+      "unknowns":["Welche Lösung die Gruppe priorisiert.","Ob Sahira überzeugt, bezwungen oder durch das Scheitern ihres Rituals gebrochen wird.","Wo das Auge nach dem Abenteuer tatsächlich weiterverfolgt werden muss, sofern es nicht hier gefunden wird."],
+      "phases":[
+        {"title":"1 · Der Satz, der wahr werden soll","gm":"Sahira benennt ihre These knapp und konkret. Sie argumentiert mit Widersprüchen in Erinnerungen, nicht mit kosmischer Allmacht. Gib den Helden Raum, Gegenbelege vorzulegen.","choices":["verhandeln und Gegenanker präsentieren","Ritual sofort angreifen","Sahira isolieren/ablenken"],"consequences":["Jeder glaubhaft gesicherte unabhängige Anker gibt der SL einen Grund, Sahiras Kontrolle über das Ritual sichtbar instabiler werden zu lassen."]},
+        {"title":"2 · Der Nachzehrer greift Inhalt an","gm":"Wenn der Konflikt eskaliert, soll der Nachzehrer nicht nur Lebenspunkte bedrohen. Er greift einen konkreten persönlichen Inhalt an: einen Namen, eine Verbindung, eine erlebte Szene. Die Wirkung bleibt begrenzt und benennbar.","choices":["Kreatur binden/vertreiben/bekämpfen","betroffene Person schützen","Anker statt Kreatur priorisieren"],"consequences":["Verlorene Inhalte können Zeugenaussagen schwächen, aber physische Notizen und unabhängige Gegenstände bleiben wertvoll."]},
+        {"title":"3 · Ritualbruch","gm":"Biete mehrere funktionale Ziele: Linien/Rinnen unterbrechen, Fokus/Fassung stören, Komponenten entfernen, Sahiras Konzentration brechen oder die Widersprüche durch Gegenanker unauflösbar machen.","choices":["materieller Sabotagepunkt","magische Gegenwirkung","soziale/argumentative Destabilisierung plus Anker","direkte Gewalt"],"consequences":["Kein einzelner Gegenstand ist unzerstörbare Plotpflicht. Gute Vorbereitung schafft Alternativen statt eines einzigen richtigen Klicks."]},
+        {"title":"4 · Was bleibt","gm":"Nach dem Scheitern oder Abbruch: Lass die Gruppe überprüfen, was sie noch weiß und was materiell belegt ist. Ein kleiner Verlust darf emotional spürbar bleiben, ohne Kampagnenidentität oder Spielfigur zu entkernen.","choices":["Nottel/Sahira sichern","Beweise ordnen","Linse/Fassung und Ritualreste untersuchen","Verfolgung der Zwillinge vorbereiten"],"consequences":["Die Abduljaar-Zwillinge bleiben über ihre reale Beteiligung und mögliche verlorene Erinnerung als späterer Kampagnenfaden erhalten."]}
+      ],
+      "successSignals":[
+        "Sahiras These lässt sich nicht mehr widerspruchsfrei halten.",
+        "Der Nachzehrer ist gebunden, vertrieben oder vernichtet bzw. von seinen Ankern getrennt.",
+        "Mindestens ein belastbarer Ablaufanker von Marubans Entnahme bis Nottels Untersuchung bleibt erhalten."
+      ],
+      "failurePressure":[
+        "Ein einzelner Zeuge verliert einen konkreten Erinnerungsinhalt.",
+        "Ein Zeitanker wird zerstört oder unbrauchbar.",
+        "Sahira gewinnt kurzfristig stärkere Kontrolle über eine Teilbehauptung – kein automatischer Total-Retcon der Kampagne."
+      ],
+      "handoff":"Das Abenteuer endet mit gesichertem oder zumindest verteidigtem historischen Zusammenhang. Die Zwillinge, ihre Schuld und mögliche Erinnerungslücken bleiben als späterer Heskatet-Hebel offen.",
+      "handout":{"kind":"finale","title":"Netz der Zeitanker","idea":"SL-/Spielerdiagramm mit leeren Feldern für Fassung, Marubans Spuren, Leichnam, Nottels Notizen, Sahiras Protokoll und weitere selbst geschaffene Anker; im Finale können gesicherte Verbindungen markiert werden."}
+    }
+  }
+}
