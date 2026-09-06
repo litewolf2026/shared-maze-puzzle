@@ -6,9 +6,10 @@ const ROOM_DECISION_KINDS=new Set(['room','lens','prison','goal','gate']);
 export function edgeKey(from,dir){return `${from}:${dir}`}
 function clone(value){return structuredClone(value)}
 export function nodeById(map,id){return map.nodes.find(n=>n.id===id)||null}
+export function edgeMetaFor(map,from,dir,to){return map.edgeMeta?.[edgeKey(from,dir)]||map.edgeMeta?.[`${from}:${dir}:${to}`]||{}}
 
 export function edgeCells(map,from,dir,to){
-  const meta=map.edgeMeta?.[edgeKey(from,dir)]||map.edgeMeta?.[`${from}:${dir}:${to}`];
+  const meta=edgeMetaFor(map,from,dir,to);
   if(Number.isInteger(meta?.cells)&&meta.cells>0)return meta.cells;
   if(dir==='UP'||dir==='DOWN')return 1;
   const a=nodeById(map,from),b=nodeById(map,to);if(!a||!b)return 1;
@@ -29,6 +30,22 @@ export function buildAdj(map){
   return adj;
 }
 
+function contentAssignment(state,nodeId,slotId){return state?.roomState?.[nodeId]?.content?.assignments?.find?.(a=>a.slotId===slotId)||null}
+export function edgeAccess(map,input,edge){
+  const state=input||{};if(!edge)return {visible:false,traversable:false,hidden:true,reason:'NO_EDGE'};
+  const meta=edgeMetaFor(map,edge.from,edge.dir,edge.to),access=meta.access;
+  if(!access)return {visible:meta.hidden!==true,traversable:meta.hidden!==true,hidden:meta.hidden===true,reason:meta.hidden===true?'HIDDEN_WITHOUT_ACCESS':null};
+  const assignment=contentAssignment(state,access.nodeId,access.slotId),current=assignment?.state||null,openStates=Array.isArray(access.openStates)&&access.openStates.length?access.openStates:['opened','resolved'];
+  const open=Boolean(current&&openStates.includes(current));
+  return {visible:open||meta.hidden!==true,traversable:open,hidden:meta.hidden===true,state:current,requirement:access,reason:open?null:'LOCKED_CONTENT_STATE'};
+}
+export function edgeIsTraversable(map,state,edge){return edgeAccess(map,state,edge).traversable}
+export function visibleAdj(map,input,{traversableOnly=false}={}){
+  const state=input||{},full=buildAdj(map),out=new Map(map.nodes.map(n=>[n.id,{}]));
+  for(const [id,edges] of full)for(const [dir,edge] of Object.entries(edges)){const access=edgeAccess(map,state,edge);if((traversableOnly&&access.traversable)||(!traversableOnly&&access.visible))out.get(id)[dir]=edge}
+  return out;
+}
+
 function solutionSourceNodes(map){
   if(SOLUTION_SOURCES.has(map))return SOLUTION_SOURCES.get(map);
   const set=new Set(),adj=buildAdj(map);let node=map.start;
@@ -36,12 +53,13 @@ function solutionSourceNodes(map){
   SOLUTION_SOURCES.set(map,set);return set;
 }
 
-export function isDecisionNode(map,nodeId){
+export function isDecisionNode(map,nodeId,input=null){
   const node=nodeById(map,nodeId);if(!node)return false;
   if(typeof node.decision==='boolean')return node.decision;
   if(solutionSourceNodes(map).has(nodeId))return true;
   if(ROOM_DECISION_KINDS.has(node.kind))return true;
-  return Object.keys(buildAdj(map).get(nodeId)||{}).length>=3;
+  const edges=input?visibleAdj(map,input,{traversableOnly:true}):buildAdj(map);
+  return Object.keys(edges.get(nodeId)||{}).length>=3;
 }
 
 export function initialSharedState(map){return {node:map.start,bandStep:0,step:0,decisionHistory:[],pathHistory:[],history:[],transit:null,visited:[map.start],discovered:[],roomState:{},partyFacing:HORIZONTAL_DIRS.includes(map.solution?.[0])?map.solution[0]:'N',updated_at:null}}
@@ -68,7 +86,7 @@ function completeForwardTransit(state){const t=state.transit;state.node=t.to;sta
 function completeRewindTransit(state){const t=state.transit,lastPath=state.pathHistory.at(-1);if(lastPath&&lastPath.from===t.to&&lastPath.to===t.from&&OPP[lastPath.dir]===t.dir)state.pathHistory.pop();const lastDecision=state.decisionHistory.at(-1);if(lastDecision&&lastDecision.from===t.to&&lastDecision.to===t.from&&OPP[lastDecision.dir]===t.dir){state.decisionHistory.pop();state.bandStep=Math.max(0,state.bandStep-1)}state.node=t.to;state.transit=null}
 function cancelForwardTransit(state){const t=state.transit;if(t?.decisionAdded){const last=state.decisionHistory.at(-1);if(matchesDecision(last,t.from,t.dir,t.to)){state.decisionHistory.pop();state.bandStep=Math.max(0,state.bandStep-1)}}state.transit=null}
 
-export function availableDirections(map,input){const state=normalizeSharedState(input,map);if(state.transit)return [state.transit.dir,OPP[state.transit.dir]].filter(Boolean);return Object.keys(buildAdj(map).get(state.node)||{})}
+export function availableDirections(map,input){const state=normalizeSharedState(input,map);if(state.transit)return [state.transit.dir,OPP[state.transit.dir]].filter(Boolean);return Object.keys(visibleAdj(map,state,{traversableOnly:true}).get(state.node)||{})}
 export function advanceTransit(map,input,dir){
   const state=normalizeSharedState(input,map),t=state.transit;if(!t)return {ok:false,state,error:'NOT_IN_TRANSIT'};const reverse=OPP[t.dir];if(dir!==t.dir&&dir!==reverse)return {ok:false,state,error:'TRANSIT_DIRECTION_BLOCKED'};
   if(dir===t.dir){t.progress+=1;markFacing(state,dir);if(t.progress>=t.cells){if(t.rewind)completeRewindTransit(state);else completeForwardTransit(state)}return {ok:true,state:finalizeState(state),event:'TRANSIT_STEP'}}
@@ -77,12 +95,13 @@ export function advanceTransit(map,input,dir){
 
 export function beginMove(map,input,dir){
   let state=normalizeSharedState(input,map);if(state.transit)return advanceTransit(map,state,dir);const edge=buildAdj(map).get(state.node)?.[dir];if(!edge)return {ok:false,state,error:'NO_EXIT'};
+  if(!edgeIsTraversable(map,state,edge))return {ok:false,state,error:'LOCKED_EXIT'};
   const lastPath=state.pathHistory.at(-1),rewinding=Boolean(lastPath&&lastPath.to===state.node&&lastPath.from===edge.to&&OPP[lastPath.dir]===dir);let decisionAdded=false;
-  if(!rewinding&&isDecisionNode(map,state.node)&&state.bandStep<map.solution.length){
+  if(!rewinding&&isDecisionNode(map,state.node,state)&&state.bandStep<map.solution.length){
     state.decisionHistory.push({from:edge.from,dir:edge.dir,to:edge.to,stepBefore:state.bandStep});state.bandStep+=1;decisionAdded=true;
   }
   state.transit={from:edge.from,to:edge.to,dir:edge.dir,cells:edge.cells,progress:0,rewind:rewinding,decisionAdded};state=advanceTransit(map,state,dir).state;
-  return {ok:true,state,event:rewinding?'REWIND_STARTED':decisionAdded?'DECISION_TAKEN':state.bandStep>=map.solution.length&&isDecisionNode(map,edge.from)?'POST_BAND_DECISION':'TRANSIT_STARTED'};
+  return {ok:true,state,event:rewinding?'REWIND_STARTED':decisionAdded?'DECISION_TAKEN':state.bandStep>=map.solution.length&&isDecisionNode(map,edge.from,state)?'POST_BAND_DECISION':'TRANSIT_STARTED'};
 }
 
 export function gmUndoDecision(map,input){
