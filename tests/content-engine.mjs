@@ -14,14 +14,19 @@ const slots=read('../data/content/selem-slots.json');
 const derivedByNode=Object.fromEntries(enrichMapContent(map).map(x=>[x.id,x]));
 
 for(const nodeId of Object.keys(slots.rooms))assert.ok(map.nodes.some(n=>n.id===nodeId),`Unknown slotted node ${nodeId}`);
-for(const [poolId,pool] of Object.entries(pools.pools))for(const id of pool.entries)assert.ok(catalog.items[id],`Pool ${poolId} references unknown ${id}`);
+for(const [poolId,pool] of Object.entries(pools.pools))for(const id of pool.entries){
+  assert.ok(catalog.items[id],`Pool ${poolId} references unknown ${id}`);
+  assert.equal(catalog.items[id].scope,undefined,`Reusable pool ${poolId} contains scenario-scoped item ${id}`);
+}
 for(const rule of slots.rules||[])for(const profileId of rule.profiles||[rule.profile])assert.ok(profiles.profiles[profileId],`Unknown rule profile ${profileId}`);
-for(const [profileId,profile] of Object.entries(profiles.profiles))for(const slot of profile.slots){assert.ok(slot.fixed?catalog.items[slot.fixed]:pools.pools[slot.pool],`Profile ${profileId}/${slot.id} references missing content source`)}
+for(const [profileId,profile] of Object.entries(profiles.profiles))for(const slot of profile.slots)assert.ok(slot.fixed?catalog.items[slot.fixed]:pools.pools[slot.pool],`Profile ${profileId}/${slot.id} references missing content source`);
 for(const [nodeId,room] of Object.entries(slots.rooms))for(const slot of room.slots){if(slot.fixed)assert.ok(catalog.items[slot.fixed],`${nodeId}/${slot.id} fixed item missing`);else assert.ok(pools.pools[slot.pool],`${nodeId}/${slot.id} pool missing`)}
+for(const item of Object.values(catalog.items).filter(x=>x.scope))assert.equal(item.scope,slots.scenario,`Unexpected scoped catalog item ${item.id}: ${item.scope}`);
 
 const expandedSlots=expandSlotConfig({map,slotConfig:slots,profiles,derivedByNode});
 assert.ok(expandedSlots.rooms.D06?.slots.some(x=>x.id==='hazard-wet'),'Water profile should create wet hazard slot in D06.');
 assert.ok(expandedSlots.rooms.D06?.slots.some(x=>x.id==='loot-deep'),'Deep profile should create deep loot slot in D06.');
+assert.ok(expandedSlots.rooms.A08?.slots.some(x=>x.id==='loot-grave'),'Original-map grave room should receive the reusable grave profile.');
 assert.ok(expandedSlots.rooms.C17?.slots.some(x=>x.id==='encounter-memory'&&x.fixed==='encounter_lost_waiter'),'Authored room slot must override profile slot by id.');
 
 const seed=slots.generation.seed;
@@ -31,14 +36,26 @@ assert.deepEqual(planA,planB,'Same seed must produce the same complete content p
 
 const allAssignments=Object.values(planA.rooms).flatMap(r=>r.assignments);
 const ids=allAssignments.map(x=>x.contentId);
+assert.ok(Object.keys(planA.rooms).length>=25,`Expected broad optional content coverage, got only ${Object.keys(planA.rooms).length} rooms.`);
+assert.ok(allAssignments.length>=35,`Expected a useful content population, got only ${allAssignments.length} assignments.`);
+for(const type of ['loot','hazard','encounter','discovery','secret','secret_connection','event'])assert.ok(allAssignments.some(x=>x.type===type),`Generated plan lacks content type ${type}.`);
+
 assert.equal(ids.filter(id=>id==='loot_old_elem_component').length,1,'Unique Alt-Elem component must exist exactly once.');
 assert.equal(planA.rooms.D08.assignments.find(x=>x.slotId==='loot-deep').contentId,'loot_old_elem_component');
 assert.equal(planA.rooms.C17.assignments.find(x=>x.slotId==='encounter-memory').contentId,'encounter_lost_waiter');
 assert.equal(planA.rooms.C21.assignments.find(x=>x.slotId==='discovery-memory').contentId,'discovery_three_maps');
 
-// Generic generation rules must never populate the protected black-band route.
+const storyIds=[
+  'selem_green_lens_clue','selem_submerged_ledger','selem_sacrifice_layer','selem_shrine_reuse','selem_pump_sequence','selem_whisper_memory','selem_band_experiments','selem_nottel_cell_marks','selem_cult_roster','selem_black_gate_residue','selem_pale_threshold_echo','selem_sahira_notes','selem_sahira_personal_cache','selem_cult_ritual_traces','selem_blind_lens_memory'
+];
+for(const id of storyIds)assert.equal(ids.filter(x=>x===id).length,1,`Authored story content ${id} must occur exactly once.`);
+
+// The black-band route may contain deliberate fixed story beats, but never pool/profile randomness.
 const solutionNodes=solutionNodeSet(map);
-for(const nodeId of Object.keys(planA.rooms))assert.equal(solutionNodes.has(nodeId),false,`Random/profile content leaked onto protected solution node ${nodeId}`);
+for(const [nodeId,room] of Object.entries(planA.rooms))if(solutionNodes.has(nodeId))for(const assignment of room.assignments){
+  assert.equal(assignment.source,'fixed',`Random/profile content leaked onto protected solution node ${nodeId}: ${assignment.contentId}`);
+  assert.equal(catalog.items[assignment.contentId]?.scope,slots.scenario,`Non-scenario fixed content placed on protected route at ${nodeId}`);
+}
 
 const waterNode=map.nodes.find(n=>n.id==='D06');
 const waterCtx={nodeId:'D06',kind:waterNode.kind,level:waterNode.z,tags:waterNode.tags,dangerTier:4,distanceFromSolution:4};
@@ -60,4 +77,4 @@ const syntheticSlots={rules:[{when:{tagsAny:['test']},profile:'test'}]};
 const signatures=new Set();for(let i=0;i<12;i++){const p=generateContentPlan({map:syntheticMap,slotConfig:syntheticSlots,catalog:syntheticCatalog,pools:syntheticPools,profiles:syntheticProfiles,seed:`seed-${i}`});signatures.add(JSON.stringify(p.rooms))}
 assert.ok(signatures.size>1,'Different seeds must be able to produce different plans.');
 
-console.log(`content-engine: OK (${allAssignments.length} Selem assignments across ${Object.keys(planA.rooms).length} optional rooms)`);
+console.log(`content-engine: OK (${allAssignments.length} assignments across ${Object.keys(planA.rooms).length} rooms; ${storyIds.length} authored story beats)`);
