@@ -8,6 +8,7 @@ const DIR_LABEL={N:'N',NE:'NO',E:'O',SE:'SO',S:'S',SW:'SW',W:'W',NW:'NW',UP:'AUF
 const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
 const NS='http://www.w3.org/2000/svg';
 let map,cipher,scenario,state,featureCatalog={},contentPlan=null,supabase=null,channel=null,roomCode='',accessToken='',playerToken='',channelSecret='',version=0,isGm=false,gmPanelOpen=false,activeLevel=0;
+let mutationQueue=Promise.resolve(),mutationActive=false,deferredIncoming=null;
 
 async function loadJSON(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(path);return r.json()}
 function credentialsFromHash(){const p=new URLSearchParams(location.hash.replace(/^#/,''));return {room:(p.get('room')||'').toUpperCase(),token:p.get('token')||'',play:p.get('play')||''}}
@@ -15,6 +16,19 @@ function inviteUrl(token){const base=`${location.origin}${location.pathname}`;re
 async function copyText(text,label){try{await navigator.clipboard.writeText(text);message(`${label} kopiert.`)}catch{prompt(label,text)}}
 function labelFor(n,gm=false){return gm&&isGm&&n?.gmName?n.gmName:n?.name||n?.id||''}
 function message(t){const el=$('#message');if(!el)return;el.textContent=t;clearTimeout(message.t);message.t=setTimeout(()=>el.textContent='',6500)}
+function applyIncoming(incoming){if(Number(incoming?.version)<=version)return;version=Number(incoming.version);state=normalizeSharedState(incoming.state,map);render();message('Die Gruppe wurde auf einem anderen Gerät bewegt.')}
+function enqueueMutation(work){
+  const run=mutationQueue.then(async()=>{
+    mutationActive=true;
+    try{return await work()}
+    finally{
+      mutationActive=false;
+      if(deferredIncoming){const incoming=deferredIncoming;deferredIncoming=null;applyIncoming(incoming)}
+    }
+  });
+  mutationQueue=run.catch(e=>{console.error(e);message(`Aktion fehlgeschlagen: ${e.message||e}`)});
+  return run;
+}
 
 function validateMap(){
   if((map.gridSizeMeters||3)!==3)throw new Error('Diese Version erwartet ein 3-m-Raster.');
@@ -72,7 +86,14 @@ function renderMap(){
 function announce(){window.MAZE_APP={map,state:structuredClone(state),isGm,contentSeed:contentPlan?.seed||null};window.dispatchEvent(new CustomEvent('maze-state',{detail:{map,state:structuredClone(state),isGm}}))}
 function render(){state=normalizeSharedState(state,map);$$('.symbol').forEach((x,i)=>{x.classList.toggle('used',i<state.bandStep);x.classList.toggle('current',i===state.bandStep&&state.bandStep<map.solution.length)});const n=currentDisplayNode();if(n&&activeLevel!==n.z)activeLevel=n.z;renderLocation();renderDirections();renderHistory();renderMap();announce()}
 function materializeCurrentContent(next){if(!contentPlan||next.transit||!next.node)return next;return materializeRoomState(next,contentPlan,next.node).state}
-async function commit(next,gmOnly=false,success=''){const previous=structuredClone(state);state=normalizeSharedState(materializeCurrentContent(next),map);render();if(await syncState(gmOnly)){if(success)message(success);return true}state=previous;render();return false}
+async function commit(next,gmOnly=false,success=''){
+  const previous=structuredClone(state);
+  state=normalizeSharedState(materializeCurrentContent(next),map);render();
+  const sync=await syncState(gmOnly);
+  if(sync.ok){if(success)message(success);return true}
+  if(sync.refreshed)return false;
+  state=previous;render();return false;
+}
 
 async function move(dir){const result=beginMove(map,state,dir);if(!result.ok){message(result.error==='NO_EXIT'||result.error==='LOCKED_EXIT'?'Dort ist kein begehbarer Weg.':'Diese Bewegung ist hier nicht möglich.');return}const before=state.bandStep,after=result.state.bandStep,text=result.state.node===map.goal&&!result.state.transit?'Ihr habt die geheime Kultstätte erreicht.':after>before?'Ihr wählt diesen Ausgang. Das nächste Bandzeichen wird aktiv.':'Ihr bewegt euch weiter durch den Gang.';await commit(result.state,false,text)}
 async function finishTransit(){
@@ -103,16 +124,30 @@ async function contentAction(detail){
 }
 async function reset(){if(!isGm){message('Nur die Spielleitung kann zurücksetzen.');return}if(!confirm('Rätsel wirklich vollständig zurücksetzen?'))return;await commit(initialSharedState(map),true,'Der gemeinsame Spielstand wurde zurückgesetzt.')}
 function setupControls(){
-  $$('.dir,.vertical button[data-d]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.d)));
-  $('#continueTransit').addEventListener('click',finishTransit);$('#backtrack').addEventListener('click',backtrack);$('#undo').addEventListener('click',undo);$('#reset').addEventListener('click',reset);
-  window.addEventListener('maze-discover',e=>discover(e.detail));window.addEventListener('maze-content-action',e=>contentAction(e.detail));
+  $$('.dir,.vertical button[data-d]').forEach(b=>b.addEventListener('click',()=>enqueueMutation(()=>move(b.dataset.d))));
+  $('#continueTransit').addEventListener('click',()=>enqueueMutation(finishTransit));$('#backtrack').addEventListener('click',()=>enqueueMutation(backtrack));$('#undo').addEventListener('click',()=>enqueueMutation(undo));$('#reset').addEventListener('click',()=>enqueueMutation(reset));
+  window.addEventListener('maze-discover',e=>enqueueMutation(()=>discover(e.detail)));window.addEventListener('maze-content-action',e=>enqueueMutation(()=>contentAction(e.detail)));
   $('#gmToggle').addEventListener('click',()=>{if(!isGm)return;gmPanelOpen=!gmPanelOpen;$('.gm-panel').classList.toggle('on',gmPanelOpen);$('#gmToggle').textContent=gmPanelOpen?'SL schließen':'SL'});
   $('#reveal').addEventListener('click',()=>{if(!isGm)return;document.body.classList.toggle('reveal-all');renderMap()});$('#copyPlayer').addEventListener('click',()=>playerToken?copyText(inviteUrl(playerToken),'Spielerlink'):message('Dieser SL-Link enthält keinen Spieler-Token.'));$('#copyCurrent').addEventListener('click',()=>copyText(location.href,'Aktueller Link'));$('#zoomIn').onclick=$('#zoomOut').onclick=$('#zoomReset').onclick=()=>message('Die V2-Automap passt sich automatisch an die aktuelle Ebene an.');
 }
 
 async function fetchRemoteState(){const {data,error}=await supabase.rpc('get_maze_room',{p_room_code:roomCode,p_token:accessToken});if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row)throw new Error('Raum oder Zugangslink ungültig.');state=normalizeSharedState(row.state,map);version=Number(row.version);channelSecret=row.channel_secret;isGm=Boolean(row.is_gm);render();return row}
-async function setupRealtime(){const cfg=window.MAZE_CONFIG||{},cred=credentialsFromHash();roomCode=cred.room;accessToken=cred.token;playerToken=cred.play;if(!cfg.supabaseUrl||!cfg.supabaseKey||!roomCode||!accessToken){$('#syncState').textContent='lokal';message('Lokaler Probelauf.');return}try{const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');supabase=createClient(cfg.supabaseUrl,cfg.supabaseKey);await fetchRemoteState();if(channel)await supabase.removeChannel(channel);channel=supabase.channel(`maze:${roomCode}:${channelSecret}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:'state'},p=>{const incoming=p?.payload||{};if(Number(incoming.version)<=version)return;version=Number(incoming.version);state=normalizeSharedState(incoming.state,map);render();message('Die Gruppe wurde auf einem anderen Gerät bewegt.')}).subscribe(s=>{$('#syncState').textContent=s==='SUBSCRIBED'?'live':s==='CHANNEL_ERROR'?'offline':'verbinden…'})}catch(e){console.error(e);$('#syncState').textContent='offline';message(e.message||'Live-Sync nicht erreichbar.')}}
-async function syncState(gmOnly=false){if(!supabase)return true;try{const fn=gmOnly?'gm_update_maze_room':'update_maze_room',args=gmOnly?{p_room_code:roomCode,p_gm_token:accessToken,p_expected_version:version,p_state:state}:{p_room_code:roomCode,p_token:accessToken,p_expected_version:version,p_state:state};const {data,error}=await supabase.rpc(fn,args);if(error)throw error;const row=Array.isArray(data)?data[0]:data;version=Number(row.version);state=normalizeSharedState(row.state,map);render();return true}catch(e){console.error(e);if(String(e.message).includes('STALE_VERSION')){message('Jemand war schneller – aktueller Gruppenstand wird geladen.');try{await fetchRemoteState()}catch{}}else message(`Synchronisation fehlgeschlagen: ${e.message||e}`);return false}}
+async function setupRealtime(){const cfg=window.MAZE_CONFIG||{},cred=credentialsFromHash();roomCode=cred.room;accessToken=cred.token;playerToken=cred.play;if(!cfg.supabaseUrl||!cfg.supabaseKey||!roomCode||!accessToken){$('#syncState').textContent='lokal';message('Lokaler Probelauf.');return}try{const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');supabase=createClient(cfg.supabaseUrl,cfg.supabaseKey);await fetchRemoteState();if(channel)await supabase.removeChannel(channel);channel=supabase.channel(`maze:${roomCode}:${channelSecret}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:'state'},p=>{const incoming=p?.payload||{};if(Number(incoming.version)<=version)return;if(mutationActive){if(!deferredIncoming||Number(incoming.version)>Number(deferredIncoming.version))deferredIncoming=incoming;return}applyIncoming(incoming)}).subscribe(s=>{$('#syncState').textContent=s==='SUBSCRIBED'?'live':s==='CHANNEL_ERROR'?'offline':'verbinden…'})}catch(e){console.error(e);$('#syncState').textContent='offline';message(e.message||'Live-Sync nicht erreichbar.')}}
+async function syncState(gmOnly=false){
+  if(!supabase)return {ok:true,refreshed:false};
+  try{
+    const fn=gmOnly?'gm_update_maze_room':'update_maze_room',args=gmOnly?{p_room_code:roomCode,p_gm_token:accessToken,p_expected_version:version,p_state:state}:{p_room_code:roomCode,p_token:accessToken,p_expected_version:version,p_state:state};
+    const {data,error}=await supabase.rpc(fn,args);if(error)throw error;const row=Array.isArray(data)?data[0]:data;version=Number(row.version);state=normalizeSharedState(row.state,map);render();return {ok:true,refreshed:false};
+  }catch(e){
+    console.error(e);
+    if(String(e.message).includes('STALE_VERSION')){
+      message('Jemand war schneller – aktueller Gruppenstand wird geladen.');
+      try{await fetchRemoteState();return {ok:false,refreshed:true}}
+      catch{}
+    }else message(`Synchronisation fehlgeschlagen: ${e.message||e}`);
+    return {ok:false,refreshed:false};
+  }
+}
 
 async function init(){
   const [ms,cs,ss,exp,secrets,features,catalog,pools,profiles,slots]=await Promise.all([loadJSON('./data/maps.json'),loadJSON('./data/ciphers.json'),loadJSON('./data/scenarios.json'),loadJSON('./data/selem-expansion.json'),loadJSON('./data/selem-secrets.json'),loadJSON('./data/room-features.json'),loadJSON('./data/content/catalog.json'),loadJSON('./data/content/pools.json'),loadJSON('./data/content/profiles.json'),loadJSON('./data/content/selem-slots.json')]);
