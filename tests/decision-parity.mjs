@@ -24,6 +24,9 @@ for(const node of map.nodes){
   assert.equal(clientDecision,serverDecision,`Decision-node drift at ${node.id}`);
   if(clientDecision)decisions++;
 }
+assert.equal(isDecisionNode(map,'A02'),true,'Second Black Band node must remain a real decision.');
+assert.deepEqual(new Set(Object.keys(adj.get('A02')||{})),new Set(['W','E','N']),'A02 must offer west, east and the collapsed north branch.');
+assert.deepEqual(new Set(Object.keys(adj.get('A32')||{})),new Set(['S']),'Collapsed A02 north branch must be a true dead end with return only.');
 assert.equal(isDecisionNode(map,'A03'),true);
 assert.equal(isDecisionNode(map,'A06'),false,'Mandatory lens scene must not consume a second band symbol.');
 assert.equal(isDecisionNode(map,'C10'),false,'Mandatory Nottel scene must not consume a second band symbol.');
@@ -35,4 +38,4 @@ assert.equal(isDecisionNode(map,'A31'),false,'Secret dead-end room must not crea
 assert.equal(isDecisionNode(map,'B35'),false,'Secret maintenance room must not create another band decision on return.');
 assert.equal(isDecisionNode(map,'D13'),true,'D13 remains an authored room decision; band is exhausted before it is reachable.');
 assert.deepEqual(map.bandDecisionNodes.map(id=>isDecisionNode(map,id)),Array(25).fill(true),'All explicit black-band source nodes must remain decisions.');
-console.log(`decision-parity: OK (${decisions} decision nodes / ${map.nodes.length} locations; A06 and C10 are authored transit rooms)`);
+console.log(`decision-parity: OK (${decisions} decision nodes / ${map.nodes.length} locations; A02 restored as crossroads; A06 and C10 are authored transit rooms)`);
