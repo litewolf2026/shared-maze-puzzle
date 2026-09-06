@@ -4,7 +4,7 @@ import {reusableDefinition} from './reusable-content-pack.js';
 import {playerInvestigationMode,formatCheck} from './dsa41-exploration.js';
 let map=null,shared=null,crawler=null,featureCatalog={},contentCatalog={},explorationRules=null;
 let viewFacing=localStorage.getItem('maze-view-facing')||'N';
-const EXPLORE_KINDS=new Set(['room','lens','prison','goal']);
+const EXPLORE_KINDS=new Set(['room','lens','prison','goal','deadend']);
 const VECTORS={N:[0,-1],NE:[1,-1],E:[1,0],SE:[1,1],S:[0,1],SW:[-1,1],W:[-1,0],NW:[-1,-1]};
 const DIRS={N:{label:'N',opp:'S'},NE:{label:'NO',opp:'SW'},E:{label:'O',opp:'W'},SE:{label:'SO',opp:'NW'},S:{label:'S',opp:'N'},SW:{label:'SW',opp:'NE'},W:{label:'W',opp:'E'},NW:{label:'NW',opp:'SE'},UP:{label:'AUF',opp:'DOWN'},DOWN:{label:'AB',opp:'UP'}};
 Promise.all([
@@ -15,7 +15,7 @@ Promise.all([
 
 function localMessage(text){const el=document.querySelector('#message');if(!el)return;el.textContent=text;clearTimeout(localMessage.t);localMessage.t=setTimeout(()=>{if(el.textContent===text)el.textContent=''},7500)}
 function currentNode(){if(!map||!shared)return null;const id=shared.transit?.from||shared.node;return map.nodes.find(n=>n.id===id)||null}
-function roomGrid(node){if(!node||!EXPLORE_KINDS.has(node.kind))return null;if(node.exploreGrid?.w&&node.exploreGrid?.h)return node.exploreGrid;if(node.kind==='goal')return {w:7,h:7};if(node.kind==='prison')return {w:4,h:4};return {w:5,h:5}}
+function roomGrid(node){if(!node)return null;if(node.exploreGrid?.w&&node.exploreGrid?.h)return node.exploreGrid;if(!EXPLORE_KINDS.has(node.kind))return null;if(node.kind==='goal')return {w:7,h:7};if(node.kind==='prison')return {w:4,h:4};return {w:5,h:5}}
 function heroKey(node){return `maze-hero:${node.id}`}
 function loadHero(node){const grid=roomGrid(node);if(!grid)return null;try{const parsed=JSON.parse(localStorage.getItem(heroKey(node))||'null');if(Number.isInteger(parsed?.x)&&Number.isInteger(parsed?.y))return {x:Math.max(0,Math.min(grid.w-1,parsed.x)),y:Math.max(0,Math.min(grid.h-1,parsed.y))}}catch{}return {x:Math.floor(grid.w/2),y:Math.floor(grid.h/2)}}
 function saveHero(node,pos){localStorage.setItem(heroKey(node),JSON.stringify(pos))}
@@ -27,7 +27,7 @@ function near(pos,target){return Number.isInteger(target?.x)&&Number.isInteger(t
 function nearbyFeatures(node,pos){return (featureCatalog[node.id]||[]).filter(f=>near(pos,f))}
 function visibleStaticFeatures(node,pos){const discovered=new Set(shared?.discovered||[]);return [...new Map([...nearbyFeatures(node,pos),...(featureCatalog[node.id]||[]).filter(f=>discovered.has(featureKey(node.id,f.id)))].map(f=>[f.id,f])).values()]}
 function roomAssignments(node){return shared?.roomState?.[node.id]?.content?.assignments||[]}
-function visibleContent(node,pos){return roomAssignments(node).filter(a=>contentVisibleToPlayer(a)&&a.anchor&&near(pos,a.anchor))}
+function visibleContent(node,pos){return roomAssignments(node).filter(a=>contentVisibleToPlayer(a,shared,node.id)&&a.anchor&&near(pos,a.anchor))}
 function crawlerMarkers(node,pos){return [...visibleStaticFeatures(node,pos),...visibleContent(node,pos).map(a=>({id:`content:${a.slotId}`,x:a.anchor.x,y:a.anchor.y,label:a.label}))]}
 function definitionFor(a){return contentCatalog[a.contentId]||reusableDefinition(a.contentId)||{description:a.description||'',mechanics:a.mechanics||null,placement:{features:a.placement||[]}}}
 
