@@ -66,6 +66,8 @@ jobs:
         run: node tests/solution-pair-safety.mjs
       - name: Validate wrong-turn behavior
         run: node tests/deviations.mjs
+      - name: Run full Selem playability dry run
+        run: node tests/playability-dry-run.mjs
       - name: Validate crawler facing and sightline semantics
         run: node tests/crawler-view.mjs
       - name: Validate final crawler environment renderer
