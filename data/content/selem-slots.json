@@ -1,5 +1,5 @@
 {
-  "version":5,
+  "version":6,
   "scenario":"selem-01",
   "generation":{"mode":"seeded","seed":"selem-01-authored-v2","maxProfileAssignmentsPerRoom":4,"useReusableCore":true},
   "rules":[
@@ -62,6 +62,7 @@
     "D10":{"maxProfileAssignmentsPerRoom":0,"slots":[{"id":"encounter-lost-day","type":"encounter","fixed":"encounter_exhausted_explorer","placement":["camp","room"]}]},
     "D11":{"maxProfileAssignmentsPerRoom":1,"slots":[{"id":"hazard-demonic-mark","type":"hazard","fixed":"hazard_demonic_mark","placement":["wall","threshold"],"hidden":true}]},
     "D12":{"maxProfileAssignmentsPerRoom":0,"slots":[{"id":"story-blind-lens","type":"discovery","fixed":"selem_blind_lens_memory","placement":["lens"]},{"id":"secret-connection-authored","type":"secret_connection","pool":"old_elem_secret_connections","placement":["secret_connection_slot"],"hidden":true}]},
-    "D13":{"maxProfileAssignmentsPerRoom":0,"slots":[{"id":"discovery-recent-use","type":"discovery","fixed":"discovery_recent_tool_marks","placement":["machine","machinery","wall"]},{"id":"loot-old-keyring","type":"loot","fixed":"loot_old_keyring","placement":["shelf","workbench"],"hidden":true}]}
+    "D13":{"maxProfileAssignmentsPerRoom":0,"slots":[{"id":"discovery-recent-use","type":"discovery","fixed":"discovery_recent_tool_marks","placement":["machine","machinery","wall"]},{"id":"loot-old-keyring","type":"loot","fixed":"loot_old_keyring","placement":["shelf","workbench"],"hidden":true}]},
+    "D14":{"maxProfileAssignmentsPerRoom":1,"slots":[{"id":"encounter-drowned-cavern","type":"encounter","pool":"water_encounters","placement":["water","ledge","room"]}]}
   }
 }
