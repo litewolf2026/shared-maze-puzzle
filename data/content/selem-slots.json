@@ -1,7 +1,7 @@
 {
   "version":2,
   "scenario":"selem-01",
-  "generation":{"mode":"seeded","seed":"selem-01-authored-v2"},
+  "generation":{"mode":"seeded","seed":"selem-01-authored-v2","maxProfileAssignmentsPerRoom":4},
   "rules":[
     {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["pilgrim"]},"profile":"pilgrim_optional_room"},
     {"when":{"minDistance":1,"kinds":["room","deadend","lens","prison"],"tagsAny":["cult"]},"profile":"cult_optional_room"},
