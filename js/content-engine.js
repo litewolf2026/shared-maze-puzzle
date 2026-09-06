@@ -78,8 +78,22 @@ function materialize(item,slot,node,source){
   };
 }
 
+function reserveAuthoredUniques(slotConfig,catalog){
+  const reserved=new Set(),seen=new Map();
+  for(const [nodeId,room] of Object.entries(slotConfig.rooms||{})){
+    for(const slot of arr(room.slots)){
+      if(!slot.fixed)continue;
+      const item=catalog.items?.[slot.fixed];if(!item)throw new Error(`Unknown fixed content ${slot.fixed}`);
+      if(!(item.unique||item.rarity==='unique'))continue;
+      if(seen.has(item.id))throw new Error(`Unique fixed content ${item.id} assigned twice: ${seen.get(item.id)} and ${nodeId}/${slot.id}`);
+      seen.set(item.id,`${nodeId}/${slot.id}`);reserved.add(item.id);
+    }
+  }
+  return reserved;
+}
+
 export function generateContentPlan({map,slotConfig,catalog,pools,derivedByNode={},seed='default'}){
-  const rooms={},claimedUnique=new Set(),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id));
+  const rooms={},claimedUnique=reserveAuthoredUniques(slotConfig,catalog),nodes=[...map.nodes].sort((a,b)=>a.id.localeCompare(b.id));
   for(const node of nodes){
     const config=slotConfig.rooms?.[node.id];if(!config)continue;
     const context=contentContext(map,node,derivedByNode[node.id]||{}),assignments=[];
