@@ -80,11 +80,17 @@ const storyIds=[
 ];
 for(const id of storyIds)assert.equal(ids.filter(x=>x===id).length,1,`Authored story content ${id} must occur exactly once.`);
 
-// The canonical route may contain deliberate fixed story beats and actors, but never pool/profile randomness.
+// The canonical route may contain deliberate fixed assignments, but never pool/profile randomness.
+// A reusable definition may be placed there only when the scenario explicitly authors that exact
+// fixed item in that exact room (e.g. B10 uses the generic tripwire-alarm mechanic as its watch line).
 const solutionNodes=solutionNodeSet(map);
 for(const [nodeId,room] of Object.entries(planA.rooms))if(solutionNodes.has(nodeId))for(const assignment of room.assignments){
   assert.equal(assignment.source,'fixed',`Random/profile content leaked onto protected solution node ${nodeId}: ${assignment.contentId}`);
-  assert.equal(catalog.items[assignment.contentId]?.scope,slots.scenario,`Non-scenario fixed content placed on protected route at ${nodeId}`);
+  const definition=catalog.items[assignment.contentId];
+  if(definition?.scope===slots.scenario)continue;
+  const authoredSlot=slots.rooms?.[nodeId]?.slots?.find(slot=>slot.id===assignment.slotId&&slot.fixed===assignment.contentId);
+  assert.ok(authoredSlot,`Reusable fixed content on protected route must be explicitly authored at ${nodeId}/${assignment.slotId}: ${assignment.contentId}`);
+  assert.ok(REUSABLE_CONTENT_PACK.items[assignment.contentId]||baseCatalog.items[assignment.contentId],`Protected-route reusable fixed content has no reusable/base definition: ${assignment.contentId}`);
 }
 
 const waterNode=map.nodes.find(n=>n.id==='D06');
